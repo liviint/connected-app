@@ -4,7 +4,8 @@ export const safeLocalStorage = {
 getItem: async (key) => {
     try {
         const value = await AsyncStorage.getItem(key);
-        return value ? JSON.parse(value) : null;
+        console.log(value,"hello value get")
+        return value ? JSON.parse(value) :  null;
     } catch (error) {
         console.error('Error getting item:', error);
         return null;
@@ -14,6 +15,7 @@ getItem: async (key) => {
 setItem: async (key, value) => {
     try {
         await AsyncStorage.setItem(key, JSON.stringify(value));
+        console.log(key,value,"setting user store")
     } catch (error) {
         console.error('Error setting item:', error);
     }

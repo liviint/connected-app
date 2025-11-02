@@ -38,6 +38,7 @@ export default function Header() {
             <NavLink label="Blog" path="/(tabs)/blog" isActive={isActive("/(tabs)/blog")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/blog"); }} />
             <NavLink label="Feedback" path="/(tabs)/feedback" isActive={isActive("/(tabs)/feedback")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/feedback"); }} />
             <NavLink label="Profile" path="/(tabs)/profile" isActive={isActive("/(tabs)/profile")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/profile"); }} />
+            <NavLink label="Profile" path="/profile" isActive={isActive("/profile")} onPress={() => { setMenuOpen(false); router.push("/profile"); }} />
           </View>
         </View>
       )}
