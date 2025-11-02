@@ -1,16 +1,23 @@
 {
   "expo": {
-    "name": "connected-app",
-    "slug": "connected-app",
+    "scheme": "zeniahub",
+    "name": "ZeniaHub",
+    "slug": "zeniahub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "connectedapp",
+
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.connected.app",
+      "associatedDomains": [
+        "applinks:zeniahub.com"
+      ]
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -19,12 +26,33 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "zeniahub.com",
+              "pathPrefix": "/verify"
+            },
+            {
+              "scheme": "connectedapp"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
+
+      "package": "com.connected.app"
     },
+
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       "expo-router",
       [
@@ -40,16 +68,20 @@
         }
       ]
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
+
     "extra": {
       "router": {},
       "eas": {
         "projectId": "99cb015e-1f3d-446a-9334-ebf1c5b239cc"
-      }
+      },
+      "apiUrl": "https://api.zeniahub.com/api"
     },
+
     "owner": "kevinmosigisi"
   }
 }
