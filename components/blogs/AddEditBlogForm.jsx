@@ -6,14 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  ActivityIndicator,
   Alert,
-  ScrollView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { api } from '../../api';
 
 export default function AddEditBlogForm({ blogId }) {
   const navigation = useNavigation();
@@ -105,7 +104,7 @@ export default function AddEditBlogForm({ blogId }) {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await axios.get(`https://your-api.com/blogs/${blogId}/`);
+        const res = await api.get(`blogs/${blogId}/`);
         const blog = res.data;
         setFormData({
           title: blog.title,

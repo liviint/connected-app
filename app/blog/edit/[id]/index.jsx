@@ -1,18 +1,16 @@
-import React from 'react';
-import { useRoute } from '@react-navigation/native';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Text, StyleSheet, ScrollView } from 'react-native';
 import AddEditBlogForm from '../../../../components/blogs/AddEditBlogForm';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function EditBlogPage() {
-  const { id } = useLocalSearchParams()
+    const { id } = useLocalSearchParams()
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{id ? 'Edit Blog' : 'Add New Blog'}</Text>
-      <AddEditBlogForm blogId={id} />
-    </View>
-  );
+    return (
+        <ScrollView style={styles.container}>
+            <Text style={styles.title}>{id ? 'Edit Blog' : 'Add New Blog'}</Text>
+            <AddEditBlogForm blogId={id} />
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({

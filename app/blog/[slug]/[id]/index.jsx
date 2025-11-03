@@ -4,8 +4,6 @@ import { blogApi } from "../../../../api";
 import { useSelector } from "react-redux";
 import { useLocalSearchParams } from 'expo-router';
 import { dateFormat } from "../../../../utils/dateFormat";
-
-// External components — will be converted later
 import LikeButton from "../../../../components/blogs/LikeButton";
 import Comments from "../../../../components/blogComments/index";
 import ViewsCount from "../../../../components/blogs/ViewsCount";
@@ -69,18 +67,16 @@ export default function SingleBlogPage({ route }) {
       <Markdown style={markdownStyles}>{content}</Markdown>
 
       {/* Views, Likes, Share, Edit */}
-      <View style={styles.actions}>
-        <ViewsCount blogId={id} />
-        <LikeButton blogId={id} initialLikes={likes_count} />
-        <Share />
-        <EditButton
-          contentAuthor={blog.author}
-          href={`/blog/edit/${blog.id}`}
-        />
-      </View>
-
-      {/* Comments Section */}
-      <Comments blogId={id} />
+        <View style={styles.actions}>
+            <ViewsCount blogId={id} />
+            <LikeButton blogId={id} initialLikes={likes_count} />
+            <Share />
+            <EditButton
+                contentAuthor={blog.author}
+                href={`/blog/edit/${blog.id}`}
+            />
+        </View>
+        <Comments blogId={id} />
     </ScrollView>
   );
 }

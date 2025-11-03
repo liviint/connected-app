@@ -1,29 +1,27 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 export default function EditButton({ contentAuthor, href }) {
-  const loggedUser = useSelector(
-    (state) => state?.user?.userDetails?.user?.id
-  );
-  const navigation = useNavigation();
+    const router = useRouter()
+    const loggedUser = useSelector(
+        (state) => state?.user?.userDetails?.user?.id
+    );
 
-  if (loggedUser !== contentAuthor) return null;
+    if (loggedUser !== contentAuthor) return null;
 
-  const handlePress = () => {
-    // Navigate to the edit screen (href becomes your route name)
-    navigation.navigate(href);
-  };
+    const handlePress = () => {
+        router.push(href)
+    };
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-        <Text style={styles.editText}>Edit</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+    return (
+        <View style={styles.container}>
+        <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+            <Text style={styles.editText}>Edit</Text>
+        </TouchableOpacity>
+        </View>
+    );
+    }
 
 const styles = StyleSheet.create({
   container: {
