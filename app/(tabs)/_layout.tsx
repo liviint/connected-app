@@ -24,6 +24,22 @@ export default function TabLayout() {
         }}
       />
       
+      <Tabs.Screen
+        name="discussions/index"
+        options={{
+          title: 'Discussions',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="text.bubble.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile/index"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.crop.circle.fill" color={color} />,
+        }}
+      />
+      
     </Tabs>
     </>
   );
