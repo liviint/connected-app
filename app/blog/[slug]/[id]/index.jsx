@@ -1,0 +1,155 @@
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { blogApi } from "../../../../api";
+import { useSelector } from "react-redux";
+import { dateFormat } from "../../../../utils/dateFormat";
+
+// External components — will be converted later
+import LikeButton from "../../../../components/blogs/LikeButton";
+import Comments from "../../../../components/blogComments/index";
+import ViewsCount from "../../../../components/blogs/ViewsCount";
+import Share from "../../../../components/common/ShareButton";
+import EditButton from "../../../../components/common/EditButton";
+
+
+import Markdown from "react-native-markdown-display";
+
+export default function SingleBlogPage({ route }) {
+  const { id } = route.params;
+  const [blog, setBlog] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const user = useSelector((state) => state?.user?.userDetails);
+
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        const res = await blogApi.get(`blogs/${id}`);
+        setBlog(res.data);
+      } catch (err) {
+        console.error("Error fetching blog:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlog();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6B6B" />
+      </View>
+    );
+  }
+
+  if (!blog) {
+    return (
+      <View style={styles.notFound}>
+        <Text style={styles.notFoundText}>Blog not found</Text>
+      </View>
+    );
+  }
+
+  const { title, content, created_at, image, author_name, likes_count } = blog;
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        {image && <Image source={{ uri: image }} style={styles.coverImage} />}
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.meta}>
+          By {author_name} • {dateFormat(created_at)}
+        </Text>
+      </View>
+
+      {/* Markdown Content */}
+      <Markdown style={markdownStyles}>{content}</Markdown>
+
+      {/* Views, Likes, Share, Edit */}
+      <View style={styles.actions}>
+        <ViewsCount blogId={id} />
+        <LikeButton blogId={id} initialLikes={likes_count} />
+        <Share />
+        <EditButton
+          contentAuthor={blog.author}
+          href={`/blog/edit/${blog.id}`}
+        />
+      </View>
+
+      {/* Comments Section */}
+      <Comments blogId={id} />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FAF9F7",
+    padding: 16,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  coverImage: {
+    width: "100%",
+    height: 220,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  meta: {
+    fontSize: 14,
+    color: "#777",
+    fontStyle: "italic",
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 20,
+    marginTop: 16,
+    justifyContent: "flex-start",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notFound: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notFoundText: {
+    fontSize: 18,
+    color: "#999",
+  },
+});
+
+const markdownStyles = {
+  body: {
+    color: "#333",
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  paragraph: {
+    marginBottom: 12,
+  },
+  link: {
+    color: "#FF6B6B",
+    textDecorationLine: "underline",
+  },
+  image: {
+    borderRadius: 10,
+    marginVertical: 12,
+  },
+};
