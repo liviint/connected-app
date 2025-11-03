@@ -13,7 +13,6 @@ export default function DiscussionsList() {
       try {
         const res = await fetch(`${apiUrl}discussions/`);
         const data = await res.json();
-        console.log(data,"hello data")
         setDiscussions(data.results);
       } catch (err) {
         console.error(err);

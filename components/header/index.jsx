@@ -6,56 +6,71 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-
   const isActive = (route) => pathname === route;
+
+  const NavLink = ({ label, path, isActive }) => (
+    <TouchableOpacity 
+      onPress={() => { setMenuOpen(false); router.push(path); }} 
+    >
+      <Text style={[styles.navLink, isActive && styles.activeNav]}>{label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={() => router.push("/")} style={styles.logoContainer}>
+      <TouchableOpacity 
+        onPress={() => router.push("/")} 
+        style={styles.logoContainer}
+      >
         <Text style={styles.logoText}>ZeniaHub</Text>
       </TouchableOpacity>
 
-      {/* Large screen (for web maybe) */}
-      <View style={styles.navLarge}>
-        <NavLink label="Home" path="/" isActive={isActive("/")} onPress={() => router.push("/")} />
-        <NavLink label="Discussions" path="/(tabs)/discussions" isActive={isActive("/(tabs)/discussions")} onPress={() => router.push("/(tabs)/discussions")} />
-        <NavLink label="Blog" path="/(tabs)/blog" isActive={isActive("/(tabs)/blog")} onPress={() => router.push("/(tabs)/blog")} />
-        <NavLink label="Feedback" path="/(tabs)/feedback" isActive={isActive("/(tabs)/feedback")} onPress={() => router.push("/(tabs)/feedback")} />
-        <NavLink label="Profile" path="/(tabs)/profile" isActive={isActive("/(tabs)/profile")} onPress={() => router.push("/(tabs)/profile")} />
-      </View>
+    <TouchableOpacity 
+      onPress={() => setMenuOpen(!menuOpen)} 
+      style={styles.menuButton}
+    >
+      <Text style={styles.menuText}>{menuOpen ? "✖" : "☰"}</Text>
+    </TouchableOpacity>
 
-      {/* Mobile menu toggle */}
-      <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)} style={styles.menuButton}>
-        <Text style={styles.menuText}>{menuOpen ? "✖" : "☰"}</Text>
-      </TouchableOpacity>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <View style={styles.overlay}>
-          <View style={styles.navSmall}>
-            <NavLink label="Home" path="/" isActive={isActive("/")} onPress={() => { setMenuOpen(false); router.push("/"); }} />
-            <NavLink label="Discussions" path="/(tabs)/discussions" isActive={isActive("/(tabs)/discussions")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/discussions"); }} />
-            <NavLink label="Blog" path="/(tabs)/blog" isActive={isActive("/(tabs)/blog")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/blog"); }} />
-            <NavLink label="Feedback" path="/(tabs)/feedback" isActive={isActive("/(tabs)/feedback")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/feedback"); }} />
-            <NavLink label="Profile" path="/(tabs)/profile" isActive={isActive("/(tabs)/profile")} onPress={() => { setMenuOpen(false); router.push("/(tabs)/profile"); }} />
-            <NavLink label="Profile" path="/profile" isActive={isActive("/profile")} onPress={() => { setMenuOpen(false); router.push("/profile"); }} />
-          </View>
+    {menuOpen && (
+      <View style={styles.overlay}>
+        <View style={styles.navSmall}>
+          <NavLink 
+            label="Home" 
+            path="/" 
+            isActive={isActive("/")} 
+          />
+          <NavLink 
+            label="Discussions" 
+            path="/(tabs)/discussions" 
+            isActive={isActive("/(tabs)/discussions")} 
+          />
+          <NavLink 
+            label="Blog" 
+            path="/(tabs)/blog" 
+            isActive={isActive("/(tabs)/blog")} 
+          />
+          <NavLink 
+            label="Feedback" 
+            path="/(tabs)/feedback" 
+            isActive={isActive("/(tabs)/feedback")} 
+          />
+          <NavLink 
+            label="Profile" 
+            path="/(tabs)/profile" isActive={isActive("/(tabs)/profile")} 
+          />
         </View>
-      )}
+      </View>
+    )}
     </View>
   );
 }
 
-const NavLink = ({ label, onPress, isActive }) => (
-  <TouchableOpacity onPress={onPress}>
-    <Text style={[styles.navLink, isActive && styles.activeNav]}>{label}</Text>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: "#2E8B8B",
-    height: 80,
+    height: 90,
+    paddingTop:"20",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -64,7 +79,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
-    zIndex: 999, // 👈 make header itself top-level
+    zIndex: 999, 
   },
   logoContainer: {
     flexDirection: "row",
@@ -74,11 +89,6 @@ const styles = StyleSheet.create({
     color: "#FAF9F7",
     fontSize: 22,
     fontWeight: "700",
-  },
-  navLarge: {
-    flexDirection: "row",
-    gap: 16,
-    display: "none",
   },
   navLink: {
     color: "#FAF9F7",

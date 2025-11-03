@@ -7,6 +7,7 @@ import ReduxProvider from '@/store/ReduxProvider';
 import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
+import Header from '@/components/header';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -36,6 +37,7 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
+      <Header />
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

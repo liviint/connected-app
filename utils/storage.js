@@ -4,7 +4,6 @@ export const safeLocalStorage = {
 getItem: async (key) => {
     try {
         const value = await AsyncStorage.getItem(key);
-        console.log(value,"hello value get")
         return value ? JSON.parse(value) :  null;
     } catch (error) {
         console.error('Error getting item:', error);

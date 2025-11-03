@@ -39,7 +39,6 @@ const ProfilePage = () => {
         url:"accounts/profile/",
         method:"GET",
     }).then(res => {
-        console.log(res,"hello res")
         setFormData(res.data)
         setPreview(res.data.profilePic);
     }).catch(error => console.log(error))
@@ -48,7 +47,6 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    console.log(user,"hello user here 123")
     if (user?.access) getUserData();
   }, [user]);
 
@@ -83,7 +81,6 @@ const ProfilePage = () => {
     const data = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
-        console.log(key,value,"hello key val")
       if (key === "profilePic") {
         value instanceof File && data.append("profilePic", formData.profilePic)
       } else {
@@ -97,11 +94,10 @@ const ProfilePage = () => {
             headers: {'content-type': 'multipart/form-data'},
             data,
         }).then(res => {
-            console.log(res,"hello rea")
             Alert.alert("Success", "Profile updated successfully.");
             router.push("/profile");
         }).catch(error => {
-            console.log(error?.response.data,"hello errr")
+            console.log(error)
             setError(error?.response?.data?.username?.[0] || "An error occurred.")
         })
         .finally(() => setUpdating(false))

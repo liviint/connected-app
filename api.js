@@ -8,7 +8,6 @@ export let api = axios.create({baseURL})
 api.interceptors.request.use(
   async(config) => {
       const token = await safeLocalStorage.getItem("token")
-      console.log(token,"hello token 123")
       if(token) config.headers.Authorization = `Bearer ${token}`;
       return config;
   },
