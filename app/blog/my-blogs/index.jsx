@@ -30,7 +30,7 @@ export default function MyBlogsPage() {
   }, [user]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>My Blog Posts</Text>
 
       <View style={styles.addButtonContainer}>
@@ -47,7 +47,7 @@ export default function MyBlogsPage() {
       ) : (
         <BlogsList initialBlogs={blogs} author={user?.user?.id} />
       )}
-    </ScrollView>
+    </View>
   );
 }
 

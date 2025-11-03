@@ -8,10 +8,10 @@ export default function EditBlogPage() {
   const { id } = useLocalSearchParams()
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>{id ? 'Edit Blog' : 'Add New Blog'}</Text>
       <AddEditBlogForm blogId={id} />
-    </ScrollView>
+    </View>
   );
 }
 

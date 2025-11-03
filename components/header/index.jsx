@@ -35,29 +35,16 @@ export default function Header() {
     {menuOpen && (
       <View style={styles.overlay}>
         <View style={styles.navSmall}>
-          <NavLink 
-            label="Home" 
-            path="/" 
-            isActive={isActive("/")} 
-          />
-          <NavLink 
-            label="Discussions" 
-            path="/(tabs)/discussions" 
-            isActive={isActive("/(tabs)/discussions")} 
-          />
+
           <NavLink 
             label="Blog" 
-            path="/(tabs)/blog" 
-            isActive={isActive("/(tabs)/blog")} 
+            path="/blog" 
+            isActive={isActive("/blog")} 
           />
           <NavLink 
             label="Feedback" 
-            path="/(tabs)/feedback" 
+            path="/feedback" 
             isActive={isActive("/(tabs)/feedback")} 
-          />
-          <NavLink 
-            label="Profile" 
-            path="/(tabs)/profile" isActive={isActive("/(tabs)/profile")} 
           />
         </View>
       </View>
@@ -109,18 +96,17 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: "absolute",
-    top: 80,
+    top: 90,
+    bottom:0,
     left: 0,
     right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    height:"100%",
+    //backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor:"#f6a015ff",
     zIndex: 998,
   },
   navSmall: {
-    position: "absolute",
-    top: 80,
-    left: 0,
-    right: 0,
+    //position: "absolute",
     backgroundColor: "#2E8B8B",
     paddingVertical: 20,
     alignItems: "center",
