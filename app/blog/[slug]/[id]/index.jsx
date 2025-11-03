@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { blogApi } from "../../../../api";
 import { useSelector } from "react-redux";
+import { useLocalSearchParams } from 'expo-router';
 import { dateFormat } from "../../../../utils/dateFormat";
 
 // External components — will be converted later
@@ -15,7 +16,7 @@ import EditButton from "../../../../components/common/EditButton";
 import Markdown from "react-native-markdown-display";
 
 export default function SingleBlogPage({ route }) {
-  const { id } = route.params;
+  const { id } = useLocalSearchParams()
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
 

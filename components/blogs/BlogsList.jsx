@@ -1,10 +1,10 @@
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import moment from 'moment'; 
-import { useNavigation } from '@react-navigation/native';
+import { dateFormat } from '../../utils/dateFormat';
+import EditButton from '../common/EditButton';
+import { useRouter } from "expo-router";
 
 export default function BlogsList({ blogs = [], author }) {
-  const navigation = useNavigation();
+    const router = useRouter();
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -28,26 +28,23 @@ export default function BlogsList({ blogs = [], author }) {
       </View>
 
       <Text style={styles.meta}>
-        By {item.author_name} • {moment(item.created_at).format('MMM D, YYYY')}
+        By {item.author_name} • {dateFormat(item.created_at)}
       </Text>
 
       <Text style={styles.summary}>{item.summary}</Text>
 
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('BlogDetail', { id: item.id, slug: item.slug })
-        }
+        onPress={() => router.push(`/blog/${item.slug}/${item.id}`)}
       >
         <Text style={styles.readMore}>Read More →</Text>
       </TouchableOpacity>
 
       {author && author === item.author && (
-        <TouchableOpacity
-          onPress={() => navigation.navigate('EditBlog', { id: item.id })}
-          style={styles.editButton}
-        >
-          <Text style={styles.editButtonText}>Edit</Text>
-        </TouchableOpacity>
+        <EditButton 
+            loggedUser={author}
+            contentAuthor={item.author}
+            href={`/blog/edit/${item.id}`}
+        />
       )}
     </View>
   );
