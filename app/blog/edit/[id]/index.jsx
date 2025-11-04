@@ -1,30 +1,15 @@
-import { Text, StyleSheet, ScrollView } from 'react-native';
+import { Text, ScrollView } from 'react-native';
 import AddEditBlogForm from '../../../../src/components/blogs/AddEditBlogForm';
 import { useLocalSearchParams } from 'expo-router';
+import { globalStyles } from '../../../../src/styles/global';
 
 export default function EditBlogPage() {
     const { id } = useLocalSearchParams()
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>{id ? 'Edit Blog' : 'Add New Blog'}</Text>
+        <ScrollView style={globalStyles.container}>
+            <Text style={globalStyles.title}>{id ? 'Edit Blog' : 'Add New Blog'}</Text>
             <AddEditBlogForm blogId={id} />
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAF9F7',
-    padding: 20,
-  },
-  title: {
-    fontFamily: 'Poppins-Bold',
-    fontWeight: '700',
-    fontSize: 22,
-    color: '#FF6B6B',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-});

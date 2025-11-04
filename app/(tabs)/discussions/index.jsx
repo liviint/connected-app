@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import  { useEffect, useState } from 'react';
+import { ScrollView, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { globalStyles } from '../../../src/styles/global';
 
 export default function DiscussionsList() {
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -32,8 +33,8 @@ export default function DiscussionsList() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Community Discussions</Text>
+    <ScrollView style={globalStyles.container}>
+      <Text style={globalStyles.title}>Community Discussions</Text>
 
       <View style={styles.addBtnContainer}>
         <TouchableOpacity
@@ -61,25 +62,12 @@ export default function DiscussionsList() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#FAF9F7',
-  },
   loading: {
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '700',
     marginTop: 100,
     color: '#FF6B6B',
-  },
-  title: {
-    fontFamily: 'Poppins',
-    fontWeight: '700',
-    fontSize: 28,
-    color: '#FF6B6B',
-    textAlign: 'center',
-    marginBottom: 16,
   },
   addBtnContainer: {
     alignItems: 'center',
