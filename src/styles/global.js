@@ -4,9 +4,9 @@ export const globalStyles = StyleSheet.create({
         backgroundColor: '#FAF9F7',
         flex: 1,
         paddingHorizontal: 16,
+        paddingVertical: 24,
     },
     content: {
-        paddingVertical: 24,
         paddingHorizontal: 16,
     },
     title: {

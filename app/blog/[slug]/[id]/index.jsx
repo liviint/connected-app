@@ -9,6 +9,7 @@ import Comments from "../../../../src/components/blogComments/index";
 import ViewsCount from "../../../../src/components/blogs/ViewsCount";
 import Share from "../../../../src/components/common/ShareButton";
 import EditButton from "../../../../src/components/common/EditButton";
+import { globalStyles } from "../../../../src/styles/global";
 
 export default function SingleBlogPage({ route }) {
   const { width } = useWindowDimensions();
@@ -46,10 +47,10 @@ export default function SingleBlogPage({ route }) {
     );
   }
 
-  const { title, content, created_at, image, author_name, likes_count } = blog;
+  const { title, content, created_at, image, author_name, likes_count , slug} = blog;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={globalStyles.container} contentContainerStyle={globalStyles.containerContent}>
 
       <View style={styles.header}>
         {image && <Image source={{ uri: image }} style={styles.coverImage} />}
@@ -68,7 +69,7 @@ export default function SingleBlogPage({ route }) {
       <View style={styles.actions}>
           <ViewsCount blogId={id} />
           <LikeButton blogId={id} initialLikes={likes_count} />
-          <Share />
+          <Share url={`https://www.zeniahub.com/blog/${slug}/${id}`}/>
           <EditButton
               contentAuthor={blog.author}
               href={`/blog/edit/${blog.id}`}

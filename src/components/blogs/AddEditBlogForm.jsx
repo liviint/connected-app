@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,36 +7,38 @@ import {
   StyleSheet,
   Image,
   Alert,
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { api } from '../../../api';
+  ScrollView,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { api } from "../../../api";
+import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 
 export default function AddEditBlogForm({ blogId }) {
   const navigation = useNavigation();
   const author = useSelector((state) => state?.user?.userDetails?.user?.id);
+  const richText = useRef();
   const [formData, setFormData] = useState({
-    title: '',
-    summary: '',
-    content: '',
+    title: "",
+    summary: "",
+    content: "",
     image: null,
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
 
   /** Word count helper */
-  const getWordCount = (text) => {
+  const getWordCount = (html) => {
+    const text = html.replace(/<[^>]*>/g, " ");
     return text.trim().split(/\s+/).filter(Boolean).length;
   };
 
-  /** Handle image picker */
   const handleImagePick = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permission required', 'Please allow access to your photos.');
+      Alert.alert("Permission required", "Please allow access to your photos.");
       return;
     }
 
@@ -54,53 +56,49 @@ export default function AddEditBlogForm({ blogId }) {
     }
   };
 
-  /** Submit form */
   const handleSubmit = async (isPublished = false) => {
     if (!formData.title.trim() || !formData.summary.trim()) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields.');
+      Alert.alert("Missing Fields", "Please fill in all required fields.");
       return;
     }
 
     setLoading(true);
     const form = new FormData();
-    form.append('title', formData.title);
-    form.append('summary', formData.summary);
-    form.append('content', formData.content);
-    form.append('author', author);
-    if (isPublished) form.append('published', true);
+    form.append("title", formData.title);
+    form.append("summary", formData.summary);
+    form.append("content", formData.content);
+    form.append("author", author);
+    if (isPublished) form.append("published", true);
 
     if (formData.image) {
-      const filename = formData.image.split('/').pop();
-      const type = `image/${filename.split('.').pop()}`;
-      form.append('image', { uri: formData.image, name: filename, type });
+      const filename = formData.image.split("/").pop();
+      const type = `image/${filename.split(".").pop()}`;
+      form.append("image", { uri: formData.image, name: filename, type });
     }
 
     try {
       const url = blogId
         ? `https://your-api.com/blogs/${blogId}/`
-        : 'https://your-api.com/blogs/';
-      const method = blogId ? 'put' : 'post';
+        : "https://your-api.com/blogs/";
+      const method = blogId ? "put" : "post";
 
       await axios({
         method,
         url,
         data: form,
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setSuccess(blogId ? 'Blog updated!' : 'Blog created!');
-      Alert.alert('Success', success);
-
-      navigation.navigate('MyBlogs');
+      Alert.alert("Success", blogId ? "Blog updated!" : "Blog created!");
+      navigation.navigate("MyBlogs");
     } catch (err) {
       console.error(err);
-      Alert.alert('Error', 'Failed to save blog. Please try again.');
+      Alert.alert("Error", "Failed to save blog. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  /** Fetch blog if editing */
   useEffect(() => {
     const fetchBlog = async () => {
       try {
@@ -113,18 +111,18 @@ export default function AddEditBlogForm({ blogId }) {
           image: blog.image,
         });
         setPreview(blog.image);
+        if (richText.current) {
+          richText.current.setContentHTML(blog.content);
+        }
       } catch (err) {
-        console.error('Error loading blog', err);
+        console.error("Error loading blog", err);
       }
     };
-
     if (blogId) fetchBlog();
   }, [blogId]);
 
-  /** UI */
   return (
-    <View style={styles.formContainer}>
-      {/* Title */}
+    <ScrollView style={styles.formContainer}>
       <Text style={styles.label}>Title</Text>
       <TextInput
         style={styles.input}
@@ -133,23 +131,31 @@ export default function AddEditBlogForm({ blogId }) {
         onChangeText={(t) => setFormData({ ...formData, title: t })}
       />
 
-      {/* Content */}
       <Text style={styles.label}>Content</Text>
-      <TextInput
-        style={[styles.input, styles.multiline]}
+      <RichEditor
+        ref={richText}
+        style={styles.richEditor}
         placeholder="Write your content here..."
-        value={formData.content}
-        multiline
-        numberOfLines={8}
-        textAlignVertical="top"
-        onChangeText={(t) => setFormData({ ...formData, content: t })}
+        initialContentHTML={formData.content}
+        onChange={(html) => setFormData({ ...formData, content: html })}
+      />
+      <RichToolbar
+        editor={richText}
+        actions={[
+          actions.undo,
+          actions.redo,
+          actions.bold,
+          actions.italic,
+          actions.insertBulletsList,
+          actions.insertOrderedList,
+          actions.insertLink,
+        ]}
       />
       <Text style={styles.wordCounter}>
-        {getWordCount(formData.content)}{' '}
-        {getWordCount(formData.content) === 1 ? 'word' : 'words'}
+        {getWordCount(formData.content)}{" "}
+        {getWordCount(formData.content) === 1 ? "word" : "words"}
       </Text>
 
-      {/* Summary */}
       <Text style={styles.label}>Summary</Text>
       <TextInput
         style={[styles.input, styles.multiline]}
@@ -160,10 +166,9 @@ export default function AddEditBlogForm({ blogId }) {
         numberOfLines={3}
       />
 
-      {/* Image */}
       <TouchableOpacity onPress={handleImagePick} style={styles.imageButton}>
         <Text style={styles.imageButtonText}>
-          {preview ? 'Change Cover Image' : 'Pick Cover Image'}
+          {preview ? "Change Cover Image" : "Pick Cover Image"}
         </Text>
       </TouchableOpacity>
 
@@ -173,7 +178,6 @@ export default function AddEditBlogForm({ blogId }) {
         </View>
       )}
 
-      {/* Buttons */}
       <View style={styles.btnContainer}>
         <TouchableOpacity
           onPress={() => handleSubmit(false)}
@@ -181,93 +185,51 @@ export default function AddEditBlogForm({ blogId }) {
           disabled={loading}
         >
           <Text style={styles.btnText}>
-            {loading ? 'Saving...' : 'Save Draft'}
+            {loading ? "Saving..." : "Save Draft"}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => handleSubmit(true)}
-          style={[styles.btn, { backgroundColor: '#FF6B6B' }, loading && styles.disabled]}
+          style={[styles.btn, { backgroundColor: "#FF6B6B" }, loading && styles.disabled]}
           disabled={loading}
         >
           <Text style={styles.btnText}>
-            {loading ? 'Publishing...' : 'Publish'}
+            {loading ? "Publishing..." : "Publish"}
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
-/** Styles */
 const styles = StyleSheet.create({
-  formContainer: {
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    marginBottom: 40,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#333',
-  },
+  formContainer: { padding: 16, backgroundColor: "#fff", borderRadius: 12 },
+  label: { fontSize: 16, fontWeight: "600", marginBottom: 6 },
   input: {
     borderWidth: 1,
-    borderColor: '#CCC',
+    borderColor: "#CCC",
     borderRadius: 8,
     padding: 10,
-    backgroundColor: '#FAF9F7',
+    backgroundColor: "#FAF9F7",
     marginBottom: 16,
   },
-  multiline: {
-    minHeight: 100,
-  },
-  wordCounter: {
-    textAlign: 'right',
-    color: '#555',
-    fontSize: 12,
-    marginBottom: 16,
-  },
-  imageButton: {
-    backgroundColor: '#2E8B8B',
-    padding: 10,
+  multiline: { minHeight: 100 },
+  richEditor: {
+    minHeight: 200,
+    borderWidth: 1,
+    borderColor: "#CCC",
     borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: "#FAF9F7",
+    marginBottom: 16,
   },
-  imageButtonText: {
-    color: '#FFF',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  imagePreview: {
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  image: {
-    width: '100%',
-    height: 180,
-    borderRadius: 10,
-  },
-  btnContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 10,
-    marginTop: 20,
-  },
-  btn: {
-    backgroundColor: '#2E8B8B',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-  },
-  btnText: {
-    color: '#FFF',
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  disabled: {
-    opacity: 0.6,
-  },
+  wordCounter: { textAlign: "right", color: "#555", fontSize: 12, marginBottom: 16 },
+  imageButton: { backgroundColor: "#2E8B8B", padding: 10, borderRadius: 8, marginBottom: 10 },
+  imageButtonText: { color: "#FFF", textAlign: "center", fontWeight: "600" },
+  imagePreview: { alignItems: "center", marginVertical: 10 },
+  image: { width: "100%", height: 180, borderRadius: 10 },
+  btnContainer: { flexDirection: "row", justifyContent: "flex-end", gap: 10, marginTop: 20 },
+  btn: { backgroundColor: "#2E8B8B", borderRadius: 10, paddingVertical: 10, paddingHorizontal: 18 },
+  btnText: { color: "#FFF", fontWeight: "700", textAlign: "center" },
+  disabled: { opacity: 0.6 },
 });
