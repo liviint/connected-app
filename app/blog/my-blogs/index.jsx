@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import BlogsList from '../../../components/blogs/BlogsList';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { blogApi } from '../../../api';
+import { globalStyles } from '../../../components/styles/global';
 
 export default function MyBlogsPage() {
   const user = useSelector((state) => state?.user?.userDetails);
@@ -30,13 +31,13 @@ export default function MyBlogsPage() {
   }, [user]);
 
   return (
-    <View style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>My Blog Posts</Text>
+    <View style={globalStyles.container} contentContainerStyle={globalStyles.containerContent}>
+      <Text style={globalStyles.title}>My Blog Posts</Text>
 
       <View style={styles.addButtonContainer}>
         <TouchableOpacity
           onPress={() => navigation.navigate('NewBlog')}
-          style={styles.addButton}
+          style={globalStyles.secondaryBtn}
         >
           <Text style={styles.addButtonText}>+ Add New Blog</Text>
         </TouchableOpacity>
@@ -52,31 +53,9 @@ export default function MyBlogsPage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FAF9F7',
-    flex: 1,
-  },
-  content: {
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-  },
-  title: {
-    textAlign: 'center',
-    fontFamily: 'Poppins-Bold', // Optional, if using Expo fonts
-    fontWeight: '700',
-    fontSize: 24,
-    color: '#2E8B8B',
-    marginBottom: 16,
-  },
   addButtonContainer: {
     alignItems: 'center',
     marginBottom: 20,
-  },
-  addButton: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
   },
   addButtonText: {
     color: '#fff',

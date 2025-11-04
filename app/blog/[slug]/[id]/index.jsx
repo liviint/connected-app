@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator , useWindowDimensions} from "react-native";
+import RenderHtml from "react-native-render-html";
 import { blogApi } from "../../../../api";
 import { useSelector } from "react-redux";
 import { useLocalSearchParams } from 'expo-router';
@@ -10,10 +11,8 @@ import ViewsCount from "../../../../components/blogs/ViewsCount";
 import Share from "../../../../components/common/ShareButton";
 import EditButton from "../../../../components/common/EditButton";
 
-
-import Markdown from "react-native-markdown-display";
-
 export default function SingleBlogPage({ route }) {
+  const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams()
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,8 +62,11 @@ export default function SingleBlogPage({ route }) {
         </Text>
       </View>
 
-      {/* Markdown Content */}
-      <Markdown style={markdownStyles}>{content}</Markdown>
+      <RenderHtml
+        contentWidth={width}
+        source={{ html: content }}
+        tagsStyles={htmlStyles}
+      />
 
       {/* Views, Likes, Share, Edit */}
         <View style={styles.actions}>
@@ -132,21 +134,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const markdownStyles = {
+const htmlStyles = {
   body: {
-    color: "#333",
+    color: "#333333",
     fontSize: 16,
     lineHeight: 24,
+    fontFamily: "Inter",
   },
-  paragraph: {
-    marginBottom: 12,
-  },
-  link: {
-    color: "#FF6B6B",
-    textDecorationLine: "underline",
-  },
-  image: {
-    borderRadius: 10,
-    marginVertical: 12,
-  },
+  h1: { color: "#2E8B8B", fontSize: 24, fontFamily: "Poppins", marginVertical: 8 },
+  h2: { color: "#2E8B8B", fontSize: 20, fontFamily: "Poppins", marginVertical: 6 },
+  p: { marginBottom: 10 },
+  a: { color: "#FF6B6B", textDecorationLine: "underline" },
+  img: { borderRadius: 10, marginVertical: 10, maxWidth: "100%" },
 };

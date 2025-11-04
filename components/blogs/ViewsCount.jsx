@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
-import axios from "axios";
+import { api } from "../../api";
 
 export default function ViewsCount({ blogId }) {
   const [views, setViews] = useState(null);
@@ -10,8 +10,7 @@ export default function ViewsCount({ blogId }) {
 
     const trackView = async () => {
       try {
-        const res = await axios.post(
-          `https://your-api-url.com/blogs/${blogId}/track_view/`,
+        const res = await api.post(`blogs/${blogId}/track_view/`,
           {},
           { withCredentials: true }
         );

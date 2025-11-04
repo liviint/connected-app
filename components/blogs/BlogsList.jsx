@@ -2,8 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import { dateFormat } from '../../utils/dateFormat';
 import EditButton from '../common/EditButton';
 import { useRouter } from "expo-router";
+import { useState } from 'react';
 
-export default function BlogsList({ blogs = [], author }) {
+export default function BlogsList({ initialBlogs, author }) {
+  const [blogs,setBlogs] = useState(initialBlogs)
     const router = useRouter();
 
   const renderItem = ({ item }) => (
@@ -76,20 +78,19 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 8,
   },
   blogTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#2E8B8B',
+    color: '#FF6B6B',
   },
   statusBadge: {
     paddingVertical: 3,
     paddingHorizontal: 8,
     borderRadius: 10,
+    width:"80",
+    marginTop:1,
   },
   published: {
     backgroundColor: '#C8E6C9',
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: 13,
     fontStyle: 'italic',
-    color: '#FF6B6B',
+    color: '#2E8B8B',
     marginBottom: 10,
   },
   summary: {

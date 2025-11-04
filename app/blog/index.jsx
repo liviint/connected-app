@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import BlogsList from '../../components/blogs/BlogsList';
 import { blogApi } from '../../api';
+import { globalStyles } from '../../components/styles/global';
 
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState([]);
@@ -23,9 +24,9 @@ export default function BlogsPage() {
     }, []);
 
     return (
-        <View style={styles.container} contentContainerStyle={styles.content}>
-            <Text style={styles.title}>Our Latest Blog Posts</Text>
-            {loading ? <ActivityIndicator size="large" color="#2E8B8B" /> : <BlogsList blogs={blogs} />}
+        <View style={globalStyles.container} contentContainerStyle={globalStyles.containerContent}>
+            <Text style={globalStyles.title}>Our Latest Blog Posts</Text>
+            {loading ? <ActivityIndicator size="large" color="#2E8B8B" /> : <BlogsList initialBlogs={blogs} />}
         </View>
     );
 }
