@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import Like from "../common/Like"; 
-import { blogApi } from "../../api";
+import { blogApi } from "../../../api";
 
 export default function LikeButton({ blogId, initialLikes }) {
   const user = useSelector((state) => state?.user?.userDetails);

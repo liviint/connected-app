@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { dateFormat } from '../../utils/dateFormat';
+import { dateFormat } from '../../../utils/dateFormat';
 import EditButton from '../common/EditButton';
 import { useRouter } from "expo-router";
 import { useState } from 'react';

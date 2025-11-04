@@ -12,7 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { api } from '../../api';
+import { api } from '../../../api';
 
 export default function AddEditBlogForm({ blogId }) {
   const navigation = useNavigation();

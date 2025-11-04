@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Activity
 import { useSelector } from "react-redux";
 
 import LoginFirst from "../common/LoginFirst"; // keep your converted version later
-import { api, blogApi } from "../../api";
+import { api, blogApi } from "../../../api";
 
 export default function Comments({ blogId }) {
   const user = useSelector((state) => state?.user?.userDetails);

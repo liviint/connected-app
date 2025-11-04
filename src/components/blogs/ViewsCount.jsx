@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
-import { api } from "../../api";
+import { api } from "../../../api";
 
 export default function ViewsCount({ blogId }) {
   const [views, setViews] = useState(null);
