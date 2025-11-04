@@ -7,7 +7,7 @@ import ReduxProvider from '@/store/ReduxProvider';
 import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
-import Header from '@/components/header';
+import Header from '@/src/components/header';
 
 export const unstable_settings = {
   anchor: '(tabs)',

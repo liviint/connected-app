@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import AddEditBlogForm from '../../../components/blogs/AddEditBlogForm';
+import AddEditBlogForm from '../../../src/components/blogs/AddEditBlogForm';
 
 export default function NewBlogPage() {
   return (

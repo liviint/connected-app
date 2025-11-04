@@ -1,23 +1,20 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator , useWindowDimensions} from "react-native";
 import RenderHtml from "react-native-render-html";
 import { blogApi } from "../../../../api";
-import { useSelector } from "react-redux";
 import { useLocalSearchParams } from 'expo-router';
 import { dateFormat } from "../../../../utils/dateFormat";
-import LikeButton from "../../../../components/blogs/LikeButton";
-import Comments from "../../../../components/blogComments/index";
-import ViewsCount from "../../../../components/blogs/ViewsCount";
-import Share from "../../../../components/common/ShareButton";
-import EditButton from "../../../../components/common/EditButton";
+import LikeButton from "../../../../src/components/blogs/LikeButton";
+import Comments from "../../../../src/components/blogComments/index";
+import ViewsCount from "../../../../src/components/blogs/ViewsCount";
+import Share from "../../../../src/components/common/ShareButton";
+import EditButton from "../../../../src/components/common/EditButton";
 
 export default function SingleBlogPage({ route }) {
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams()
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const user = useSelector((state) => state?.user?.userDetails);
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -53,7 +50,7 @@ export default function SingleBlogPage({ route }) {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
         {image && <Image source={{ uri: image }} style={styles.coverImage} />}
         <Text style={styles.title}>{title}</Text>
@@ -68,17 +65,17 @@ export default function SingleBlogPage({ route }) {
         tagsStyles={htmlStyles}
       />
 
-      {/* Views, Likes, Share, Edit */}
-        <View style={styles.actions}>
-            <ViewsCount blogId={id} />
-            <LikeButton blogId={id} initialLikes={likes_count} />
-            <Share />
-            <EditButton
-                contentAuthor={blog.author}
-                href={`/blog/edit/${blog.id}`}
-            />
-        </View>
-        <Comments blogId={id} />
+      <View style={styles.actions}>
+          <ViewsCount blogId={id} />
+          <LikeButton blogId={id} initialLikes={likes_count} />
+          <Share />
+          <EditButton
+              contentAuthor={blog.author}
+              href={`/blog/edit/${blog.id}`}
+          />
+      </View>
+
+    <Comments blogId={id} />
     </ScrollView>
   );
 }

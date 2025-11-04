@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import BlogsList from '../../../components/blogs/BlogsList';
+import BlogsList from '../../../src/components/blogs/BlogsList';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { blogApi } from '../../../api';
-import { globalStyles } from '../../../components/styles/global';
+import { globalStyles } from '../../../src/styles/global';
 
 export default function MyBlogsPage() {
   const user = useSelector((state) => state?.user?.userDetails);

@@ -1,5 +1,5 @@
 import { Text, StyleSheet, ScrollView } from 'react-native';
-import AddEditBlogForm from '../../../../components/blogs/AddEditBlogForm';
+import AddEditBlogForm from '../../../../src/components/blogs/AddEditBlogForm';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function EditBlogPage() {

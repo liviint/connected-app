@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import BlogsList from '../../components/blogs/BlogsList';
+import BlogsList from '../../src/components/blogs/BlogsList';
 import { blogApi } from '../../api';
-import { globalStyles } from '../../components/styles/global';
+import { globalStyles } from '../../src/styles/global';
 
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState([]);
