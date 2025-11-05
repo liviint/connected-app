@@ -10,14 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
+import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
 import { api } from "../../../api";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 
 export default function AddEditBlogForm({ blogId }) {
-  const navigation = useNavigation();
+  const router = useRouter()
   const author = useSelector((state) => state?.user?.userDetails?.user?.id);
   const richText = useRef();
   const [formData, setFormData] = useState({
@@ -77,12 +76,10 @@ export default function AddEditBlogForm({ blogId }) {
     }
 
     try {
-      const url = blogId
-        ? `https://your-api.com/blogs/${blogId}/`
-        : "https://your-api.com/blogs/";
+      const url = blogId ? `/blogs/${blogId}/`  : "/blogs/";
       const method = blogId ? "put" : "post";
 
-      await axios({
+      await api({
         method,
         url,
         data: form,
@@ -90,7 +87,7 @@ export default function AddEditBlogForm({ blogId }) {
       });
 
       Alert.alert("Success", blogId ? "Blog updated!" : "Blog created!");
-      navigation.navigate("MyBlogs");
+      router.push('blog/my-blogs')
     } catch (err) {
       console.error(err);
       Alert.alert("Error", "Failed to save blog. Please try again.");
@@ -204,7 +201,12 @@ export default function AddEditBlogForm({ blogId }) {
 }
 
 const styles = StyleSheet.create({
-  formContainer: { padding: 16, backgroundColor: "#fff", borderRadius: 12 },
+  formContainer: { 
+    padding: 16, 
+    backgroundColor: "#fff", 
+    borderRadius: 12,
+    marginBottom:40,
+  },
   label: { fontSize: 16, fontWeight: "600", marginBottom: 6 },
   input: {
     borderWidth: 1,
