@@ -56,7 +56,7 @@ export default function AddEditBlogForm({ blogId }) {
   };
 
   const handleSubmit = async (isPublished = false) => {
-    if (!formData.title.trim() || !formData.summary.trim()) {
+    if (!formData.title.trim()) {
       Alert.alert("Missing Fields", "Please fill in all required fields.");
       return;
     }
