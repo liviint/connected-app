@@ -2,8 +2,12 @@ import  { useEffect, useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { globalStyles } from '../../../src/styles/global';
+import { useSelector, useDispatch } from 'react-redux';
+import {removeMessage} from "../../../store/features/websocketSlice"
 
 export default function DiscussionsList() {
+  const dispatch = useDispatch()
+  const {messages,connected} = useSelector((state) => state.websocket);
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +27,23 @@ export default function DiscussionsList() {
     };
     fetchDiscussions();
   }, []);
+
+  useEffect(() => {
+    if (!connected) return;
+
+    messages.forEach((payload) => {
+      const { event: eventType, data } = payload;
+
+      switch (eventType) {
+        case "discussion_created":
+          dispatch(removeMessage({id:data.id}))
+          setDiscussions((prev) => [data, ...prev]);
+          break;
+        default:
+          break;
+      }
+    });
+  },[messages,connected])
 
   if (loading) {
     return (

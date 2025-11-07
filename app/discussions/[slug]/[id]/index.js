@@ -6,6 +6,7 @@ import { blogApi } from "../../../../api";
 import { dateFormat } from "../../../../utils/dateFormat";
 import Markdown from "react-native-markdown-display";
 import LikeButton from "../../../../src/components/discussions/LikeButton";
+import Comments from "../../../../src/components/discussions/Comments";
 import LoginFirst from "../../../../src/components/common/LoginFirst";
 
 export default function Index() {
@@ -64,7 +65,6 @@ export default function Index() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{discussion.title}</Text>
         <Text style={styles.meta}>
@@ -72,45 +72,21 @@ export default function Index() {
         </Text>
       </View>
 
-      {/* Markdown Content */}
       <Markdown style={markdownStyles}>
         {discussion.content}
       </Markdown>
 
-      {/* Like Button */}
       <LikeButton 
         discussionId={id}
         initialLikes={discussion.likes_count}
       />
 
-      {/* Comments Section */}
-      <View style={styles.commentsSection}>
-        <Text style={styles.commentsTitle}>Comments</Text>
+      <Comments 
+        comments={comments} 
+        setComments={setComments} 
+        styles={styles} 
+      />
 
-        <View style={styles.newComment}>
-          <TextInput
-            style={styles.textArea}
-            placeholder="Write a comment..."
-            multiline
-            numberOfLines={3}
-            value={newComment}
-            onChangeText={setNewComment}
-            editable={!!user}
-          />
-          <TouchableOpacity style={styles.btn} onPress={handleComment}>
-            <Text style={styles.btnText}>Post Comment</Text>
-          </TouchableOpacity>
-        </View>
-
-        {!user && <LoginFirst />}
-
-        {comments.map((c) => (
-          <View key={c.id} style={styles.commentCard}>
-            <Text style={styles.commentAuthor}>{c.author_name}</Text>
-            <Text style={styles.commentContent}>{c.content}</Text>
-          </View>
-        ))}
-      </View>
     </ScrollView>
   );
 }
