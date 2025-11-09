@@ -9,6 +9,7 @@ import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
 import Header from '@/src/components/header';
 import WebSocketManager from '@/src/components/WebSocketManager'
+import NotificationsHandler from '@/src/components/NotificationsHandler'
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -39,6 +40,7 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       <WebSocketManager />
+      <NotificationsHandler />
       <Header />
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
