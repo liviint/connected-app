@@ -35,7 +35,10 @@ export default function Comments({comments, setComments,styles}) {
             switch (eventType) {
             case "discussion_comment_created":
                 dispatch(removeMessage({id:data.id}))
-                setComments(prev => [data, ...prev]);
+                setComments(prev => {
+                    const exists = prev.some(comment => comment.id === data.id);
+                    return exists ? prev : [data, ...prev];
+                });
                 break;
             default:
                 break;
