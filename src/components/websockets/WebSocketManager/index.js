@@ -6,9 +6,7 @@ import {
         addNewDiscussion, 
         addNewDiscussionComment,
         addNewDiscussionLike,
-} from "@/store/features/websocketSlice";
-import { addNotification } from "@/store/features/notificationSlice";
-import * as Notifications from "expo-notifications";
+} from "../../../../store/features/websocketSlice";
 
 export default function WebSocketManager() {
     const dispatch = useDispatch();
@@ -32,23 +30,9 @@ export default function WebSocketManager() {
             };
 
             socket.onmessage = async (event) => {
-                console.log(event,"hello event type 1")
                 const { event: eventType, data } = JSON.parse(event.data);
-                console.log(eventType,data,"hello event type")
                 
                 switch (eventType) {
-                    case "send_notification":
-                        dispatch(addNotification(data));
-                        await Notifications.scheduleNotificationAsync({
-                            content: {
-                                title: data.title,
-                                body: data.message,
-                                data,
-                            },
-                            trigger: null,
-                        });
-                        break;
-
                     case "discussion_created":
                         dispatch(addNewDiscussion(data))
                         break;
