@@ -21,7 +21,7 @@ export default function NotificationHandler() {
       }
 
       const token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log('Push Token:', token);
+      console.log('hello Push Token:', token);
       return token;
     };
 

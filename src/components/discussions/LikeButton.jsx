@@ -4,12 +4,12 @@ import { useSelector , useDispatch} from 'react-redux';
 import { api } from '../../../api';
 import { Ionicons } from '@expo/vector-icons';
 import { globalStyles } from '../../styles/global';
-import {removeMessage} from "../../../store/features/websocketSlice"
+import {removeUpdatedDiscussionLikes} from "../../../store/features/websocketSlice"
 
 export default function LikeButton({ discussionId, initialLikes }) {
   const dispatch = useDispatch()
   const user = useSelector((state) => state?.user?.userDetails);
-  const {messages,connected} = useSelector((state) => state.websocket);
+  const {newDiscussionLikes,connected} = useSelector((state) => state.websocket);
   const [likes, setLikes] = useState(initialLikes || 0);
   const [liked, setLiked] = useState(false);
   const [error, setError] = useState('');
@@ -28,20 +28,10 @@ export default function LikeButton({ discussionId, initialLikes }) {
   }, [user, discussionId]);
 
   useEffect(() => {
-        if (!connected) return;
-
-      messages.forEach(({ event: eventType, data }) => {
-          switch (eventType) {
-          case "discussion_liked":
-              console.log(data,"hello data")
-              dispatch(removeMessage({id:data.id}))
-              setLikes(prev => prev + 1)
-              break;
-          default:
-              break;
-          }
-      });
-    }, [messages, connected]);
+        if (!connected || newDiscussionLikes.length === 0) return;
+        setLikes(prev => prev + newDiscussionLikes.length)
+        dispatch(removeUpdatedDiscussionLikes())
+    }, [newDiscussionLikes, connected]);
 
   const handleLike = async () => {
     setError('');
@@ -53,7 +43,6 @@ export default function LikeButton({ discussionId, initialLikes }) {
     try {
       await api.post(`discussions/${discussionId}/like/`,{},);
       setLiked(true);
-      //setLikes((prev) => prev + 1);
     } catch (err) {
       console.log('Like error:', err);
       if (err.response?.data?.detail) {

@@ -4,12 +4,12 @@ import { useLocalSearchParams } from "expo-router";
 import { useSelector, useDispatch } from "react-redux";
 import { blogApi } from "../../../api";
 import LoginFirst from "../common/LoginFirst";
-import {removeMessage} from "../../../store/features/websocketSlice"
+import {removeUpdatedDiscussionsComment} from "../../../store/features/websocketSlice"
 
 export default function Comments({comments, setComments,styles}) {
     const { id } = useLocalSearchParams();
     const dispatch = useDispatch()
-    const {messages,connected} = useSelector((state) => state.websocket);
+    const {newDiscussionComments,connected} = useSelector((state) => state.websocket);
     const user = useSelector((state) => state?.user?.userDetails);
     const [newComment, setNewComment] = useState("");
 
@@ -29,22 +29,10 @@ export default function Comments({comments, setComments,styles}) {
     };
 
     useEffect(() => {
-        if (!connected) return;
-        console.log(messages,"hello messages")
-        messages.forEach(({ event: eventType, data }) => {
-            switch (eventType) {
-            case "discussion_comment_created":
-                dispatch(removeMessage({id:data.id}))
-                setComments(prev => {
-                    const exists = prev.some(comment => comment.id === data.id);
-                    return exists ? prev : [data, ...prev];
-                });
-                break;
-            default:
-                break;
-            }
-        });
-    }, [messages,connected]);
+        if (!connected || newDiscussionComments.length === 0) return;
+        setComments(prev => [...newDiscussionComments, ...prev])
+        dispatch(removeUpdatedDiscussionsComment())
+    }, [newDiscussionComments,connected,dispatch]);
 
     return (
         <View style={styles.commentsSection}>
