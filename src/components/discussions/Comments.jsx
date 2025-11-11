@@ -30,8 +30,14 @@ export default function Comments({comments, setComments,styles}) {
 
     useEffect(() => {
         if (!connected || newDiscussionComments.length === 0) return;
-        setComments(prev => [...newDiscussionComments, ...prev])
-    }, [newDiscussionComments,connected,dispatch]);
+        const currentDiscussionComments = newDiscussionComments.filter(c => c.discussion_id === id);
+        setComments(prev => {
+            const existingIds = new Set(prev.map(c => c.id));
+            const newComments = currentDiscussionComments.filter(c => !existingIds.has(c.id));
+            return [...newComments, ...prev];
+        });
+    }, [newDiscussionComments, connected, dispatch]);
+
 
     useEffect(() => {
         dispatch(removeUpdatedDiscussionsComment())
