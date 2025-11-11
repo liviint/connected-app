@@ -31,8 +31,11 @@ export default function Comments({comments, setComments,styles}) {
     useEffect(() => {
         if (!connected || newDiscussionComments.length === 0) return;
         setComments(prev => [...newDiscussionComments, ...prev])
-        dispatch(removeUpdatedDiscussionsComment())
     }, [newDiscussionComments,connected,dispatch]);
+
+    useEffect(() => {
+        dispatch(removeUpdatedDiscussionsComment())
+    },[comments])
 
     return (
         <View style={styles.commentsSection}>

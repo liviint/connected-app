@@ -30,8 +30,11 @@ export default function LikeButton({ discussionId, initialLikes }) {
   useEffect(() => {
         if (!connected || newDiscussionLikes.length === 0) return;
         setLikes(prev => prev + newDiscussionLikes.length)
-        dispatch(removeUpdatedDiscussionLikes())
     }, [newDiscussionLikes, connected]);
+
+    useEffect(() => {
+      dispatch(removeUpdatedDiscussionLikes())
+    },[likes])
 
   const handleLike = async () => {
     setError('');

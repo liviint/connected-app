@@ -31,8 +31,11 @@ export default function DiscussionsList() {
   useEffect(() => {
     if (!connected || newDiscussions.length === 0) return;
     setDiscussions(prev => [...newDiscussions,...prev])
-    dispatch(removeUpdatedDiscussions())
   },[newDiscussions,connected,dispatch])
+
+   useEffect(() => {
+    dispatch(removeUpdatedDiscussions())
+  },[discussions])
 
   if (loading) {
     return (

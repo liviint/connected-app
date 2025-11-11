@@ -22,21 +22,35 @@ const websocketSlice = createSlice({
         },
 
         addNewDiscussion(state, action) {
-            state.newDiscussions.push(action.payload);
+            const exists = state.newDiscussions.find(d => d.id === action.payload.id);
+            if (!exists) {
+                state.newDiscussions.push(action.payload);
+            }
         },
+
         removeUpdatedDiscussions(state){
             state.newDiscussions = []
         },
 
         addNewDiscussionComment(state, action) {
-            state.newDiscussionComments.push(action.payload);
+            const exists = state.newDiscussionComments.find(d => d.id === action.payload.id);
+            if (!exists) {
+                state.newDiscussionComments.push(action.payload);
+            }
         },
         removeUpdatedDiscussionsComment(state){
             state.newDiscussionComments = []
         },
 
         addNewDiscussionLike(state, action) {
-            state.newDiscussionLikes.push(action.payload);
+            const { id, discussion_id, user } = action.payload;
+            const exists = state.newDiscussionLikes.some(
+                (like) => like.user === user && like.discussion_id === discussion_id
+            );
+
+            if (!exists) {
+                state.newDiscussionLikes.push(action.payload);
+            }
         },
         removeUpdatedDiscussionLikes(state){
             state.newDiscussionLikes = []
