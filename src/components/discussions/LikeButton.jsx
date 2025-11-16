@@ -27,9 +27,12 @@ export default function LikeButton({ discussionId, initialLikes }) {
     fetchLikeStatus();
   }, [user, discussionId]);
 
+
   useEffect(() => {
         if (!connected || newDiscussionLikes.length === 0) return;
-        setLikes(prev => prev + newDiscussionLikes.length)
+        const currentDiscussionLikes = newDiscussionLikes.filter(c => c.discussion === discussionId);
+        console.log(currentDiscussionLikes,newDiscussionLikes,"hello new discu like")
+        setLikes(prev => prev + currentDiscussionLikes.length)
     }, [newDiscussionLikes, connected]);
 
     useEffect(() => {
