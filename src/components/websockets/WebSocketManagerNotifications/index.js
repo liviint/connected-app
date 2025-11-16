@@ -26,8 +26,6 @@ useEffect(() => {
 
         socket.onmessage = async (event) => {
             const { event: eventType, data } = JSON.parse(event.data);
-            console.log(eventType,"hello event 123")
-
             switch (eventType) {
                 case "send_notification":
                     dispatch(addNotification(data));

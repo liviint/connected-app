@@ -1,6 +1,7 @@
 import * as Notifications from "expo-notifications";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect } from "react";
+import { useRouter } from "expo-router";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,6 +13,7 @@ Notifications.setNotificationHandler({
 
 export default function NotificationHandler() {
   const navigation = useNavigation();
+  const router = useRouter()
 
   useEffect(() => {
     const registerForPushNotificationsAsync = async () => {
@@ -39,8 +41,14 @@ export default function NotificationHandler() {
   useEffect(() => {
     const sub = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
-      if (data.type === "discussion") {
-        navigation.navigate("DiscussionDetail", { id: data.discussionId });
+      if (data.type === "discussion_comment") {
+        router.push(`discussions/${data.data.discussion_slug}/${data.data.discussion_id}`)
+      }
+      else if (data.type === "discussion") {
+        router.push(`discussions/${data.data.discussion_slug}/${data.data.discussion_id}`)
+      }
+      else if (data.type === "dicussion_like") {
+        router.push(`discussions/${data.data.discussion_slug}/${data.data.discussion_id}`)
       }
     });
 
