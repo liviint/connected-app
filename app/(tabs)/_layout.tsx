@@ -11,11 +11,14 @@ export default function TabLayout() {
   return (
     <>
       <Tabs
+
         screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          headerShown: false,
+          tabBarButton: HapticTab,
+          href: null, 
+        }}
+      >
       <Tabs.Screen
         name="index"
         options={{
@@ -37,6 +40,14 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.crop.circle.fill" color={color} />,
+        }}
+      />
+
+      
+      <Tabs.Screen
+        name="blog"
+        options={{
+          href: null,
         }}
       />
       
