@@ -11,12 +11,10 @@ export default function TabLayout() {
   return (
     <>
       <Tabs
-
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
           tabBarButton: HapticTab,
-          href: null, 
         }}
       >
       <Tabs.Screen
@@ -42,7 +40,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.crop.circle.fill" color={color} />,
         }}
       />
-
       
       <Tabs.Screen
         name="blog"
@@ -50,7 +47,24 @@ export default function TabLayout() {
           href: null,
         }}
       />
-      
+      <Tabs.Screen
+        name="discussions/[slug]/[id]/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="discussions/new"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="profile/edit/index"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
     </>
   );

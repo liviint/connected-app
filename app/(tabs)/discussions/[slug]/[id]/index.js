@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { blogApi } from "../../../../api";
-import { dateFormat } from "../../../../utils/dateFormat";
+import { blogApi } from "../../../../../api";
+import { dateFormat } from "../../../../../utils/dateFormat";
 import Markdown from "react-native-markdown-display";
-import LikeButton from "../../../../src/components/discussions/LikeButton";
-import Comments from "../../../../src/components/discussions/Comments";
+import LikeButton from "../../../../../src/components/discussions/LikeButton";
+import Comments from "../../../../../src/components/discussions/Comments";
 
 export default function Index() {
   const { id } = useLocalSearchParams();

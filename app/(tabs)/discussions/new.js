@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { Picker } from "@react-native-picker/picker";
 import { blogApi } from "@/api";
-import LoginFirst from "../../src/components/common/LoginFirst";
+import LoginFirst from "../../../src/components/common/LoginFirst";
 
 export default function AddDiscussion() {
   const user = useSelector((state) => state?.user?.userDetails);

@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import { useRouter } from "expo-router";
-import { api } from "../../../api";
+import { api } from "../../../../api";
 import * as ImagePicker from "expo-image-picker";
 
 const ProfilePage = () => {
