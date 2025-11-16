@@ -6,6 +6,8 @@ import { dateFormat } from "../../../../../utils/dateFormat";
 import Markdown from "react-native-markdown-display";
 import LikeButton from "../../../../../src/components/discussions/LikeButton";
 import Comments from "../../../../../src/components/discussions/Comments";
+import ShareButton from "../../../../../src/components/common/ShareButton";
+import EditButton from "../../../../../src/components/common/EditButton";
 
 export default function Index() {
   const { id } = useLocalSearchParams();
@@ -56,11 +58,21 @@ export default function Index() {
       <Markdown style={markdownStyles}>
         {discussion.content}
       </Markdown>
+      <View style={styles.actions}>
+          <LikeButton 
+            discussionId={id}
+            initialLikes={discussion.likes_count}
+          />
+          <ShareButton 
+            url={`https://www.zeniahub.com/discussions/${discussion.slug}/${id}`} 
+          />
+          {/* <EditButton
+              contentAuthor={discussion.author}
+              href={`/blog/edit/${id}`}
+          /> */}
+        </View>
 
-      <LikeButton 
-        discussionId={id}
-        initialLikes={discussion.likes_count}
-      />
+      
 
       <Comments 
         comments={comments} 
@@ -158,6 +170,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#777",
   },
+  actions:{
+    flexDirection:"row",
+    justifyContent:"flex-start",
+    alignItems:"center",
+    gap:20,
+    marginTop:16,
+  }
 });
 
 const markdownStyles = {

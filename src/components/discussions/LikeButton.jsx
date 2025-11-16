@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { useSelector , useDispatch} from 'react-redux';
 import { api } from '../../../api';
-import { Ionicons } from '@expo/vector-icons';
-import { globalStyles } from '../../styles/global';
 import {removeUpdatedDiscussionLikes} from "../../../store/features/websocketSlice"
+import Like from '../common/Like';
 
 export default function LikeButton({ discussionId, initialLikes }) {
   const dispatch = useDispatch()
@@ -58,34 +56,5 @@ export default function LikeButton({ discussionId, initialLikes }) {
     }
   };
 
-  return (
-    <View style={globalStyles.container}>
-      <TouchableOpacity style={styles.button} onPress={handleLike}>
-        <Ionicons
-          name={liked ? 'heart' : 'heart-outline'}
-          size={22}
-          color={liked ? '#FF6B6B' : '#666'}
-        />
-        <Text style={styles.likesText}>{likes}</Text>
-      </TouchableOpacity>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-    </View>
-  );
+  return <Like liked={liked} handleLike={handleLike} likes={likes} error={error} />
 }
-
-const styles = StyleSheet.create({
-    button: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    likesText: {
-        marginLeft: 6,
-        fontSize: 16,
-        color: '#333',
-    },
-    error: {
-        color: 'red',
-        marginTop: 4,
-        fontSize: 12,
-    },
-});
