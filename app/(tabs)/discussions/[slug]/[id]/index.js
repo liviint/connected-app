@@ -66,10 +66,10 @@ export default function Index() {
           <ShareButton 
             url={`https://www.zeniahub.com/discussions/${discussion.slug}/${id}`} 
           />
-          {/* <EditButton
+          <EditButton
               contentAuthor={discussion.author}
-              href={`/blog/edit/${id}`}
-          /> */}
+              href={`/discussions/edit/${id}`}
+          /> 
         </View>
 
       

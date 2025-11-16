@@ -60,6 +60,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="discussions/edit/[id]/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="profile/edit/index"
         options={{
           href: null,

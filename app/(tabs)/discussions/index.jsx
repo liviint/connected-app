@@ -1,9 +1,11 @@
-import  { useEffect, useState } from 'react';
+import  { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { globalStyles } from '../../../src/styles/global';
 import { useSelector, useDispatch } from 'react-redux';
 import {removeUpdatedDiscussions} from "../../../store/features/websocketSlice"
+import { blogApi } from '../../../api';
 
 export default function DiscussionsList() {
   const dispatch = useDispatch()
@@ -13,20 +15,31 @@ export default function DiscussionsList() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchDiscussions = async () => {
-      try {
-        const res = await fetch(`${apiUrl}discussions/`);
-        const data = await res.json();
-        setDiscussions(data.results);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDiscussions();
-  }, []);
+  useFocusEffect(
+      useCallback(() => {
+        let isActive = true;
+        const fetchDiscussions = async () => {
+          try {
+            const res = await blogApi.get(`${apiUrl}discussions/`);
+            const data = await res.data;
+            if (isActive) {
+              setDiscussions(data.results);
+            }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            if (isActive) setLoading(false);
+          }
+        };
+
+        fetchDiscussions();
+
+        return () => {
+          isActive = false; 
+        };
+      }, [])
+  );
+
 
   useEffect(() => {
     if (!connected || newDiscussions.length === 0) return;
