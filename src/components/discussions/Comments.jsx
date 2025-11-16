@@ -29,8 +29,8 @@ export default function Comments({comments, setComments,styles}) {
     };
 
     useEffect(() => {
-        if (!connected || newDiscussionComments.length === 0) return;
-        const currentDiscussionComments = newDiscussionComments.filter(c => c.discussion_id === id);
+        if (!connected || newDiscussionComments.length === 0) return
+        const currentDiscussionComments = newDiscussionComments.filter(c => c.discussion == id);
         setComments(prev => {
             const existingIds = new Set(prev.map(c => c.id));
             const newComments = currentDiscussionComments.filter(c => !existingIds.has(c.id));

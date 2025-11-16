@@ -31,7 +31,6 @@ export default function WebSocketManager() {
 
             socket.onmessage = async (event) => {
                 const { event: eventType, data } = JSON.parse(event.data);
-                
                 switch (eventType) {
                     case "discussion_created":
                         dispatch(addNewDiscussion(data))

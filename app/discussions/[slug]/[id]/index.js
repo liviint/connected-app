@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useSelector } from "react-redux";
 import { blogApi } from "../../../../api";
 import { dateFormat } from "../../../../utils/dateFormat";
 import Markdown from "react-native-markdown-display";
 import LikeButton from "../../../../src/components/discussions/LikeButton";
 import Comments from "../../../../src/components/discussions/Comments";
-import LoginFirst from "../../../../src/components/common/LoginFirst";
 
 export default function Index() {
   const { id } = useLocalSearchParams();
-  const user = useSelector((state) => state?.user?.userDetails);
   const [discussion, setDiscussion] = useState(null);
   const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,21 +27,6 @@ export default function Index() {
     };
     fetchDiscussion();
   }, [id]);
-
-  const handleComment = async () => {
-    if (!user || !newComment.trim()) return;
-    try {
-      const res = await blogApi.post(
-        `discussions/comments/`,
-        { content: newComment, discussion: id },
-        { headers: { Authorization: `Bearer ${user.access}` } }
-      );
-      setComments([res.data, ...comments]);
-      setNewComment("");
-    } catch (err) {
-      console.error("Error posting comment:", err);
-    }
-  };
 
   if (loading) {
     return (
