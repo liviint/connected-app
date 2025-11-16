@@ -37,6 +37,11 @@ export default function Header() {
         <View style={styles.navSmall}>
 
           <NavLink 
+            label="Discussions" 
+            path="/discussions" 
+            isActive={isActive("/discussions")} 
+          />
+          <NavLink 
             label="Blog" 
             path="/blog" 
             isActive={isActive("/blog")} 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
-import { blogApi } from '../../api';
+import { blogApi } from '../../../api';
 
 export default function FeedbackPage() {
   const [message, setMessage] = useState('');
