@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { View, Text, ActivityIndicator } from 'react-native';
 import BlogsList from '../../../src/components/blogs/BlogsList';
 import { blogApi } from '../../../api';
 import { globalStyles } from '../../../src/styles/global';
@@ -8,20 +9,34 @@ export default function BlogsPage() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchBlogs = async () => {
-        try {
-        const res = await blogApi.get('blogs/?published=true');
-        setBlogs(res.data.results);
-        } catch (err) {
-        console.error('Error fetching blogs:', err);
-        } finally {
-        setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchBlogs();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+    
+            const fetchBlogs = async () => {
+                setLoading(true);
+                try {
+                    const res = await blogApi.get(`blogs/?published=true`);
+            
+                    if (isActive) {
+                        setBlogs(res.data.results);
+                    }
+                } catch (error) {
+                    console.error('Error fetching blogs:', error);
+                } finally {
+                    if (isActive) {
+                        setLoading(false);
+                    }
+                }
+            };
+    
+            fetchBlogs();
+    
+            return () => {
+                isActive = false;
+            };
+        }, [])
+    );
 
     return (
         <View style={globalStyles.container} contentContainerStyle={globalStyles.containerContent}>
@@ -30,23 +45,3 @@ export default function BlogsPage() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#FAF9F7',
-        flex: 1,
-        paddingHorizontal: 16,
-    },
-    content: {
-        paddingVertical: 24,
-        paddingHorizontal: 16,
-    },
-    title: {
-        textAlign: 'center',
-        fontFamily: 'Poppins-Bold', // optional if using Expo fonts
-        fontWeight: '700',
-        fontSize: 24,
-        color: '#2E8B8B',
-        marginBottom: 24,
-    },
-});

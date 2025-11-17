@@ -1,8 +1,8 @@
 import  { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator , useWindowDimensions} from "react-native";
 import RenderHtml from "react-native-render-html";
-import { blogApi } from "../../../../../api";
-import { useLocalSearchParams } from 'expo-router';
+import { blogApi,api } from "../../../../../api";
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { dateFormat } from "../../../../../utils/dateFormat";
 import LikeButton from "../../../../../src/components/blogs/LikeButton";
 import Comments from "../../../../../src/components/blogComments/index";
@@ -10,12 +10,23 @@ import ViewsCount from "../../../../../src/components/blogs/ViewsCount";
 import Share from "../../../../../src/components/common/ShareButton";
 import EditButton from "../../../../../src/components/common/EditButton";
 import { globalStyles } from "../../../../../src/styles/global";
+import DeleteButton from "../../../../../src/components/common/DeleteButton";
 
 export default function SingleBlogPage({ route }) {
+  const router = useRouter()
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams()
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const handleDelete = async() => {
+      try {
+        await api.delete(`blogs/${id}/`);
+        router.push('/blog/my-blogs')
+      } catch (err) {
+        console.error("Error deleting blog:", err);
+      } 
+  }
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -74,6 +85,7 @@ export default function SingleBlogPage({ route }) {
               contentAuthor={blog.author}
               href={`/blog/edit/${blog.id}`}
           />
+          <DeleteButton item='blog' handleOk={handleDelete}/>
       </View>
 
     <Comments blogId={id} />

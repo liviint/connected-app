@@ -1,19 +1,30 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { blogApi } from "../../../../../api";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { blogApi,api } from "../../../../../api";
 import { dateFormat } from "../../../../../utils/dateFormat";
 import Markdown from "react-native-markdown-display";
 import LikeButton from "../../../../../src/components/discussions/LikeButton";
 import Comments from "../../../../../src/components/discussions/Comments";
 import ShareButton from "../../../../../src/components/common/ShareButton";
 import EditButton from "../../../../../src/components/common/EditButton";
+import DeleteButton from "../../../../../src/components/common/DeleteButton";
 
 export default function Index() {
+  const router = useRouter()
   const { id } = useLocalSearchParams();
   const [discussion, setDiscussion] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleDelete = async() => {
+        try {
+          await api.delete(`discussions/${id}/`);
+          router.push('/discussions')
+        } catch (err) {
+          console.error("Error deleting blog:", err);
+        } 
+    }
 
   useEffect(() => {
     const fetchDiscussion = async () => {
@@ -70,6 +81,7 @@ export default function Index() {
               contentAuthor={discussion.author}
               href={`/discussions/edit/${id}`}
           /> 
+          <DeleteButton item={'discussion'} handleOk={handleDelete} />
         </View>
 
       

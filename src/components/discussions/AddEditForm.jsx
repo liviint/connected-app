@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
-import { blogApi, api } from "@/api";
+import { api } from "@/api";
 import LoginFirst from "../common/LoginFirst";
 
 export default function AddDiscussion({discussionId}) {
@@ -31,7 +31,7 @@ export default function AddDiscussion({discussionId}) {
     setLoading(true);
     setError("");
     try {
-        const url = discussionId ? `/discussions/${discussionId}/`  : "/blogs/";
+        const url = discussionId ? `/discussions/${discussionId}/`  : "/discussions/";
         const method = discussionId ? "put" : "post";
       
         await api({
@@ -43,7 +43,7 @@ export default function AddDiscussion({discussionId}) {
       router.push("/discussions");
     } catch (err) {
       console.log(err, "Error posting discussion");
-      setError(err.response?.data?.detail || "Failed to post discussion.");
+      setError(err?.response || "Failed to post discussion.");
     } finally {
       setLoading(false);
     }
