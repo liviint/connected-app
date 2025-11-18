@@ -7,22 +7,50 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
+  Image,
+  TouchableOpacity,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { api } from "@/api";
 import LoginFirst from "../common/LoginFirst";
 
-export default function AddDiscussion({discussionId}) {
+export default function AddDiscussion({ discussionId }) {
   const user = useSelector((state) => state?.user?.userDetails);
   const router = useRouter();
 
   const [formData, setFormData] = useState({ title: "", content: "", category: 1 });
+  const [images, setImages] = useState([]); // local selected images
+  const [existingImages, setExistingImages] = useState([]); // for edit
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
+  };
+
+  const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const selected = result.assets.map((asset) => ({
+        uri: asset.uri,
+        name: asset.fileName || asset.uri.split("/").pop(),
+        type: "image/jpeg",
+      }));
+      setImages([...images, ...selected]);
+    }
   };
 
   const handleSubmit = async () => {
@@ -31,36 +59,53 @@ export default function AddDiscussion({discussionId}) {
     setLoading(true);
     setError("");
     try {
-        const url = discussionId ? `/discussions/${discussionId}/`  : "/discussions/";
-        const method = discussionId ? "put" : "post";
-      
-        await api({
-          method,
-          url,
-          data: formData,
+      const url = discussionId ? `/discussions/${discussionId}/` : "/discussions/";
+      const method = discussionId ? "put" : "post";
+
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("content", formData.content);
+      data.append("category", formData.category);
+
+      images.forEach((img) => {
+        data.append("uploaded_images", {
+          uri: img.uri,
+          name: img.name,
+          type: img.type,
         });
+      });
+
+      await api({
+        method,
+        url,
+        data,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       setFormData({ title: "", content: "", category: "" });
+      setImages([]);
       router.push("/discussions");
     } catch (err) {
       console.log(err, "Error posting discussion");
-      setError(err?.response || "Failed to post discussion.");
+      setError(err?.response?.data?.detail || "Failed to post discussion.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-      const fetchBlog = async () => {
-        try {
-          const res = await api.get(`discussions/${discussionId}/`);
-          setFormData(res.data);
-        } catch (err) {
-          console.error("Error loading blog", err);
-        }
-      };
-      if (discussionId) fetchBlog();
-    }, [discussionId]);
-  
+    const fetchDiscussion = async () => {
+      try {
+        if (!discussionId) return;
+        const res = await api.get(`/discussions/${discussionId}/`);
+        setFormData(res.data);
+        setExistingImages(res.data.images || []);
+      } catch (err) {
+        console.error("Error loading discussion", err);
+      }
+    };
+    fetchDiscussion();
+  }, [discussionId]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -91,16 +136,30 @@ export default function AddDiscussion({discussionId}) {
             placeholder="Enter discussion content"
           />
         </View>
-        {!user ? <LoginFirst /> : ""}
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Images</Text>
+          <Pressable style={styles.btn} onPress={pickImages}>
+            <Text style={styles.btnText}>Pick Images</Text>
+          </Pressable>
+          <ScrollView horizontal style={{ marginTop: 10 }}>
+            {existingImages.map((img, idx) => (
+              <Image key={idx} source={{ uri: img.image }} style={styles.previewImage} />
+            ))}
+            {images.map((img, idx) => (
+              <Image key={idx} source={{ uri: img.uri }} style={styles.previewImage} />
+            ))}
+          </ScrollView>
+        </View>
+
+        {!user ? <LoginFirst /> : null}
 
         {loading ? (
           <ActivityIndicator size="large" color="#FF6B6B" style={{ marginVertical: 20 }} />
         ) : (
           <Pressable style={styles.btn} onPress={handleSubmit} disabled={loading}>
             <Text style={styles.btnText}>
-              {
-                discussionId ? "Update Discussion" : "Start Discussion"
-              }
+              {discussionId ? "Update Discussion" : "Start Discussion"}
             </Text>
           </Pressable>
         )}
@@ -136,9 +195,7 @@ const styles = StyleSheet.create({
     color: "#333333",
     fontFamily: "Poppins",
   },
-  formGroup: {
-    marginBottom: 16,
-  },
+  formGroup: { marginBottom: 16 },
   label: {
     fontSize: 16,
     marginBottom: 6,
@@ -155,17 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     fontFamily: "Inter",
   },
-  textarea: {
-    height: 120,
-    textAlignVertical: "top",
-  },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    overflow: "hidden",
-    backgroundColor: "#fff",
-  },
+  textarea: { height: 120, textAlignVertical: "top" },
   btn: {
     width: "100%",
     paddingVertical: 12,
@@ -180,8 +227,12 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins",
     fontSize: 16,
   },
-  error: {
-    color: "red",
-    marginBottom: 10,
+  error: { color: "red", marginBottom: 10 },
+  previewImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginRight: 10,
+    marginTop: 10,
   },
 });
