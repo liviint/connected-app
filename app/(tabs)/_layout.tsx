@@ -34,6 +34,14 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="journal/index"
+        options={{
+          title: 'Journal',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="book.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
         name="profile/index"
         options={{
           title: 'Profile',
@@ -67,6 +75,24 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="profile/edit/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="journal/[id]/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="journal/[id]/edit/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="journal/create/index"
         options={{
           href: null,
         }}

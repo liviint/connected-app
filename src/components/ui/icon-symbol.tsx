@@ -3,34 +3,43 @@ import { SymbolWeight, SymbolViewProps } from 'expo-symbols';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
+// Type alias for Material Icon names, for clarity
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+// 1. Define MAPPING first without a type assertion. 
+// This allows TypeScript to infer its keys: 'house.fill' | 'paperplane.fill' | ...
+const MAPPING = {
+  'house.fill': 'home' as MaterialIconName, 
+  'paperplane.fill': 'send' as MaterialIconName,
+  'chevron.left.forwardslash.chevron.right': 'code' as MaterialIconName,
+  'chevron.right': 'chevron-right' as MaterialIconName,
+  'person.crop.circle.fill': 'person' as MaterialIconName,
+  'text.bubble.fill': 'forum' as MaterialIconName,
+  'book.fill': 'book' as MaterialIconName,
+};
+
+// 2. Define IconSymbolName using the *inferred* keys of MAPPING.
+// This is now correct: IconSymbolName = 'house.fill' | 'paperplane.fill' | 'chevron.left.forwardslash.chevron.right' | ... (7 keys)
 type IconSymbolName = keyof typeof MAPPING;
 
-const MAPPING = {
-  'house.fill': 'home',
-  'paperplane.fill': 'send',
-  'chevron.left.forwardslash.chevron.right': 'code',
-  'chevron.right': 'chevron-right',
-  'person.crop.circle.fill': 'person',
-  'text.bubble.fill': 'forum'
-} as IconMapping;
+// The original IconMapping type is no longer needed but is left for context
+// type IconMapping = Record<SymbolViewProps['name'], MaterialIconName>; 
+
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
- * This ensures a consistent look across platforms, and optimal resource usage.
- * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
  */
 export function IconSymbol({
-  name,
-  size = 24,
-  color,
-  style,
+  name,
+  size = 24,
+  color,
+  style,
 }: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
-  weight?: SymbolWeight;
+  name: IconSymbolName;
+  size?: number;
+  color: string | OpaqueColorValue;
+  style?: StyleProp<TextStyle>;
+  weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
 }
