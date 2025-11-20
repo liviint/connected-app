@@ -11,6 +11,7 @@ import Share from "../../../../../src/components/common/ShareButton";
 import EditButton from "../../../../../src/components/common/EditButton";
 import { globalStyles } from "../../../../../src/styles/global";
 import DeleteButton from "../../../../../src/components/common/DeleteButton";
+import UserLinkBtn from "../../../../../src/components/profile/UserLinkBtn";
 
 export default function SingleBlogPage({ route }) {
   const router = useRouter()
@@ -58,7 +59,7 @@ export default function SingleBlogPage({ route }) {
     );
   }
 
-  const { title, content, created_at, image, author_name, likes_count , slug} = blog;
+  const { title, content, created_at, image, author, likes_count , slug} = blog;
 
   return (
     <ScrollView style={globalStyles.container} contentContainerStyle={globalStyles.containerContent}>
@@ -66,9 +67,13 @@ export default function SingleBlogPage({ route }) {
       <View style={styles.header}>
         {image && <Image source={{ uri: image }} style={styles.coverImage} />}
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.meta}>
-          By {author_name} • {dateFormat(created_at)}
-        </Text>
+
+        <UserLinkBtn content={{
+              author:author,
+              created_at:created_at
+          }} 
+        />
+        
       </View>
 
       <RenderHtml

@@ -21,7 +21,6 @@ export default function JournalListPage() {
         setRefreshing(true);
         try {
             const res = await api.get(`/journal/`);
-            console.log(res.data.results,"hello res jou")
             setJournals(res.data.results);
         } catch (err) {
             console.error("Journal fetch error:", err);

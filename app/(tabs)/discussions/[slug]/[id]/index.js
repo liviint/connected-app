@@ -9,6 +9,7 @@ import Comments from "../../../../../src/components/discussions/Comments";
 import ShareButton from "../../../../../src/components/common/ShareButton";
 import EditButton from "../../../../../src/components/common/EditButton";
 import DeleteButton from "../../../../../src/components/common/DeleteButton";
+import UserLinkBtn from "../../../../../src/components/profile/UserLinkBtn";
 
 export default function Index() {
   const router = useRouter();
@@ -99,9 +100,11 @@ export default function Index() {
 
       <View style={styles.header}>
         <Text style={styles.title}>{discussion.title}</Text>
-        <Text style={styles.meta}>
-          By {discussion.author_name} • {dateFormat(discussion.created_at)}
-        </Text>
+        <UserLinkBtn content={{
+            author:discussion.author,
+            created_at:discussion.created_at
+          }} 
+        />
       </View>
 
       <Markdown style={markdownStyles}>
