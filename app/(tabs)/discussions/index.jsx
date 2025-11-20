@@ -6,6 +6,7 @@ import { globalStyles } from '../../../src/styles/global';
 import { useSelector, useDispatch } from 'react-redux';
 import {removeUpdatedDiscussions} from "../../../store/features/websocketSlice"
 import { blogApi } from '../../../api';
+import UserLinkBtn from '../../../src/components/profile/UserLinkBtn';
 
 export default function DiscussionsList() {
   const dispatch = useDispatch()
@@ -78,6 +79,11 @@ export default function DiscussionsList() {
           onPress={() => router.push(`/discussions/${d.slug}/${d.id}`)}
         >
           <Text style={styles.cardTitle}>{d.title}</Text>
+          <UserLinkBtn content={{
+                    author:d.author,
+                    created_at:d.created_at
+                  }} 
+                />
           <Text style={styles.cardMeta}>By {d.author_name} • {new Date(d.created_at).toLocaleDateString()}</Text>
           <Text style={styles.cardSummary}>{d.content.slice(0, 120)}...</Text>
           <Text style={styles.readMore}>Read More →</Text>

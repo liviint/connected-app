@@ -3,6 +3,7 @@ import { dateFormat } from '../../../utils/dateFormat';
 import EditButton from '../common/EditButton';
 import { useRouter } from "expo-router";
 import { useState } from 'react';
+import UserLinkBtn from '../profile/UserLinkBtn';
 
 export default function BlogsList({ initialBlogs, author }) {
   const [blogs,setBlogs] = useState(initialBlogs)
@@ -29,9 +30,11 @@ export default function BlogsList({ initialBlogs, author }) {
         )}
       </View>
 
-      <Text style={styles.meta}>
-        By {item.author_name} • {dateFormat(item.created_at)}
-      </Text>
+      <UserLinkBtn content={{
+          author:item.author,
+          created_at:item.created_at
+        }} 
+      />
 
       <Text style={styles.summary}>{item.summary}</Text>
 
