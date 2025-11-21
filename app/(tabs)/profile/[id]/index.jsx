@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import {
   View,
   Text,
@@ -7,30 +7,32 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams , useFocusEffect} from "expo-router";
 import { blogApi } from "@/api";
-// import FollowButton from "@/components/social/FollowButton";
-// import FriendshipButton from "@/components/social/FriendshipButton";
+import FollowButton from "../../../../src/components/social/FollowButton";
+import FriendshipButton from "../../../../src/components/social/FriendshipButton";
 
 export default function UserProfile() {
   const { id } = useLocalSearchParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await blogApi.get(`users/${id}/`);
-        setUser(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUser = async () => {
+        try {
+          const res = await blogApi.get(`users/${id}/`);
+          setUser(res.data);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchUser();
-  }, [id]);
+      fetchUser();
+    },[id])
+  );
 
   if (loading) {
     return (
@@ -56,17 +58,17 @@ export default function UserProfile() {
           source={{
             uri:
               user.profilePic ||
-              "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+              "https://liviints.sgp1.cdn.digitaloceanspaces.com/media/profile_pics/Portrait_Placeholder.png",
           }}
           style={styles.avatar}
         />
         <View style={styles.userInfo}>
           <Text style={styles.username}>{user.username}</Text>
           <Text style={styles.bio}>{user.bio || ""}</Text>
-          {/* <View style={styles.buttons}>
+          <View style={styles.buttons}>
             <FollowButton userId={id} />
             <FriendshipButton userId={id} />
-          </View> */}
+          </View>
         </View>
       </View>
 
