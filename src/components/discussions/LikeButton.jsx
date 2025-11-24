@@ -46,6 +46,7 @@ export default function LikeButton({ discussionId, initialLikes }) {
     try {
       await api.post(`discussions/${discussionId}/like/`,{},);
       setLiked(true);
+      setLikes(prev => prev + 1)
     } catch (err) {
       console.log('Like error:', err);
       if (err.response?.data?.detail) {
@@ -56,5 +57,10 @@ export default function LikeButton({ discussionId, initialLikes }) {
     }
   };
 
-  return <Like liked={liked} handleLike={handleLike} likes={likes} error={error} />
+  return <Like 
+            liked={liked} 
+            handleLike={handleLike} 
+            likes={likes} 
+            error={error} 
+          />
 }

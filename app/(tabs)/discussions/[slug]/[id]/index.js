@@ -10,6 +10,7 @@ import ShareButton from "../../../../../src/components/common/ShareButton";
 import EditButton from "../../../../../src/components/common/EditButton";
 import DeleteButton from "../../../../../src/components/common/DeleteButton";
 import UserLinkBtn from "../../../../../src/components/profile/UserLinkBtn";
+import {ReportButton,ReportModal} from "../../../../../src/components/discussions/ReportButton";
 
 export default function Index() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function Index() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [reportVisible, setReportVisible] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -128,6 +130,12 @@ export default function Index() {
           handleOk={handleDelete} 
           contentAuthor={discussion.author}
           loggedUser={loggedUser}
+        />
+        <ReportButton openModal={() => setReportVisible(true)} />
+        <ReportModal
+          visible={reportVisible}
+          onClose={() => setReportVisible(false)}
+          discussionId={id}
         />
       </View>
 
