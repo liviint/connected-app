@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Image, useWindowDimensions } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { blogApi, api } from "../../../../../api";
-import { dateFormat } from "../../../../../utils/dateFormat";
 import Markdown from "react-native-markdown-display";
 import LikeButton from "../../../../../src/components/discussions/LikeButton";
 import Comments from "../../../../../src/components/discussions/Comments";
@@ -15,6 +15,7 @@ export default function Index() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams();
+  const loggedUser = useSelector(state => state?.user?.userDetails)?.user?.id
   const [discussion, setDiscussion] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,8 +68,6 @@ export default function Index() {
 
   return (
     <ScrollView style={styles.container}>
-      
-      {/* Image Slider */}
       {discussion.images?.length > 0 && (
         <View style={styles.sliderContainer}>
           <ScrollView
@@ -112,10 +111,24 @@ export default function Index() {
       </Markdown>
 
       <View style={styles.actions}>
-        <LikeButton discussionId={id} initialLikes={discussion.likes_count} />
-        <ShareButton url={`https://www.zeniahub.com/discussions/${discussion.slug}/${id}`} />
-        <EditButton contentAuthor={discussion.author} href={`/discussions/edit/${id}`} />
-        <DeleteButton item={'discussion'} handleOk={handleDelete} />
+        <LikeButton 
+          discussionId={id} 
+          initialLikes={discussion.likes_count} 
+        />
+        <ShareButton 
+          url={`https://www.zeniahub.com/discussions/${discussion.slug}/${id}`} 
+        />
+        <EditButton 
+          contentAuthor={discussion.author} 
+          href={`/discussions/edit/${id}`} 
+          loggedUser={loggedUser}
+        />
+        <DeleteButton 
+          item={'discussion'} 
+          handleOk={handleDelete} 
+          contentAuthor={discussion.author}
+          loggedUser={loggedUser}
+        />
       </View>
 
       <Comments comments={comments} setComments={setComments} styles={styles} />

@@ -1,12 +1,8 @@
-import { useSelector } from "react-redux";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 
-export default function EditButton({ contentAuthor, href }) {
+export default function EditButton({ contentAuthor, href,loggedUser }) {
     const router = useRouter()
-    const loggedUser = useSelector(
-        (state) => state?.user?.userDetails?.user?.id
-    );
 
     if (loggedUser !== contentAuthor) return null;
 

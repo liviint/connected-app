@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from "react-native";
 
-const DeleteButton = ({ handleOk, item }) => {
+const DeleteButton = ({ handleOk, item , contentAuthor, loggedUser}) => {
     const [visible, setVisible] = useState(false);
 
     const confirmDelete = async () => {
@@ -12,6 +12,8 @@ const DeleteButton = ({ handleOk, item }) => {
     const cancelDelete = () => {
         setVisible(false);
     };
+
+    if(loggedUser !== contentAuthor) return 
 
     return (
         <View>
