@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import { api } from "../../../api";
 
-export function ReportButton({ openModal }) {
+export function ReportButton({ openModal, contentAuthor,loggedUser}) {
+    if(contentAuthor === loggedUser) return
     return (
             <TouchableOpacity
                 onPress={openModal}

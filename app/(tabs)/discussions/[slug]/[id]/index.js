@@ -121,17 +121,21 @@ export default function Index() {
           url={`https://www.zeniahub.com/discussions/${discussion.slug}/${id}`} 
         />
         <EditButton 
-          contentAuthor={discussion.author} 
+          contentAuthor={discussion.author.id} 
           href={`/discussions/edit/${id}`} 
           loggedUser={loggedUser}
         />
         <DeleteButton 
           item={'discussion'} 
           handleOk={handleDelete} 
-          contentAuthor={discussion.author}
+          contentAuthor={discussion.author.id}
           loggedUser={loggedUser}
         />
-        <ReportButton openModal={() => setReportVisible(true)} />
+        <ReportButton 
+          openModal={() => setReportVisible(true)} 
+          contentAuthor={discussion.author.id}
+          loggedUser={loggedUser}
+        />
         <ReportModal
           visible={reportVisible}
           onClose={() => setReportVisible(false)}
