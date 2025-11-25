@@ -4,7 +4,6 @@ import { useLocalSearchParams } from "expo-router";
 import { blogApi } from "@/api";
 import FollowButton from "../../../../src/components/social/FollowButton";
 import FriendshipButton from "../../../../src/components/social/FriendshipButton";
-import UserPostedContent from "../../../../src/components/profile/UserPostedContent";
 
 export default function UserProfile() {
   const { id } = useLocalSearchParams();
@@ -64,8 +63,6 @@ export default function UserProfile() {
           </View>
         </View>
       </View>
-
-      <UserPostedContent userId={id} />
     </ScrollView>
   );
 }
