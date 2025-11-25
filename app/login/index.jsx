@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { useDispatch } from "react-redux";
+import { Link } from "expo-router";
 import { useRouter } from "expo-router";
 import { setUserDetails } from "@/store/features/userSlice";
 import { api } from "@/api"; 
@@ -90,7 +91,11 @@ export default function Login() {
             <Text style={styles.error}>{errors.password}</Text>
           ) : null}
         </View>
-
+          <View style={styles.forgotPass}>
+              <Link style={styles.forgotPassText} href="/reset-password" >
+                  Forgot password?
+              </Link> 
+          </View>
         <TouchableOpacity
           onPress={handleSubmit}
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -185,6 +190,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
     fontWeight: "700",
+  },
+  forgotPass: {
+    marginTop: 10,           
+    alignItems: 'flex-end',  
+  },
+  forgotPassText: {
+    color: '#2E8B8B',        
+    fontSize: 14,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
   hint: {
     textAlign: "center",

@@ -40,9 +40,9 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
-      <WebSocketManager /> 
-      <WebSocketManagerNotifications />
-      <NotificationsHandler />
+      {/* <WebSocketManager /> 
+      <WebSocketManagerNotifications /> */}
+      {/* <NotificationsHandler /> */}
       <Header />
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
