@@ -8,8 +8,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { api } from "@/api";
+import { useRouter } from "expo-router";
 
 const ResetPasswordConfirm = ({ route, navigation }) => {
+  const router = useRouter()
   const { uid, token } = route.params; 
 
   const [formData, setFormData] = useState({
@@ -47,30 +49,27 @@ const ResetPasswordConfirm = ({ route, navigation }) => {
       setError("Password must be at least 6 characters long.");
       return;
     }
-
-    try {
       setLoading(true);
-
-      const response = await api.post("/accounts/password-reset-confirm/", {
+      await api.post("/accounts/password-reset-confirm/", {
         uid,
         token,
         new_password,
-      });
-
-      console.log("Password reset confirmed:", response.data);
-      setSuccess("Your password has been successfully reset!");
-      setFormData({ new_password: "", confirm_password: "" });
-    } catch (err) {
-      console.error(err);
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        "Failed to reset password. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+      })
+      .then(() => {
+        setSuccess("Your password has been successfully reset!");
+        setFormData({ new_password: "", confirm_password: "" });
+        setTimeout(() => router.push("login"),3000)
+      })
+      .catch(err => {
+        console.error(err);
+        setError(
+          err.response?.data?.detail ||
+          err.response?.data?.message ||
+          "Failed to reset password. Please try again."
+        );
+      })
+      .finally(() => setLoading(false) )
+  }
 
   return (
     <View style={styles.container}>
