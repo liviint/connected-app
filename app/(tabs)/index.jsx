@@ -1,126 +1,150 @@
-'use client';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 
-import React from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-
-export default function HomePage() {
-  const router = useRouter();
+export default function HomeScreen() {
+  const router = useRouter()
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to ZeniaHub 🌿</Text>
         <Text style={styles.subtitle}>
-          A safe space to express, connect, and grow together.
+          Your personal space to reflect, grow, and stay accountable.
         </Text>
       </View>
 
       <View style={styles.about}>
         <Text style={styles.paragraph}>
-          At <Text style={styles.bold}>ZeniaHub</Text>, we believe that mental wellness starts with expression and connection. 
-          You can share your thoughts through{' '}
+          <Text style={styles.bold}>ZeniaHub</Text> helps you improve your mental and
+          emotional wellness through powerful tools like{" "}
+          <Text style={styles.link} onPress={() => router.push("/journal")}>
+            journaling
+          </Text>
+          ,{" "}
+          <Text style={styles.link} onPress={() => router.push("/habits")}>
+            habit tracking
+          </Text>
+          , and inspiring{" "}
           <Text style={styles.link} onPress={() => router.push('/blog')}>
-            blog posts
-          </Text>{' '}
-          or join open{' '}
-          <Text style={styles.link} onPress={() => router.push('/discussions')}>
-            community discussions
-          </Text>.
+            blog content
+          </Text>
+          .
         </Text>
 
         <Text style={styles.paragraph}>
-          You can also add a <Text style={styles.bold}>private username</Text> in your profile page 
-          for anonymity, so you can express yourself freely while staying safe.
+          You can connect with up to <Text style={styles.bold}>5 close friends</Text> who
+          support your growth journey, keep you accountable, and stay connected through
+          private interactions—always in a safe, calm, and private environment.
+        </Text>
+
+        <Text style={styles.paragraph}>
+          ZeniaHub is designed for people who want a peaceful space, without the noise of
+          large public forums or overwhelming communities.
         </Text>
       </View>
 
       <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.button, styles.primary]}
-          onPress={() => router.push('/blog')}
+          onPress={() => router.push("journal")}
         >
-          <Text style={styles.buttonText}>Read Our Blog</Text>
+          <Text style={styles.buttonText}>Start Journaling</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, styles.secondary]}
-          onPress={() => router.push('/discussions')}
+          onPress={() => router.push("habits")}
         >
-          <Text style={styles.buttonText}>Join Discussions</Text>
+          <Text style={styles.buttonText}>Track Habits</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.tertiary]}
+          onPress={() => router.push("blog")}
+        >
+          <Text style={[styles.buttonText, { color: "#333" }]}>Read Blog</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: '#FAF9F7',
-    padding: 24,
-    alignItems: 'center',
-    textAlign: 'center',
+    flex: 1,
+    backgroundColor: "#FAF9F7", 
+    paddingHorizontal: 20,
   },
+
   header: {
-    marginBottom: 32,
-    maxWidth: 800,
+    marginTop: 30,
+    marginBottom: 20,
   },
+
   title: {
-    fontFamily: 'Poppins',
-    fontWeight: '700',
-    color: '#FF6B6B',
-    fontSize: 32,
-    marginBottom: 8,
-    textAlign: 'center',
+    fontSize: 26,
+    fontFamily: "Poppins-Bold",
+    color: "#2E8B8B", 
+    marginBottom: 10,
   },
+
   subtitle: {
-    fontSize: 18,
-    color: '#555',
-    textAlign: 'center',
+    fontSize: 16,
+    fontFamily: "Inter-Regular",
+    color: "#333333",
+    opacity: 0.8,
   },
+
   about: {
-    maxWidth: 700,
-    marginBottom: 32,
+    marginVertical: 20,
   },
+
   paragraph: {
-    fontFamily: 'Inter',
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 24,
-    marginBottom: 12,
+    fontSize: 15,
+    lineHeight: 22,
+    fontFamily: "Inter-Regular",
+    color: "#333333",
+    marginBottom: 16,
   },
+
   bold: {
-    fontWeight: '700',
+    fontFamily: "Inter-Bold",
+    fontWeight: "700",
   },
+
   link: {
-    color: '#2E8B8B',
-    fontWeight: '700',
-    textDecorationLine: 'underline',
+    color: "#FF6B6B",
+    fontFamily: "Inter-Bold",
   },
+
   actions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-    justifyContent: 'center',
-    marginBottom: 32,
+    marginTop: 20,
+    gap: 12,
   },
+
   button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    margin: 8,
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
+
   primary: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
   },
+
   secondary: {
-    backgroundColor: '#2E8B8B',
+    backgroundColor: "#2E8B8B",
   },
+
+  tertiary: {
+    backgroundColor: "#F4E1D2",
+  },
+
   buttonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
-    textAlign: 'center',
+    color: "#FFFFFF",
+    fontFamily: "Poppins-Bold",
+    fontSize: 15,
   },
 });

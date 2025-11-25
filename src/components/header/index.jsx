@@ -35,12 +35,6 @@ export default function Header() {
     {menuOpen && (
       <View style={styles.overlay}>
         <View style={styles.navSmall}>
-
-          <NavLink 
-            label="Discussions" 
-            path="/discussions" 
-            isActive={isActive("/discussions")} 
-          />
           <NavLink 
             label="Blog" 
             path="/blog" 
