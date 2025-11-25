@@ -1,13 +1,23 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useDispatch } from "react-redux";
-import { Link } from "expo-router";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { setUserDetails } from "@/store/features/userSlice";
-import { api } from "@/api"; 
+import { api } from "@/api";
 import { safeLocalStorage } from "../../utils/storage";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
 
-export default function Login() {
+WebBrowser.maybeCompleteAuthSession();
+
+export default function Index() {
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -16,6 +26,11 @@ export default function Login() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // const [request, response, promptAsync] = Google.useAuthRequest({
+  //   androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+  //   webClientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+  // });
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -42,8 +57,10 @@ export default function Login() {
 
     try {
       const response = await api.post("accounts/login/", formData);
-      dispatch(setUserDetails(response.data));
+
+      dispatch(setUserDetails(response.data.user));
       safeLocalStorage.setItem("token", response.data.access);
+
       setSuccess(true);
       router.push("/profile");
       setFormData({ email: "", password: "" });
@@ -51,12 +68,37 @@ export default function Login() {
       console.error("Login failed:", error);
       setServerError(
         error.response?.data?.message ||
-        "Invalid credentials. Please try again."
+          "Invalid credentials. Please try again."
       );
     } finally {
       setLoading(false);
     }
   };
+
+  // Handle Google login response
+  useEffect(() => {
+    const finishGoogleLogin = async () => {
+      if (response?.type === "success") {
+        const token = response.authentication.accessToken;
+
+        try {
+          const res = await api.post("accounts/google-login/", {
+            token: token,
+          });
+
+          safeLocalStorage.setItem("token", res.data.access);
+          dispatch(setUserDetails(res.data.user));
+
+          router.push("/profile");
+        } catch (err) {
+          console.error("Google login failed:", err);
+          setServerError("Google login failed. Try again.");
+        }
+      }
+    };
+
+    finishGoogleLogin();
+  }, [response]);
 
   return (
     <View style={styles.container}>
@@ -64,7 +106,9 @@ export default function Login() {
         <Text style={styles.title}>Welcome Back</Text>
 
         {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
-        {success ? <Text style={styles.success}>Login successful!</Text> : null}
+        {success ? (
+          <Text style={styles.success}>Login successful!</Text>
+        ) : null}
 
         <View style={styles.formGroup}>
           <Text style={styles.label}>Email</Text>
@@ -75,7 +119,9 @@ export default function Login() {
             value={formData.email}
             onChangeText={(value) => handleChange("email", value)}
           />
-          {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
+          {errors.email ? (
+            <Text style={styles.error}>{errors.email}</Text>
+          ) : null}
         </View>
 
         <View style={styles.formGroup}>
@@ -91,11 +137,13 @@ export default function Login() {
             <Text style={styles.error}>{errors.password}</Text>
           ) : null}
         </View>
-          <View style={styles.forgotPass}>
-              <Link style={styles.forgotPassText} href="/reset-password" >
-                  Forgot password?
-              </Link> 
-          </View>
+
+        <View style={styles.forgotPass}>
+          <Link style={styles.forgotPassText} href="/reset-password">
+            Forgot password?
+          </Link>
+        </View>
+
         <TouchableOpacity
           onPress={handleSubmit}
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -108,12 +156,18 @@ export default function Login() {
           )}
         </TouchableOpacity>
 
+        {/* GOOGLE BUTTON */}
+        {/* <TouchableOpacity
+          disabled={!request}
+          onPress={() => promptAsync()}
+          style={styles.googleBtn}
+        >
+          <Text style={styles.googleText}>Continue with Google</Text>
+        </TouchableOpacity> */}
+
         <Text style={styles.hint}>
           Don’t have an account?{" "}
-          <Text
-            style={styles.link}
-            onPress={() => router.push("/signup")}
-          >
+          <Text style={styles.link} onPress={() => router.push("/signup")}>
             Sign up
           </Text>
         </Text>
@@ -122,6 +176,7 @@ export default function Login() {
   );
 }
 
+// STYLES
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -172,13 +227,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
   },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
+  buttonDisabled: { opacity: 0.7 },
   buttonText: {
     color: "#fff",
     fontWeight: "700",
     fontSize: 16,
+  },
+  googleBtn: {
+    backgroundColor: "#fff",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginTop: 15,
+  },
+  googleText: {
+    fontWeight: "600",
+    color: "#333",
   },
   error: {
     color: "#FF6B6B",
@@ -191,23 +257,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: "700",
   },
-  forgotPass: {
-    marginTop: 10,           
-    alignItems: 'flex-end',  
-  },
+  forgotPass: { marginTop: 10, alignItems: "flex-end" },
   forgotPassText: {
-    color: '#2E8B8B',        
+    color: "#2E8B8B",
     fontSize: 14,
-    fontWeight: '500',
-    textDecorationLine: 'underline',
+    fontWeight: "500",
+    textDecorationLine: "underline",
   },
   hint: {
     textAlign: "center",
     marginTop: 16,
     fontSize: 15,
   },
-  link: {
-    color: "#FF6B6B",
-    fontWeight: "700",
-  },
+  link: { color: "#FF6B6B", fontWeight: "700" },
 });

@@ -24,14 +24,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
-      
-      <Tabs.Screen
-        name="discussions/index"
-        options={{
-          title: 'Discussions',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="text.bubble.fill" color={color} />,
-        }}
-      />
 
       <Tabs.Screen
         name="journal/index"
@@ -61,24 +53,7 @@ export default function TabLayout() {
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="discussions/[slug]/[id]/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="discussions/new"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="discussions/edit/[id]/index"
-        options={{
-          href: null,
-        }}
-      />
+      
       <Tabs.Screen
         name="profile/edit/index"
         options={{

@@ -40,17 +40,17 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
-      {/* <WebSocketManager /> 
-      <WebSocketManagerNotifications /> */}
-      {/* <NotificationsHandler /> */}
-      <Header />
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)"/>
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </ReduxProvider>
+    {/* <WebSocketManager /> 
+    <WebSocketManagerNotifications /> */}
+    {/* <NotificationsHandler /> */}
+    <Header />
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)"/>
+        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  </ReduxProvider>
   );
 }
