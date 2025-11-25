@@ -1,18 +1,20 @@
 import  { useState, useCallback } from "react";
+import { useSelector } from "react-redux";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  TouchableOpacity,
-  RefreshControl, 
+    View,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    ScrollView,
+    TouchableOpacity,
+    RefreshControl, 
 } from "react-native";
 import { Link, useFocusEffect } from "expo-router"; 
 import { api } from "../../../api";
+import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 
 export default function JournalListPage() {
+    const isUseroggedIn = useSelector(state => state?.user?.userDetails);
     const [journals, setJournals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -24,7 +26,6 @@ export default function JournalListPage() {
             setJournals(res.data.results);
         } catch (err) {
             console.error("Journal fetch error:", err);
-            Alert.alert("Error", "Failed to fetch journal entries.");
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -33,10 +34,18 @@ export default function JournalListPage() {
 
     useFocusEffect(
         useCallback(() => {
-            setLoading(true);
-            fetchJournals();
-        }, [fetchJournals])
+            if(isUseroggedIn){
+                setLoading(true);
+                fetchJournals();
+            }
+        }, [fetchJournals,isUseroggedIn])
     );
+
+    if(!isUseroggedIn) return (
+        <ProtectedAccessPage 
+        message={"Your personal journal is waiting. Sign up or log in to continue."}
+        />
+    )
     
     if (loading && journals.length === 0) {
         return (
