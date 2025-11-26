@@ -14,8 +14,8 @@ import { api } from "@/api";
 import { safeLocalStorage } from "../../utils/storage";
 
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { auth, provider } from "@/firebase"; 
-import { signInWithCredential } from "firebase/auth";
+import { auth, googleProvider } from "@/firebase"; 
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 
 export default function Index() {
   const router = useRouter();
@@ -72,38 +72,40 @@ export default function Index() {
   };
 
   const signInWithGoogle = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
+  try {
+    await GoogleSignin.hasPlayServices();
 
-      // 1 — Start native Google sign in
-      const googleUser = await GoogleSignin.signIn();
-      const { idToken } = googleUser;
+    // 1 — Native Google sign-in
+    const googleUser = await GoogleSignin.signIn();
+    const { idToken } = googleUser;
 
-      // 2 — Convert Google token → Firebase credential
-      const googleCredential = provider.credential(idToken);
-      const firebaseUser = await signInWithCredential(auth, googleCredential);
+    // 2 — Convert Google token → Firebase credential
+    const googleCredential = GoogleAuthProvider.credential(idToken);
+    const firebaseUser = await signInWithCredential(auth, googleCredential);
 
-      // 3 — Get Firebase JWT token (send to your backend)
-      const firebaseToken = await firebaseUser.user.getIdToken();
+    // 3 — Get Firebase JWT
+    const firebaseToken = await firebaseUser.user.getIdToken();
 
-      // 4 — Send token to ZeniaHub backend to create/login user
-      const response = await api.post("accounts/google-login/", {
-        firebase_token: firebaseToken,
-      });
+    // 4 — Send to backend
+    const response = await api.post("accounts/google-login/", {
+      firebase_token: firebaseToken,
+    });
 
-      // 5 — Save user + token
-      dispatch(setUserDetails(response.data.user));
-      safeLocalStorage.setItem("token", response.data.access);
+    dispatch(setUserDetails(response.data.user));
+    safeLocalStorage.setItem("token", response.data.access);
 
-      router.push("/profile");
-    } catch (error) {
-      console.log("Google sign in error:", error);
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
-      if (error.code === statusCodes.IN_PROGRESS) return;
-      if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) return;
-      setServerError("Google login failed.");
-    }
-  };
+    router.push("/profile");
+  } catch (error) {
+    console.log("Google sign in error:", error);
+
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
+    if (error.code === statusCodes.IN_PROGRESS) return;
+    if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) return;
+
+    setServerError("Google login failed.");
+  }
+};
+
 
   useEffect(() => {
     GoogleSignin.configure({
