@@ -27,10 +27,10 @@ export default function Index() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // const [request, response, promptAsync] = Google.useAuthRequest({
-  //   androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  //   webClientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  // });
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    webClientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+  });
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -157,13 +157,13 @@ export default function Index() {
         </TouchableOpacity>
 
         {/* GOOGLE BUTTON */}
-        {/* <TouchableOpacity
+        <TouchableOpacity
           disabled={!request}
           onPress={() => promptAsync()}
           style={styles.googleBtn}
         >
           <Text style={styles.googleText}>Continue with Google</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
 
         <Text style={styles.hint}>
           Don’t have an account?{" "}
