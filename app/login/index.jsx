@@ -78,7 +78,7 @@ export default function Index() {
     // 1 — Native Google sign-in
     const googleUser = await GoogleSignin.signIn();
     const { idToken } = googleUser;
-
+    console.log(idToken,"hello google test")
     // 2 — Convert Google token → Firebase credential
     const googleCredential = GoogleAuthProvider.credential(idToken);
     const firebaseUser = await signInWithCredential(auth, googleCredential);
@@ -108,6 +108,7 @@ export default function Index() {
 
 
   useEffect(() => {
+    console.log(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,'hello process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID')
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID, 
       offlineAccess: true,
