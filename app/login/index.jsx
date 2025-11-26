@@ -14,6 +14,8 @@ import { api } from "@/api";
 import { safeLocalStorage } from "../../utils/storage";
 
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { auth, provider } from "@/firebase"; 
+import { signInWithCredential } from "firebase/auth";
 
 export default function Index() {
   const router = useRouter();
@@ -36,8 +38,10 @@ export default function Index() {
     if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = "Invalid email format";
+
     if (!formData.password.trim())
       newErrors.password = "Password is required";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -58,7 +62,6 @@ export default function Index() {
       router.push("/profile");
       setFormData({ email: "", password: "" });
     } catch (error) {
-      console.error("Login failed:", error);
       setServerError(
         error.response?.data?.message ||
           "Invalid credentials. Please try again."
@@ -69,23 +72,46 @@ export default function Index() {
   };
 
   const signInWithGoogle = async () => {
-  try {
-    await GoogleSignin.hasPlayServices();
-    const userInfo = await GoogleSignin.signIn();
-    console.log('Google user info:', userInfo);
-  } catch (error) {
-    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-      console.log('User cancelled login');
-    } else if (error.code === statusCodes.IN_PROGRESS) {
-      console.log('Sign in in progress');
-    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-      console.log('Play services not available');
-    } else {
-      console.error(error);
-    }
-  }
-};
+    try {
+      await GoogleSignin.hasPlayServices();
 
+      // 1 — Start native Google sign in
+      const googleUser = await GoogleSignin.signIn();
+      const { idToken } = googleUser;
+
+      // 2 — Convert Google token → Firebase credential
+      const googleCredential = provider.credential(idToken);
+      const firebaseUser = await signInWithCredential(auth, googleCredential);
+
+      // 3 — Get Firebase JWT token (send to your backend)
+      const firebaseToken = await firebaseUser.user.getIdToken();
+
+      // 4 — Send token to ZeniaHub backend to create/login user
+      const response = await api.post("accounts/google-login/", {
+        firebase_token: firebaseToken,
+      });
+
+      // 5 — Save user + token
+      dispatch(setUserDetails(response.data.user));
+      safeLocalStorage.setItem("token", response.data.access);
+
+      router.push("/profile");
+    } catch (error) {
+      console.log("Google sign in error:", error);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
+      if (error.code === statusCodes.IN_PROGRESS) return;
+      if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) return;
+      setServerError("Google login failed.");
+    }
+  };
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, 
+      offlineAccess: true,
+      scopes: ["profile", "email"],
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -93,9 +119,7 @@ export default function Index() {
         <Text style={styles.title}>Welcome Back</Text>
 
         {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
-        {success ? (
-          <Text style={styles.success}>Login successful!</Text>
-        ) : null}
+        {success ? <Text style={styles.success}>Login successful!</Text> : null}
 
         <View style={styles.formGroup}>
           <Text style={styles.label}>Email</Text>
@@ -106,9 +130,7 @@ export default function Index() {
             value={formData.email}
             onChangeText={(value) => handleChange("email", value)}
           />
-          {errors.email ? (
-            <Text style={styles.error}>{errors.email}</Text>
-          ) : null}
+          {errors.email && <Text style={styles.error}>{errors.email}</Text>}
         </View>
 
         <View style={styles.formGroup}>
@@ -120,9 +142,7 @@ export default function Index() {
             value={formData.password}
             onChangeText={(value) => handleChange("password", value)}
           />
-          {errors.password ? (
-            <Text style={styles.error}>{errors.password}</Text>
-          ) : null}
+          {errors.password && <Text style={styles.error}>{errors.password}</Text>}
         </View>
 
         <View style={styles.forgotPass}>
@@ -143,12 +163,9 @@ export default function Index() {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={signInWithGoogle}
-          style={styles.googleBtn}
-        >
+        <TouchableOpacity onPress={signInWithGoogle} style={styles.googleBtn}>
           <Text style={styles.googleText}>Continue with Google</Text>
-        </TouchableOpacity> 
+        </TouchableOpacity>
 
         <Text style={styles.hint}>
           Don’t have an account?{" "}
@@ -161,15 +178,8 @@ export default function Index() {
   );
 }
 
-// STYLES
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FAF9F7",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-  },
+  container: { flex: 1, backgroundColor: "#FAF9F7", justifyContent: "center", alignItems: "center", padding: 10 },
   form: {
     backgroundColor: "#fff",
     padding: 20,
@@ -181,78 +191,19 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 4,
   },
-  title: {
-    textAlign: "center",
-    marginBottom: 20,
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#FF6B6B",
-  },
-  formGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontWeight: "600",
-    marginBottom: 6,
-    color: "#2E8B8B",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-    color: "#333",
-    backgroundColor: "#fff",
-  },
-  button: {
-    backgroundColor: "#FF6B6B",
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 8,
-  },
+  title: { textAlign: "center", marginBottom: 20, fontSize: 24, fontWeight: "700", color: "#FF6B6B" },
+  formGroup: { marginBottom: 16 },
+  label: { fontWeight: "600", marginBottom: 6, color: "#2E8B8B" },
+  input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 10, padding: 12, fontSize: 16, color: "#333" },
+  button: { backgroundColor: "#FF6B6B", paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 8 },
   buttonDisabled: { opacity: 0.7 },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  googleBtn: {
-    backgroundColor: "#fff",
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginTop: 15,
-  },
-  googleText: {
-    fontWeight: "600",
-    color: "#333",
-  },
-  error: {
-    color: "#FF6B6B",
-    fontSize: 14,
-    marginTop: 4,
-  },
-  success: {
-    color: "#2E8B8B",
-    textAlign: "center",
-    marginBottom: 10,
-    fontWeight: "700",
-  },
+  buttonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  googleBtn: { backgroundColor: "#fff", paddingVertical: 14, borderRadius: 10, alignItems: "center", borderWidth: 1, borderColor: "#ddd", marginTop: 15 },
+  googleText: { fontWeight: "600", color: "#333" },
+  error: { color: "#FF6B6B", fontSize: 14, marginTop: 4 },
+  success: { color: "#2E8B8B", textAlign: "center", marginBottom: 10, fontWeight: "700" },
   forgotPass: { marginTop: 10, alignItems: "flex-end" },
-  forgotPassText: {
-    color: "#2E8B8B",
-    fontSize: 14,
-    fontWeight: "500",
-    textDecorationLine: "underline",
-  },
-  hint: {
-    textAlign: "center",
-    marginTop: 16,
-    fontSize: 15,
-  },
+  forgotPassText: { color: "#2E8B8B", fontSize: 14, fontWeight: "500", textDecorationLine: "underline" },
+  hint: { textAlign: "center", marginTop: 16, fontSize: 15 },
   link: { color: "#FF6B6B", fontWeight: "700" },
 });

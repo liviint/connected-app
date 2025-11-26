@@ -8,7 +8,6 @@ import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
 import Header from '@/src/components/header';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import WebSocketManager from '@/src/components/websockets/WebSocketManager'
 import WebSocketManagerNotifications from '@/src/components/websockets/WebSocketManagerNotifications'
 import NotificationsHandler from '@/src/components/NotificationsHandler'
@@ -38,14 +37,6 @@ export default function RootLayout() {
 
     return () => subscription.remove();
   }, [router]);
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, 
-      offlineAccess: true, 
-      scopes: ['profile', 'email'],
-    });
-}, []);
 
   return (
     <ReduxProvider>
