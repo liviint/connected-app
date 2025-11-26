@@ -12,10 +12,8 @@ import { Link, useRouter } from "expo-router";
 import { setUserDetails } from "@/store/features/userSlice";
 import { api } from "@/api";
 import { safeLocalStorage } from "../../utils/storage";
-import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from "expo-web-browser";
 
-WebBrowser.maybeCompleteAuthSession();
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 export default function Index() {
   const router = useRouter();
@@ -26,11 +24,6 @@ export default function Index() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  // const [request, response, promptAsync] = Google.useAuthRequest({
-  //   androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  //   webClientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  // });
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -75,30 +68,24 @@ export default function Index() {
     }
   };
 
-  // Handle Google login response
-  useEffect(() => {
-    const finishGoogleLogin = async () => {
-      if (response?.type === "success") {
-        const token = response.authentication.accessToken;
+  const signInWithGoogle = async () => {
+  try {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    console.log('Google user info:', userInfo);
+  } catch (error) {
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      console.log('User cancelled login');
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      console.log('Sign in in progress');
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      console.log('Play services not available');
+    } else {
+      console.error(error);
+    }
+  }
+};
 
-        try {
-          const res = await api.post("accounts/google-login/", {
-            token: token,
-          });
-
-          safeLocalStorage.setItem("token", res.data.access);
-          dispatch(setUserDetails(res.data.user));
-
-          router.push("/profile");
-        } catch (err) {
-          console.error("Google login failed:", err);
-          setServerError("Google login failed. Try again.");
-        }
-      }
-    };
-
-    finishGoogleLogin();
-  }, [response]);
 
   return (
     <View style={styles.container}>
@@ -156,14 +143,12 @@ export default function Index() {
           )}
         </TouchableOpacity>
 
-        {/* GOOGLE BUTTON */}
-        {/* <TouchableOpacity
-          disabled={!request}
-          onPress={() => promptAsync()}
+        <TouchableOpacity
+          onPress={signInWithGoogle}
           style={styles.googleBtn}
         >
           <Text style={styles.googleText}>Continue with Google</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity> 
 
         <Text style={styles.hint}>
           Don’t have an account?{" "}
