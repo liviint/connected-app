@@ -41,7 +41,7 @@ export default {
         },
       ],
       package: "com.zeniahub.app",
-      googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
+      googleServicesFile: "./google-services.json",
     },
 
     web: {
