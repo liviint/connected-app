@@ -34,6 +34,14 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="habits/index"
+        options={{
+          title: 'Habits',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark.seal.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
         name="profile/index"
         options={{
           title: 'Profile',

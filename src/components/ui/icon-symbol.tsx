@@ -9,13 +9,14 @@ type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 // 1. Define MAPPING first without a type assertion. 
 // This allows TypeScript to infer its keys: 'house.fill' | 'paperplane.fill' | ...
 const MAPPING = {
-  'house.fill': 'home' as MaterialIconName, 
-  'paperplane.fill': 'send' as MaterialIconName,
-  'chevron.left.forwardslash.chevron.right': 'code' as MaterialIconName,
-  'chevron.right': 'chevron-right' as MaterialIconName,
-  'person.crop.circle.fill': 'person' as MaterialIconName,
-  'text.bubble.fill': 'forum' as MaterialIconName,
-  'book.fill': 'book' as MaterialIconName,
+    'house.fill': 'home' as MaterialIconName, 
+    'paperplane.fill': 'send' as MaterialIconName,
+    'chevron.left.forwardslash.chevron.right': 'code' as MaterialIconName,
+    'chevron.right': 'chevron-right' as MaterialIconName,
+    'person.crop.circle.fill': 'person' as MaterialIconName,
+    'text.bubble.fill': 'forum' as MaterialIconName,
+    'book.fill': 'book' as MaterialIconName,
+    'checkmark.seal.fill': 'check-circle' as MaterialIconName, 
 };
 
 // 2. Define IconSymbolName using the *inferred* keys of MAPPING.
