@@ -96,6 +96,30 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="habits/[id]/edit/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="habits/[id]/stats/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="habits/add/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="habits/entries/index"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
     </>
   );

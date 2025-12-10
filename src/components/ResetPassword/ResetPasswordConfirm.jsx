@@ -115,7 +115,7 @@ const ResetPasswordConfirm = ({ route, navigation }) => {
       <Text style={styles.hint}>
         <Text
           style={styles.link}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => router.push("Login")}
         >
           Back to Login
         </Text>

@@ -8,8 +8,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { api } from "@/api";
+import { useRouter } from "expo-router";
 
 const ResetPassword = ({ navigation }) => {
+  const router = useRouter()
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -83,7 +85,7 @@ const ResetPassword = ({ navigation }) => {
         Remember your password?{" "}
         <Text
           style={styles.link}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => router.push("Login")}
         >
           Back to Login
         </Text>
