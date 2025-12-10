@@ -24,9 +24,7 @@ export default function RootLayout() {
       const data = Linking.parse(event.url);
       if (data.path === 'verify-email' && data.queryParams?.uid && data.queryParams?.token) {
         router.push(`/verify-email?uid=${data.queryParams.uid}&token=${data.queryParams.token}`);
-      } else {
-        Alert.alert("Deep Link Received", JSON.stringify(data));
-      }
+      } 
     };
 
     const subscription = Linking.addEventListener("url", handleDeepLink);

@@ -49,29 +49,7 @@ export default function HabitsPage() {
     );
   }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Your Habits</Text>
-
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push("/habits/add")}
-        >
-          <Text style={styles.addButtonText}>+ Add habit</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.trackButton}
-          onPress={() => router.push("/habits/entries")}
-        >
-          <Text style={styles.trackButtonText}>Track progress</Text>
-        </TouchableOpacity>
-      </View>
-
-      <AllHabits habits={habits} setHabits={setHabits} />
-    </ScrollView>
-  );
+  return <AllHabits habits={habits} setHabits={setHabits} />
 }
 
 const styles = StyleSheet.create({

@@ -1,38 +1,39 @@
-import React, { useEffect, useState, useCallback,  } from "react";
+'use client';
+
+import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { useSelector } from "react-redux";
-import { router,useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { api } from "../../../api";
-import HabitRow from "./HabitRow"; 
+import HabitRow from "./HabitRow";
 
-export default function AllHabits() {
+export default function HabitsScreen() {
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshData, setRefreshData] = useState(0);
 
-    useFocusEffect(
-        useCallback(() => {
-            let isActive = true;
+  // Fetch habits whenever screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      setLoading(true);
 
-            setLoading(true);
-            api.get("/habits/")
-                .then((res) => {
-                if (isActive) setHabits(res.data.results);
-                })
-                .catch(console.error)
-                .finally(() => {
-                if (isActive) setLoading(false);
-                });
+      api.get("/habits/")
+        .then((res) => {
+          if (isActive) setHabits(res.data.results);
+        })
+        .catch(console.error)
+        .finally(() => {
+          if (isActive) setLoading(false);
+        });
 
-            return () => {
-                isActive = false; 
-            };
-        }, [refreshData])
-    );
-
+      return () => (isActive = false);
+    }, [refreshData])
+  );
 
   const saveOrder = async (newData) => {
     try {
@@ -68,12 +69,21 @@ export default function AllHabits() {
 
   if (habits.length === 0) {
     return (
-      <Text style={styles.emptyMessage}>No habits yet. Create your first one!</Text>
+      <View style={styles.center}>
+        <Text style={styles.emptyMessage}>No habits yet. Create your first one!</Text>
+
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => router.push("/habits/add")}
+        >
+          <Text style={styles.addButtonText}>+ Add habit</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <DraggableFlatList
         data={habits}
         keyExtractor={(item) => item.id.toString()}
@@ -87,31 +97,91 @@ export default function AllHabits() {
           />
         )}
         onDragEnd={onDragEnd}
+        ListHeaderComponent={() => (
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Habits</Text>
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => router.push("/habits/add")}
+              >
+                <Text style={styles.addButtonText}>+ Add habit</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.trackButton}
+                onPress={() => router.push("/habits/entries")}
+              >
+                <Text style={styles.trackButtonText}>Track progress</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+        contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}
       />
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
+  header: {
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#FF6B6B",
+    marginBottom: 20,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  addButton: {
+    flex: 1,
+    backgroundColor: "#FF6B6B",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginRight: 8,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  trackButton: {
+    flex: 1,
+    borderColor: "#2E8B8B",
+    borderWidth: 2,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginLeft: 8,
+    alignItems: "center",
+  },
+  trackButtonText: {
+    color: "#2E8B8B",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   emptyMessage: {
     textAlign: "center",
     color: "#666",
-    marginTop: 20,
     fontSize: 16,
+    marginBottom: 16,
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 16,
   },
   authMessage: {
     fontSize: 18,
     textAlign: "center",
     color: "#333",
-    padding: 24,
+    paddingHorizontal: 16,
   },
 });
