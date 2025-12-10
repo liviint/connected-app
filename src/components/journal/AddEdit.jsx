@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView,
-  Alert,
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    ScrollView,
+    Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Audio } from "expo-av";
@@ -15,219 +14,214 @@ import { useRouter } from "expo-router";
 import { api } from "../../../api";
 
 export default function AddEdit({ id }) {
-  const router = useRouter()
-  const [moods, setMoods] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ title: "", content: "", mood_id: "" });
-  const [errors, setErrors] = useState({});
-  const [recording, setRecording] = useState(null);
-  const [audioUri, setAudioUri] = useState("");
-  const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+    const router = useRouter()
+    const [moods, setMoods] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [form, setForm] = useState({ title: "", content: "", mood_id: "" });
+    const [errors, setErrors] = useState({});
+    const [recording, setRecording] = useState(null);
+    const [audioUri, setAudioUri] = useState("");
+    const [sound, setSound] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
-  // Fetch moods
-  useEffect(() => {
-    api
-      .get("journal/categories/")
-      .then((res) => setMoods(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+    useEffect(() => {
+        api
+        .get("journal/categories/")
+        .then((res) => setMoods(res.data))
+        .catch((err) => console.error(err));
+    }, []);
 
-  // Fetch existing journal if editing
-  useEffect(() => {
-    if (!id) return;
-    api
-      .get(`journal/${id}/`)
-      .then((res) => setForm({ ...res.data, mood_id: res.data.mood.id }))
-      .catch((err) => console.error(err));
-  }, [id]);
+    useEffect(() => {
+        if (!id) return;
+        api
+        .get(`journal/${id}/`)
+        .then((res) => setForm({ ...res.data, mood_id: res.data.mood.id }))
+        .catch((err) => console.error(err));
+    }, [id]);
 
-  // Handle input changes
-  const handleChange = (name, value) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
 
-  const validateForm = () => {
-    let newErrors = {};
-    if (!form.content.trim() && !audioUri) newErrors.content = "Please write something in your entry.";
-    if (!form.mood_id) newErrors.mood_id = "Please select a mood.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    const handleChange = (name, value) => {
+        setForm((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+    };
 
-  // Submit journal
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    setLoading(true);
+    const validateForm = () => {
+        let newErrors = {};
+        if (!form.content.trim() && !audioUri) newErrors.content = "Please write something in your entry.";
+        if (!form.mood_id) newErrors.mood_id = "Please select a mood.";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("content", form.content);
-    formData.append("mood_id", form.mood_id);
+    const handleSubmit = async () => {
+        if (!validateForm()) return;
+        setLoading(true);
 
-    if (audioUri) {
-      const uriParts = audioUri.split("/");
-      const name = uriParts[uriParts.length - 1];
-      formData.append("audio_file", { uri: audioUri, name, type: "audio/mpeg" });
-    }
-    try {
-      const url = id ? `/journal/${id}/` : "/journal/";
-      const method = id ? "PUT" : "POST";
-      await api({ 
-        url, 
-        method, 
-        data: formData,
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
-      Alert.alert("Success", "Journal entry saved!");
-      router.push("/journal");
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Failed to save entry");
-    } finally {
-      setLoading(false);
-    }
-  };
+        const formData = new FormData();
+        formData.append("title", form.title);
+        formData.append("content", form.content);
+        formData.append("mood_id", form.mood_id);
 
-  // Recording
-  const startRecording = async () => {
-    try {
-      await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-      setRecording(recording);
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Could not start recording");
-    }
-  };
+        if (audioUri) {
+        const uriParts = audioUri.split("/");
+        const name = uriParts[uriParts.length - 1];
+        formData.append("audio_file", { uri: audioUri, name, type: "audio/mpeg" });
+        }
+        try {
+        const url = id ? `/journal/${id}/` : "/journal/";
+        const method = id ? "PUT" : "POST";
+        await api({ 
+            url, 
+            method, 
+            data: formData,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        Alert.alert("Success", "Journal entry saved!");
+        router.push("/journal");
+        } catch (err) {
+        console.error(err);
+        Alert.alert("Error", "Failed to save entry");
+        } finally {
+        setLoading(false);
+        }
+    };
 
-  const stopRecording = async () => {
-    try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      setAudioUri(uri);
-      setRecording(null);
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Could not stop recording");
-    }
-  };
+    const startRecording = async () => {
+        try {
+        await Audio.requestPermissionsAsync();
+        await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+        const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+        setRecording(recording);
+        } catch (err) {
+        console.error(err);
+        Alert.alert("Error", "Could not start recording");
+        }
+    };
 
-  // Playback
-  const playAudio = async () => {
-    if (!audioUri) return;
-    const { sound: playbackObject } = await Audio.Sound.createAsync({ uri: audioUri });
-    setSound(playbackObject);
-    setIsPlaying(true);
-    await playbackObject.playAsync();
-    playbackObject.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
+    const stopRecording = async () => {
+        try {
+        await recording.stopAndUnloadAsync();
+        const uri = recording.getURI();
+        setAudioUri(uri);
+        setRecording(null);
+        } catch (err) {
+        console.error(err);
+        Alert.alert("Error", "Could not stop recording");
+        }
+    };
+
+    const playAudio = async () => {
+        if (!audioUri) return;
+        const { sound: playbackObject } = await Audio.Sound.createAsync({ uri: audioUri });
+        setSound(playbackObject);
+        setIsPlaying(true);
+        await playbackObject.playAsync();
+        playbackObject.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+            setIsPlaying(false);
+            setSound(null);
+        }
+        });
+    };
+
+    const pauseAudio = async () => {
+        if (sound) {
+        await sound.pauseAsync();
         setIsPlaying(false);
-        setSound(null);
-      }
-    });
-  };
+        }
+    };
 
-  const pauseAudio = async () => {
-    if (sound) {
-      await sound.pauseAsync();
-      setIsPlaying(false);
-    }
-  };
+    return (
+        <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
+        <View style={styles.formGroup}>
+            <Text style={styles.label}>Title (Optional)</Text>
+            <TextInput
+            style={styles.input}
+            placeholder="Enter title"
+            value={form.title}
+            onChangeText={(text) => handleChange("title", text)}
+            />
+        </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Title (Optional)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter title"
-          value={form.title}
-          onChangeText={(text) => handleChange("title", text)}
-        />
-      </View>
+        <View style={styles.formGroup}>
+            <Text style={styles.label}>Your Thoughts</Text>
+            <TextInput
+            style={[styles.input, { height: 120 }]}
+            multiline
+            placeholder="Write your thoughts..."
+            value={form.content}
+            onChangeText={(text) => handleChange("content", text)}
+            />
+            {errors.content && <Text style={styles.error}>{errors.content}</Text>}
+        </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Your Thoughts</Text>
-        <TextInput
-          style={[styles.input, { height: 120 }]}
-          multiline
-          placeholder="Write your thoughts..."
-          value={form.content}
-          onChangeText={(text) => handleChange("content", text)}
-        />
-        {errors.content && <Text style={styles.error}>{errors.content}</Text>}
-      </View>
+        <View style={styles.formGroup}>
+            <Text style={styles.label}>Mood</Text>
+            <Picker
+            selectedValue={form.mood_id}
+            onValueChange={(value) => handleChange("mood_id", value)}
+            >
+            <Picker.Item label="Select a mood" value="" />
+            {moods.map((m) => (
+                <Picker.Item key={m.id} label={m.name} value={String(m.id)} />
+            ))}
+            </Picker>
+            {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
+        </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Mood</Text>
-        <Picker
-          selectedValue={form.mood_id}
-          onValueChange={(value) => handleChange("mood_id", value)}
-        >
-          <Picker.Item label="Select a mood" value="" />
-          {moods.map((m) => (
-            <Picker.Item key={m.id} label={m.name} value={String(m.id)} />
-          ))}
-        </Picker>
-        {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
-      </View>
+        <View style={styles.formGroup}>
+            <Text style={styles.label}>Voice Journal (Optional)</Text>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Voice Journal (Optional)</Text>
+            {!recording && !audioUri && (
+            <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
+                <Text style={styles.recordButtonText}>🎤 Start Recording</Text>
+            </TouchableOpacity>
+            )}
 
-        {!recording && !audioUri && (
-          <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
-            <Text style={styles.recordButtonText}>🎤 Start Recording</Text>
-          </TouchableOpacity>
-        )}
+            {recording && (
+            <TouchableOpacity style={[styles.recordButton, { backgroundColor: "red" }]} onPress={stopRecording}>
+                <Text style={styles.recordButtonText}>⏹ Stop Recording</Text>
+            </TouchableOpacity>
+            )}
 
-        {recording && (
-          <TouchableOpacity style={[styles.recordButton, { backgroundColor: "red" }]} onPress={stopRecording}>
-            <Text style={styles.recordButtonText}>⏹ Stop Recording</Text>
-          </TouchableOpacity>
-        )}
+            {audioUri && !recording && (
+            <View style={{ marginTop: 10 }}>
+                <Text style={{ marginBottom: 6 }}>Audio recorded ✅</Text>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                <TouchableOpacity
+                    style={styles.recordButton}
+                    onPress={isPlaying ? pauseAudio : playAudio}
+                >
+                    <Text style={styles.recordButtonText}>{isPlaying ? "⏸ Pause" : "▶ Play"}</Text>
+                </TouchableOpacity>
 
-        {audioUri && !recording && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ marginBottom: 6 }}>Audio recorded ✅</Text>
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={isPlaying ? pauseAudio : playAudio}
-              >
-                <Text style={styles.recordButtonText}>{isPlaying ? "⏸ Pause" : "▶ Play"}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={() => {
-                  setAudioUri("");
-                  if (sound) {
-                    sound.stopAsync();
-                    setSound(null);
-                    setIsPlaying(false);
-                  }
-                }}
-              >
-                <Text style={styles.recordButtonText}>🔁 Re-record</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.recordButton}
+                    onPress={() => {
+                    setAudioUri("");
+                    if (sound) {
+                        sound.stopAsync();
+                        setSound(null);
+                        setIsPlaying(false);
+                    }
+                    }}
+                >
+                    <Text style={styles.recordButtonText}>🔁 Re-record</Text>
+                </TouchableOpacity>
+                </View>
             </View>
-          </View>
-        )}
-      </View>
+            )}
+        </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-        <Text style={styles.submitButtonText}>{loading ? "Saving..." : id ? "Update Entry" : "Save Entry"}</Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
+            <Text style={styles.submitButtonText}>{loading ? "Saving..." : id ? "Update Entry" : "Save Entry"}</Text>
+        </TouchableOpacity>
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
