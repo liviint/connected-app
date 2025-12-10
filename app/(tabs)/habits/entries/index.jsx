@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useIsFocused } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -12,18 +13,20 @@ import { api } from "../../../../api";
 
 export default function HabitEntriesPage() {
   const router = useRouter();
+  const isFocused = useIsFocused()
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if(!isFocused) return
     api
       .get("habits/entries/entries/")
       .then((res) => setEntries(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [isFocused]);
   const completed = entries.filter((h) => h.completed).length;
   const total = entries.length;
   const percent = total > 0 ? (completed / total) * 100 : 0;

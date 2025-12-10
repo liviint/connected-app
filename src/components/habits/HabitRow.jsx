@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { api } from "../../../api";
+import DeleteButton from "../common/DeleteButton";
 
 export default function HabitRow({ habit, index, drag, isActive, setRefreshData }) {
   const handleDelete = () => {
@@ -50,9 +51,11 @@ export default function HabitRow({ habit, index, drag, isActive, setRefreshData 
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
-          <Text style={styles.deleteText}>Delete</Text>
-        </TouchableOpacity>
+        <DeleteButton 
+            handleOk={handleDelete}
+            item={"habit"}
+            contentAuthor={habit.user}
+        />
 
         <TouchableOpacity
           style={[

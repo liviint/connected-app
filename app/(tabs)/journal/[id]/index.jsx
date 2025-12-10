@@ -8,10 +8,11 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
+import {useRouter, useLocalSearchParams } from "expo-router";
 import Markdown from "react-native-markdown-display";
 import { Audio } from "expo-av";
 import { api } from "../../../../api";
+import DeleteButton from "../../../../src/components/common/DeleteButton";
 
 export default function ViewJournalPage() {
     const router = useRouter()
@@ -147,6 +148,12 @@ export default function ViewJournalPage() {
 
         {/* Actions */}
         <View style={styles.actions}>
+            
+            <DeleteButton 
+                handleOk={handleDelete}
+                item={"journal"}
+                contentAuthor={entry.user}
+            />
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
             <Text style={styles.deleteButtonText}>Delete Entry</Text>
           </TouchableOpacity>

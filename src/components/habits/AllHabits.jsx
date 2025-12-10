@@ -1,39 +1,42 @@
 'use client';
 
-import React, { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useIsFocused } from "@react-navigation/native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { useSelector } from "react-redux";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import { api } from "../../../api";
 import HabitRow from "./HabitRow";
 
 export default function HabitsScreen() {
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
-
+    const isFocused = useIsFocused()
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshData, setRefreshData] = useState(0);
 
-  // Fetch habits whenever screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      let isActive = true;
-      setLoading(true);
-
-      api.get("/habits/")
+  const fetchHabits = (reload) => {
+    reload && setLoading(true)
+    api.get("/habits/")
         .then((res) => {
-          if (isActive) setHabits(res.data.results);
+            setHabits(res.data.results);
         })
         .catch(console.error)
         .finally(() => {
-          if (isActive) setLoading(false);
+            setLoading(false);
         });
+  }
 
-      return () => (isActive = false);
-    }, [refreshData])
-  );
+  useEffect(() => {
+    if (!isFocused) return;
+    fetchHabits(true)
+}, [isFocused]);
+
+useEffect(() => {
+    fetchHabits()
+}, [refreshData]);
 
   const saveOrder = async (newData) => {
     try {

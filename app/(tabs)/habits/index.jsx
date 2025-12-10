@@ -1,56 +1,56 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { View, ActivityIndicator, StyleSheet} from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import { useSelector } from "react-redux";
-import { router } from "expo-router";
 import { api } from "../../../api";
 import AllHabits from "../../../src/components/habits/AllHabits";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 
 export default function HabitsPage() {
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+    const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+    const isFocused = useIsFocused()
+    const [habits, setHabits] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  const [habits, setHabits] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshData, setRefreshData] = useState(0);
+    useEffect(() => {
+        if(!isFocused) return
+        api
+        .get("/habits/")
+        .then((res) => setHabits(res.data.results))
+        .finally(() => setLoading(false));
+    }, [isFocused]);
 
-  useEffect(() => {
-    api
-      .get("/habits/")
-      .then((res) => setHabits(res.data.results))
-      .finally(() => setLoading(false));
-  }, [refreshData]);
+    const saveOrder = async () => {
+        try {
+        const order = habits.map((h) => h.id);
+        await api.post("/habits/reorder/", { order });
+        } catch (err) {
+        console.log("Order save failed:", err);
+        }
+    };
 
-  const saveOrder = async () => {
-    try {
-      const order = habits.map((h) => h.id);
-      await api.post("/habits/reorder/", { order });
-    } catch (err) {
-      console.log("Order save failed:", err);
+    // Auto-save habit order
+    useEffect(() => {
+        if (!loading) {
+        const timer = setTimeout(saveOrder, 500);
+        return () => clearTimeout(timer);
+        }
+    }, [habits]);
+
+    // Authentication check
+    if (!isUserLoggedIn && !loading) return <ProtectedAccessPage />
+    
+
+    if (loading) {
+        return (
+        <View style={styles.loader}>
+            <ActivityIndicator size="large" color="#FF6B6B" />
+        </View>
+        );
     }
-  };
 
-  // Auto-save habit order
-  useEffect(() => {
-    if (!loading) {
-      const timer = setTimeout(saveOrder, 500);
-      return () => clearTimeout(timer);
+    return <AllHabits habits={habits} setHabits={setHabits} />
     }
-  }, [habits]);
-
-  // Authentication check
-  if (!isUserLoggedIn && !loading) return <ProtectedAccessPage />
-  
-
-  if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-      </View>
-    );
-  }
-
-  return <AllHabits habits={habits} setHabits={setHabits} />
-}
 
 const styles = StyleSheet.create({
   container: {

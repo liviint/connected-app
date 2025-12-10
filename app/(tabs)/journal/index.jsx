@@ -120,7 +120,7 @@ export default function JournalListPage() {
         <View style={styles.journalList}>
           {journals.length === 0 ? (
             <Text style={styles.emptyText}>
-              No journal entries found. Tap '+ New Entry' to begin!
+              No journal entries found. Tap &apos;+ New Entry&apos; to begin!
             </Text>
           ) : (
             journals.map((item) => (
