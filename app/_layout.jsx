@@ -8,6 +8,8 @@ import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
 import Header from '@/src/components/header';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -36,15 +38,17 @@ export default function RootLayout() {
   }, [router]);
 
   return (
-    <ReduxProvider>
-    <Header />
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)"/>
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  </ReduxProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ReduxProvider>
+      <Header />
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)"/>
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </ReduxProvider>
+    </GestureHandlerRootView>
   );
 }

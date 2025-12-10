@@ -1,11 +1,17 @@
-'use client'
-
 import { useEffect, useState } from "react";
-import { useRouter , useParams} from "expo-router";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { api } from "../../../api";
 
 export default function AddEdit() {
-  const { id } = useParams();
+  const { id } = useLocalSearchParams();
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -27,9 +33,9 @@ export default function AddEdit() {
   // --------------------------
   // Handlers
   // --------------------------
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const validate = () => {
@@ -37,19 +43,24 @@ export default function AddEdit() {
 
     if (!form.title.trim()) {
       ok = false;
-      setErrors((prev) => ({ ...prev, title: "Please write something in your title." }));
+      setErrors((prev) => ({
+        ...prev,
+        title: "Please write something in your title.",
+      }));
     }
 
     if (!form.reminder_time) {
       ok = false;
-      setErrors((prev) => ({ ...prev, reminder_time: "Please select a reminder time." }));
+      setErrors((prev) => ({
+        ...prev,
+        reminder_time: "Please select a reminder time.",
+      }));
     }
 
     return ok;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!validate()) return;
 
     try {
@@ -64,7 +75,6 @@ export default function AddEdit() {
         data: form,
       });
 
-      // Important: small delay prevents push warning in some cases
       setTimeout(() => {
         router.push("/habits");
       }, 10);
@@ -96,96 +106,185 @@ export default function AddEdit() {
     return () => (isMounted = false);
   }, [id]);
 
-  // --------------------------
-  // UI
-  // --------------------------
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="page-title">{id ? "Edit Habit" : "Create a Habit"}</h1>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <Text style={styles.title}>{id ? "Edit Habit" : "Create a Habit"}</Text>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-2xl shadow border border-[#F4E1D2] grid gap-4"
-      >
-        <div>
-          <label className="block font-semibold mb-1 text-[#2E8B8B]">Title</label>
-          <input
-            name="title"
+      <View style={styles.card}>
+        {/* TITLE */}
+        <View>
+          <Text style={styles.label}>Title</Text>
+          <TextInput
             value={form.title}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-xl"
+            onChangeText={(v) => handleChange("title", v)}
             placeholder="e.g., Drink Water"
+            style={styles.input}
           />
-          {errors.title && <p className="error">{errors.title}</p>}
-        </div>
+          {errors.title ? <Text style={styles.error}>{errors.title}</Text> : null}
+        </View>
 
-        <div>
-          <label className="block font-semibold mb-1 text-[#2E8B8B]">Description</label>
-          <textarea
-            name="description"
+        {/* DESCRIPTION */}
+        <View>
+          <Text style={styles.label}>Description</Text>
+          <TextInput
             value={form.description}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-xl"
+            onChangeText={(v) => handleChange("description", v)}
             placeholder="Optional details..."
+            style={[styles.input, { height: 90 }]}
+            multiline
           />
-        </div>
+        </View>
 
-        <div>
-          <label className="block font-semibold mb-1 text-[#2E8B8B]">Frequency</label>
-          <select
-            name="frequency"
-            value={form.frequency}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-xl"
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
+        {/* FREQUENCY */}
+        <View>
+          <Text style={styles.label}>Frequency</Text>
 
-        <div>
-          <label className="block font-semibold mb-1 text-[#2E8B8B]">Reminder Time</label>
-          <input
-            type="time"
-            name="reminder_time"
+          {/* Simple Picker Substitute */}
+          <View style={styles.selectBox}>
+            <TouchableOpacity
+              onPress={() => handleChange("frequency", "daily")}
+              style={[
+                styles.selectOption,
+                form.frequency === "daily" && styles.activeOption,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  form.frequency === "daily" && styles.activeOptionText,
+                ]}
+              >
+                Daily
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleChange("frequency", "weekly")}
+              style={[
+                styles.selectOption,
+                form.frequency === "weekly" && styles.activeOption,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  form.frequency === "weekly" && styles.activeOptionText,
+                ]}
+              >
+                Weekly
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleChange("frequency", "monthly")}
+              style={[
+                styles.selectOption,
+                form.frequency === "monthly" && styles.activeOption,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  form.frequency === "monthly" && styles.activeOptionText,
+                ]}
+              >
+                Monthly
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* REMINDER TIME */}
+        <View>
+          <Text style={styles.label}>Reminder Time</Text>
+          <TextInput
             value={form.reminder_time}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-xl"
+            onChangeText={(v) => handleChange("reminder_time", v)}
+            placeholder="HH:MM"
+            style={styles.input}
           />
-          {errors.reminder_time && <p className="error">{errors.reminder_time}</p>}
-        </div>
+          {errors.reminder_time ? (
+            <Text style={styles.error}>{errors.reminder_time}</Text>
+          ) : null}
+        </View>
 
-        <div>
-          <label className="block font-semibold mb-1 text-[#2E8B8B]">Color</label>
-          <input
-            type="color"
-            name="color"
+        {/* COLOR */}
+        <View>
+          <Text style={styles.label}>Color</Text>
+          <TextInput
             value={form.color}
-            onChange={handleChange}
-            className="h-12 w-full border rounded-xl cursor-pointer"
+            onChangeText={(v) => handleChange("color", v)}
+            style={[styles.input, { height: 50 }]}
           />
-        </div>
+        </View>
 
-        <div>
-          <label className="block font-semibold mb-1 text-[#2E8B8B]">Icon</label>
-          <input
-            name="icon"
+        {/* ICON */}
+        <View>
+          <Text style={styles.label}>Icon</Text>
+          <TextInput
             value={form.icon}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-xl"
+            onChangeText={(v) => handleChange("icon", v)}
+            style={styles.input}
             placeholder="e.g., 🔥 💧 🌱"
           />
-        </div>
+        </View>
 
-        <button
-          type="submit"
-          className="w-full bg-[#2E8B8B] text-white font-bold p-4 rounded-xl hover:bg-[#247070] transition"
+        {/* SUBMIT */}
+        <TouchableOpacity
+          onPress={handleSubmit}
+          style={styles.submitButton}
           disabled={loading}
         >
-          {loading ? (id ? "Updating..." : "Creating...") : id ? "Edit Habit" : "Create Habit"}
-        </button>
-      </form>
-    </div>
+          <Text style={styles.submitText}>
+            {loading ? (id ? "Updating..." : "Creating...") : id ? "Edit Habit" : "Create Habit"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { backgroundColor: "#FAF9F7", padding: 20, flex: 1 },
+  title: { fontSize: 28, fontWeight: "700", color: "#333", marginBottom: 16 },
+  card: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#F4E1D2",
+    gap: 20,
+  },
+  label: { fontWeight: "700", marginBottom: 6, color: "#2E8B8B" },
+  input: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    backgroundColor: "white",
+    borderColor: "#ddd",
+  },
+  error: { color: "#FF6B6B", fontSize: 13, marginTop: 4 },
+  selectBox: { flexDirection: "row", gap: 10 },
+  selectOption: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  activeOption: {
+    backgroundColor: "#2E8B8B",
+    borderColor: "#2E8B8B",
+  },
+  activeOptionText: { color: "white", fontWeight: "600" },
+  optionText: { color: "#333", fontWeight: "500" },
+  submitButton: {
+    backgroundColor: "#2E8B8B",
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  submitText: { color: "white", fontWeight: "700", fontSize: 16 },
+});

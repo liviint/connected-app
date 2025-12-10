@@ -39,7 +39,7 @@ const ProfileView = () => {
   useFocusEffect(() => {if (!user) router.push("/login")})
 
   useEffect(() => {
-    if (user?.access) {
+    if (user) {
       getUserData();
     } else {
       router.push("/login");

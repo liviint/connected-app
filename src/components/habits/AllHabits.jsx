@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback,  } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { useSelector } from "react-redux";
-import { router } from "expo-router";
+import { router,useFocusEffect } from "expo-router";
 import { api } from "../../../api";
 import HabitRow from "./HabitRow"; 
 
@@ -13,11 +13,26 @@ export default function AllHabits() {
   const [loading, setLoading] = useState(true);
   const [refreshData, setRefreshData] = useState(0);
 
-  useEffect(() => {
-    api.get("/habits/")
-      .then((res) => setHabits(res.data.results))
-      .finally(() => setLoading(false));
-  }, [refreshData]);
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+
+            setLoading(true);
+            api.get("/habits/")
+                .then((res) => {
+                if (isActive) setHabits(res.data.results);
+                })
+                .catch(console.error)
+                .finally(() => {
+                if (isActive) setLoading(false);
+                });
+
+            return () => {
+                isActive = false; 
+            };
+        }, [refreshData])
+    );
+
 
   const saveOrder = async (newData) => {
     try {

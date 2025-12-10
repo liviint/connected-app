@@ -10,7 +10,7 @@ import {
 import { useDispatch } from "react-redux";
 import { Link, useRouter } from "expo-router";
 import { setUserDetails } from "@/store/features/userSlice";
-import { api } from "@/api";
+import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
 import * as WebBrowser from "expo-web-browser";
 
@@ -51,10 +51,8 @@ export default function Index() {
 
     try {
       const response = await api.post("accounts/login/", formData);
-
       dispatch(setUserDetails(response.data.user));
       safeLocalStorage.setItem("token", response.data.access);
-
       setSuccess(true);
       router.push("/profile");
       setFormData({ email: "", password: "" });
