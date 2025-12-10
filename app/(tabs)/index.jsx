@@ -7,12 +7,12 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function HomePage() {
-  const navigation = useNavigation();
+  const router = useRouter()
 
   // Responsive card width: 90% on small screens, 45% on larger screens
   const cardWidth = SCREEN_WIDTH < 500 ? '90%' : '45%';
@@ -29,21 +29,21 @@ export default function HomePage() {
         <View style={styles.ctaContainer}>
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
-            onPress={() => navigation.navigate('Journal')}
+            onPress={() => router.push('/journal')}
           >
             <Text style={styles.buttonText}>Start Journaling</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.button, styles.secondaryButton]}
-            onPress={() => navigation.navigate('Habits')}
+            onPress={() => router.push('/habits')}
           >
             <Text style={styles.buttonText}>Track Habits</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.button, styles.tertiaryButton]}
-            onPress={() => navigation.navigate('Blog')}
+            onPress={() => router.push('/blog')}
           >
             <Text style={[styles.buttonText, styles.tertiaryButtonText]}>
               Read Blog
@@ -61,7 +61,7 @@ export default function HomePage() {
           </Text>
           <TouchableOpacity
             style={[styles.button, styles.smallButton, styles.primaryButton]}
-            onPress={() => navigation.navigate('Journal')}
+            onPress={() => router.push('Journal')}
           >
             <Text style={styles.buttonText}>Go to Journal</Text>
           </TouchableOpacity>
@@ -74,7 +74,7 @@ export default function HomePage() {
           </Text>
           <TouchableOpacity
             style={[styles.button, styles.smallButton, styles.secondaryButton]}
-            onPress={() => navigation.navigate('Habits')}
+            onPress={() => router.push('Habits')}
           >
             <Text style={styles.buttonText}>View Habits</Text>
           </TouchableOpacity>
