@@ -8,9 +8,6 @@ import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
 import Header from '@/src/components/header';
-import WebSocketManager from '@/src/components/websockets/WebSocketManager'
-import WebSocketManagerNotifications from '@/src/components/websockets/WebSocketManagerNotifications'
-import NotificationsHandler from '@/src/components/NotificationsHandler'
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -40,9 +37,6 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
-    {/* <WebSocketManager /> 
-    <WebSocketManagerNotifications /> */}
-    {/* <NotificationsHandler /> */}
     <Header />
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>

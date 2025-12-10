@@ -1,150 +1,191 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function HomeScreen() {
-  const router = useRouter()
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+export default function HomePage() {
+  const navigation = useNavigation();
+
+  // Responsive card width: 90% on small screens, 45% on larger screens
+  const cardWidth = SCREEN_WIDTH < 500 ? '90%' : '45%';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome to ZeniaHub 🌿</Text>
+        <Text style={styles.title}>Welcome to ZeniaHub</Text>
         <Text style={styles.subtitle}>
-          Your personal space to reflect, grow, and stay accountable.
+          Your personal space to reflect, grow, and thrive.
         </Text>
+
+        <View style={styles.ctaContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.primaryButton]}
+            onPress={() => navigation.navigate('Journal')}
+          >
+            <Text style={styles.buttonText}>Start Journaling</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.secondaryButton]}
+            onPress={() => navigation.navigate('Habits')}
+          >
+            <Text style={styles.buttonText}>Track Habits</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.tertiaryButton]}
+            onPress={() => navigation.navigate('Blog')}
+          >
+            <Text style={[styles.buttonText, styles.tertiaryButtonText]}>
+              Read Blog
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <View style={styles.about}>
-        <Text style={styles.paragraph}>
-          <Text style={styles.bold}>ZeniaHub</Text> helps you improve your mental and
-          emotional wellness through powerful tools like{" "}
-          <Text style={styles.link} onPress={() => router.push("/journal")}>
-            journaling
+      {/* Features */}
+      <View style={styles.featuresContainer}>
+        <View style={[styles.featureCard, { width: cardWidth }]}>
+          <Text style={styles.featureTitle}>📝 Journal</Text>
+          <Text style={styles.featureText}>
+            Capture your thoughts and track your personal growth.
           </Text>
-          ,{" "}
-          <Text style={styles.link} onPress={() => router.push("/habits")}>
-            habit tracking
-          </Text>
-          , and inspiring{" "}
-          <Text style={styles.link} onPress={() => router.push('/blog')}>
-            blog content
-          </Text>
-          .
-        </Text>
+          <TouchableOpacity
+            style={[styles.button, styles.smallButton, styles.primaryButton]}
+            onPress={() => navigation.navigate('Journal')}
+          >
+            <Text style={styles.buttonText}>Go to Journal</Text>
+          </TouchableOpacity>
+        </View>
 
-        <Text style={styles.paragraph}>
-          You can connect with up to <Text style={styles.bold}>5 close friends</Text> who
-          support your growth journey, keep you accountable, and stay connected through
-          private interactions—always in a safe, calm, and private environment.
-        </Text>
-
-        <Text style={styles.paragraph}>
-          ZeniaHub is designed for people who want a peaceful space, without the noise of
-          large public forums or overwhelming communities.
-        </Text>
+        <View style={[styles.featureCard, { width: cardWidth }]}>
+          <Text style={styles.featureTitle}>✅ Habits</Text>
+          <Text style={styles.featureText}>
+            Build and maintain habits that improve your daily life.
+          </Text>
+          <TouchableOpacity
+            style={[styles.button, styles.smallButton, styles.secondaryButton]}
+            onPress={() => navigation.navigate('Habits')}
+          >
+            <Text style={styles.buttonText}>View Habits</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={[styles.button, styles.primary]}
-          onPress={() => router.push("journal")}
-        >
-          <Text style={styles.buttonText}>Start Journaling</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.secondary]}
-          onPress={() => router.push("habits")}
-        >
-          <Text style={styles.buttonText}>Track Habits</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.tertiary]}
-          onPress={() => router.push("blog")}
-        >
-          <Text style={[styles.buttonText, { color: "#333" }]}>Read Blog</Text>
-        </TouchableOpacity>
+      {/* About */}
+      <View style={styles.aboutContainer}>
+        <Text style={styles.aboutText}>
+          <Text style={{ fontWeight: 'bold' }}>ZeniaHub</Text> helps you
+          improve your mental and emotional wellness through tools like
+          journaling, habit tracking, and inspiring blog content.
+        </Text>
       </View>
     </ScrollView>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#FAF9F7", 
-    paddingHorizontal: 20,
+    padding: 20,
+    backgroundColor: '#FAF9F7',
+    alignItems: 'center',
   },
-
   header: {
-    marginTop: 30,
-    marginBottom: 20,
+    alignItems: 'center',
+    marginBottom: 30,
   },
-
   title: {
-    fontSize: 26,
-    fontFamily: "Poppins-Bold",
-    color: "#2E8B8B", 
+    fontFamily: 'Poppins-Bold',
+    fontSize: 32,
+    color: '#FF6B6B',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  ctaContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10, // use margin as fallback if gap unsupported
+  },
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    margin: 5,
+    alignItems: 'center',
+  },
+  primaryButton: {
+    backgroundColor: '#FF6B6B',
+  },
+  secondaryButton: {
+    backgroundColor: '#2E8B8B',
+  },
+  tertiaryButton: {
+    backgroundColor: '#F4E1D2',
+  },
+  buttonText: {
+    fontWeight: '700',
+    color: 'white',
+  },
+  tertiaryButtonText: {
+    color: '#333333',
+  },
+  featuresContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 20,
+    marginBottom: 30,
+  },
+  featureCard: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    elevation: 3,
+    marginVertical: 10,
+  },
+  featureTitle: {
+    fontSize: 20,
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  featureText: {
+    textAlign: 'center',
     marginBottom: 10,
   },
-
-  subtitle: {
-    fontSize: 16,
-    fontFamily: "Inter-Regular",
-    color: "#333333",
-    opacity: 0.8,
-  },
-
-  about: {
-    marginVertical: 20,
-  },
-
-  paragraph: {
-    fontSize: 15,
-    lineHeight: 22,
-    fontFamily: "Inter-Regular",
-    color: "#333333",
-    marginBottom: 16,
-  },
-
-  bold: {
-    fontFamily: "Inter-Bold",
-    fontWeight: "700",
-  },
-
-  link: {
-    color: "#FF6B6B",
-    fontFamily: "Inter-Bold",
-  },
-
-  actions: {
-    marginTop: 20,
-    gap: 12,
-  },
-
-  button: {
-    paddingVertical: 14,
+  smallButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 10,
-    alignItems: "center",
   },
-
-  primary: {
-    backgroundColor: "#FF6B6B",
+  aboutContainer: {
+    maxWidth: 700,
+    alignSelf: 'center',
+    marginBottom: 40,
   },
-
-  secondary: {
-    backgroundColor: "#2E8B8B",
-  },
-
-  tertiary: {
-    backgroundColor: "#F4E1D2",
-  },
-
-  buttonText: {
-    color: "#FFFFFF",
-    fontFamily: "Poppins-Bold",
-    fontSize: 15,
+  aboutText: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
   },
 });

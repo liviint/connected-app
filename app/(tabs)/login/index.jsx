@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState} from "react";
 import {
   View,
   Text,
@@ -11,8 +11,7 @@ import { useDispatch } from "react-redux";
 import { Link, useRouter } from "expo-router";
 import { setUserDetails } from "@/store/features/userSlice";
 import { api } from "@/api";
-import { safeLocalStorage } from "../../utils/storage";
-import * as Google from "expo-auth-session/providers/google";
+import { safeLocalStorage } from "../../../utils/storage";
 import * as WebBrowser from "expo-web-browser";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -26,11 +25,6 @@ export default function Index() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  // const [request, response, promptAsync] = Google.useAuthRequest({
-  //   androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  //   webClientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  // });
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -74,31 +68,6 @@ export default function Index() {
       setLoading(false);
     }
   };
-
-  // Handle Google login response
-  useEffect(() => {
-    const finishGoogleLogin = async () => {
-      if (response?.type === "success") {
-        const token = response.authentication.accessToken;
-
-        try {
-          const res = await api.post("accounts/google-login/", {
-            token: token,
-          });
-
-          safeLocalStorage.setItem("token", res.data.access);
-          dispatch(setUserDetails(res.data.user));
-
-          router.push("/profile");
-        } catch (err) {
-          console.error("Google login failed:", err);
-          setServerError("Google login failed. Try again.");
-        }
-      }
-    };
-
-    finishGoogleLogin();
-  }, [response]);
 
   return (
     <View style={styles.container}>
@@ -155,15 +124,6 @@ export default function Index() {
             <Text style={styles.buttonText}>Login</Text>
           )}
         </TouchableOpacity>
-
-        {/* GOOGLE BUTTON */}
-        {/* <TouchableOpacity
-          disabled={!request}
-          onPress={() => promptAsync()}
-          style={styles.googleBtn}
-        >
-          <Text style={styles.googleText}>Continue with Google</Text>
-        </TouchableOpacity> */}
 
         <Text style={styles.hint}>
           Don’t have an account?{" "}

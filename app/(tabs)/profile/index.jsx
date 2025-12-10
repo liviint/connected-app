@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useCallback } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { useRouter } from "expo-router";
+import { useRouter , useFocusEffect} from "expo-router";
 import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
 
@@ -35,6 +35,8 @@ const ProfileView = () => {
       console.error(err);
     }).finally(() =>  setLoading(false))
   };
+
+  useFocusEffect(() => {if (!user) router.push("/login")})
 
   useEffect(() => {
     if (user?.access) {

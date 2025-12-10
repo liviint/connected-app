@@ -3,7 +3,6 @@ import { persistStore, persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import userReducer from "./features/userSlice";
-import websocketReducer from "./features/websocketSlice";
 
 const userPersistConfig = {
   key: "user",
@@ -13,7 +12,6 @@ const userPersistConfig = {
 
 const rootReducer = combineReducers({
   user: persistReducer(userPersistConfig, userReducer),
-  websocket: websocketReducer,
 });
 
 export const store = configureStore({

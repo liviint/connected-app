@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { blogApi } from "@/api";
-import FollowButton from "../../../../src/components/social/FollowButton";
-import FriendshipButton from "../../../../src/components/social/FriendshipButton";
 
 export default function UserProfile() {
   const { id } = useLocalSearchParams();
@@ -56,11 +54,7 @@ export default function UserProfile() {
         <View style={styles.userInfo}>
           <Text style={styles.username}>{user.username}</Text>
           <Text style={styles.bio}>{user.bio || ""}</Text>
-
-          <View style={styles.buttonsRow}>
-            <FollowButton userId={id} />
-            <FriendshipButton userId={id} />
-          </View>
+          
         </View>
       </View>
     </ScrollView>

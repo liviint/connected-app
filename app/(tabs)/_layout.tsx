@@ -84,6 +84,18 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="login/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="reset-password/index"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
     </>
   );
