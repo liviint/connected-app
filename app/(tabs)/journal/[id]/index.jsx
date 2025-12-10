@@ -1,143 +1,193 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
-  Alert,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams,  Link } from "expo-router";
+import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
+import Markdown from "react-native-markdown-display";
+import { Audio } from "expo-av";
 import { api } from "../../../../api";
 
 export default function ViewJournalPage() {
-    const params = useLocalSearchParams(); 
-    const id = params.id; 
+    const router = useRouter()
+  const { id } = useLocalSearchParams();
 
-    const [entry, setEntry] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const [entry, setEntry] = useState({});
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (!id) return;
+  // Audio playback state
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-        const fetchJournal = async () => {
+  useEffect(() => {
+    const fetchJournal = async () => {
+      try {
+        const res = await api.get(`journal/${id}/`);
+        setEntry(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJournal();
+  }, [id]);
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Journal",
+      "Are you sure you want to delete this entry?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
             try {
-                const res = await api.get(`journal/${id}/`);
-                console.log(res.data, "journal entry res");
-                setEntry(res.data);
+              await api.delete(`journal/${id}/`);
+              router.push("/journal");
             } catch (err) {
-                console.error("Journal fetch error:", err);
-                Alert.alert("Error", "Could not fetch journal entry.");
-            } finally {
-                setLoading(false);
+              console.error(err);
+              Alert.alert("Error", "Failed to delete entry");
             }
-        }
-        
-        fetchJournal();
-    }, [id]);
-
-    if (loading || !entry) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#0000ff" /> 
-                <Text style={styles.loadingText}>Loading...</Text>
-            </View>
-        );
-    }
-
-    const editHref = `/journal/${entry.id}/edit`;
-
-    return (
-        <ScrollView style={styles.outerContainer}>
-            <View style={styles.contentWrapper}>
-                <View style={styles.card}>
-                    <View style={styles.cardContent}>
-                        <Text style={styles.title}>{entry.title || "Untitled"}</Text>
-                        <Text style={styles.moodText}>{entry.mood?.name || "N/A"}</Text>
-                        <Text style={styles.contentText}>
-                            {entry.content}
-                        </Text>
-
-                        <View style={styles.buttonGroup}>
-                            <Link href={editHref} asChild>
-                                <TouchableOpacity style={styles.editButton}>
-                                    <Text style={styles.editButtonText}>Edit</Text>
-                                </TouchableOpacity>
-                            </Link>
-                        </View>
-                    </View>
-                </View>
-            </View>
-        </ScrollView>
+          },
+        },
+      ]
     );
+  };
+
+  const handlePlayAudio = async () => {
+    if (!entry.audio_file) return;
+
+    try {
+      if (sound) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        setSound(null);
+        setIsPlaying(false);
+        return;
+      }
+
+      const { sound: newSound } = await Audio.Sound.createAsync({ uri: entry.audio_file });
+      setSound(newSound);
+      setIsPlaying(true);
+
+      await newSound.playAsync();
+
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          setIsPlaying(false);
+          setSound(null);
+        }
+      });
+    } catch (err) {
+      console.error("Audio playback error:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6B6B" />
+        <Text style={{ marginTop: 10 }}>Loading Journal...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.card}>
+        {/* Header */}
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>{entry.title || "Untitled"}</Text>
+          {entry.mood && <Text style={styles.mood}>{entry.mood.name}</Text>}
+        </View>
+
+        {/* Dates */}
+        <View style={styles.dates}>
+          <Text style={styles.dateText}>
+            <Text style={{ fontWeight: "bold" }}>Created:</Text> {new Date(entry.created_at).toLocaleString()}
+          </Text>
+          <Text style={styles.dateText}>
+            <Text style={{ fontWeight: "bold" }}>Updated:</Text> {new Date(entry.updated_at).toLocaleString()}
+          </Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        {/* Markdown Content */}
+        {entry.content && (
+          <Markdown style={markdownStyles}>
+            {entry.content.replace(/\\n/g, "\n").replace(/\n(?!\n)/g, "  \n")}
+          </Markdown>
+        )}
+
+        {/* Audio Player */}
+        {entry.audio_file && (
+          <View style={{ marginTop: 16 }}>
+            <TouchableOpacity style={styles.audioButton} onPress={handlePlayAudio}>
+              <Text style={styles.audioButtonText}>{isPlaying ? "⏸ Pause" : "▶ Play Audio"}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Transcript */}
+        {entry.transcript && (
+          <View style={styles.transcriptContainer}>
+            <Text style={styles.transcriptTitle}>Transcript</Text>
+            <Text style={styles.transcriptText}>{entry.transcript}</Text>
+          </View>
+        )}
+
+        {/* Actions */}
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>Delete Entry</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => router.push(`/journal/${id}/edit`)}
+          >
+            <Text style={styles.editButtonText}>Edit Entry</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    outerContainer: {
-        flex: 1,
-        backgroundColor: '#f8f8f8', 
-    },
-    contentWrapper: {
-        flexGrow: 1,
-        padding: 24, 
-        alignItems: 'center', 
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#333',
-    },
-    card: {
-        width: '100%',
-        maxWidth: 600, 
-        backgroundColor: 'white',
-        borderRadius: 16, 
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 1.41,
-        elevation: 2, 
-        marginBottom: 20,
-    },
-    cardContent: {
-        padding: 24, 
-        gap: 16, 
-    },
-    title: {
-        fontSize: 28, 
-        fontWeight: 'bold',
-        color: '#1f2937',
-    },
-    moodText: {
-        fontSize: 14, 
-        color: '#6b7280', 
-    },
-    contentText: {
-        fontSize: 18, 
-        lineHeight: 28, 
-        color: '#374151',
-    },
-    buttonGroup: {
-        flexDirection: 'row',
-        gap: 16, 
-        paddingTop: 16,
-    },
-    editButton: {
-        backgroundColor: '#00B894',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 12, 
-        alignItems: 'center',
-    },
-    editButtonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
-    },
+  container: { padding: 24 },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  card: { backgroundColor: "#fff", borderRadius: 16, padding: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3, elevation: 3 },
+  headerSection: { marginBottom: 12 },
+  title: { fontSize: 28, fontWeight: "bold" },
+  mood: { marginTop: 6, alignSelf: "flex-start", backgroundColor: "#F4E1D2", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, fontSize: 12 },
+  dates: { backgroundColor: "#f1f1f1", padding: 12, borderRadius: 12, marginBottom: 12 },
+  dateText: { fontSize: 12, color: "#555" },
+  divider: { borderBottomWidth: 1, borderBottomColor: "#ddd", marginVertical: 12 },
+  audioButton: { backgroundColor: "#2E8B8B", paddingVertical: 12, borderRadius: 12, alignItems: "center" },
+  audioButtonText: { color: "#fff", fontWeight: "600" },
+  transcriptContainer: { marginTop: 16, backgroundColor: "#F4E1D2", padding: 12, borderRadius: 12 },
+  transcriptTitle: { fontWeight: "bold", marginBottom: 6 },
+  transcriptText: { fontSize: 14 },
+  actions: { flexDirection: "row", justifyContent: "flex-end", gap: 12, marginTop: 16 },
+  deleteButton: { backgroundColor: "#ff4d4d", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12 },
+  deleteButtonText: { color: "#fff", fontWeight: "600" },
+  editButton: { backgroundColor: "#2E8B8B", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12 },
+  editButtonText: { color: "#fff", fontWeight: "600" },
 });
+
+const markdownStyles = {
+  body: { color: "#4b5563", fontSize: 14, lineHeight: 20 },
+  link: { color: "#2E8B8B" },
+  heading1: { fontSize: 22, fontWeight: "700" },
+  heading2: { fontSize: 20, fontWeight: "700" },
+};
