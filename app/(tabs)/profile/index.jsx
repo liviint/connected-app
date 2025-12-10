@@ -18,7 +18,6 @@ const ProfileView = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.userDetails);
   const [userData, setUserData] = useState(null);
-  const [canUserAddBlogs,setCanUserAddBlogs] = useState(false)
   const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
@@ -30,7 +29,6 @@ const ProfileView = () => {
     api.get("accounts/profile/")
     .then(res => {
         setUserData(res.data);
-        setCanUserAddBlogs(res.data.groups.some(group => group.name === "Blog Author"))
     }).catch(err =>  {
       console.error(err);
     })
@@ -89,16 +87,6 @@ const ProfileView = () => {
           >
             <Text style={styles.btnText}>Update Profile</Text>
           </TouchableOpacity>
-
-          {
-          canUserAddBlogs ? <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/blog/my-blogs")}
-          >
-            <Text style={styles.btnText}>My Blogs</Text>
-          </TouchableOpacity> 
-          : ""
-          }
 
           <TouchableOpacity
             style={[styles.button, styles.logoutButton]}
