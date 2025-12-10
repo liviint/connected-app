@@ -1,4 +1,4 @@
-import { useEffect, useState,useCallback } from "react";
+import { useEffect, useState} from "react";
 import {
   View,
   Text,
@@ -33,7 +33,8 @@ const ProfileView = () => {
         setCanUserAddBlogs(res.data.groups.some(group => group.name === "Blog Author"))
     }).catch(err =>  {
       console.error(err);
-    }).finally(() =>  setLoading(false))
+    })
+    .finally(() =>  setLoading(false))
   };
 
   useFocusEffect(() => {if (!user) router.push("/login")})

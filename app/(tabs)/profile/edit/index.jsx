@@ -47,7 +47,7 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (user?.access) getUserData();
+    if (user) getUserData();
   }, [user]);
 
   const handleChange = (key, value) => {
@@ -130,26 +130,6 @@ const ProfilePage = () => {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>First Name</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.first_name}
-            onChangeText={(text) => handleChange("first_name", text)}
-            placeholder="First Name"
-          />
-        </View>
-
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Last Name</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.last_name}
-            onChangeText={(text) => handleChange("last_name", text)}
-            placeholder="Last Name"
-          />
-        </View>
-
-        <View style={styles.formGroup}>
           <Text style={styles.label}>Bio</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
@@ -157,7 +137,7 @@ const ProfilePage = () => {
             numberOfLines={3}
             value={formData.bio}
             onChangeText={(text) => handleChange("bio", text)}
-            placeholder="Tell us a little about yourself..."
+            placeholder="A little about yourself..."
           />
         </View>
 
