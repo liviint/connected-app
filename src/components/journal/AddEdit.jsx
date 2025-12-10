@@ -71,11 +71,17 @@ export default function AddEdit({ id }) {
       const name = uriParts[uriParts.length - 1];
       formData.append("audio_file", { uri: audioUri, name, type: "audio/mpeg" });
     }
-
     try {
       const url = id ? `/journal/${id}/` : "/journal/";
       const method = id ? "PUT" : "POST";
-      await api({ url, method, data: formData });
+      await api({ 
+        url, 
+        method, 
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
       Alert.alert("Success", "Journal entry saved!");
       router.push("/journal");
     } catch (err) {
