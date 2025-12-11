@@ -36,11 +36,6 @@ export default function Header() {
       <View style={styles.overlay}>
         <View style={styles.navSmall}>
           <NavLink 
-            label="Blog" 
-            path="/blog" 
-            isActive={isActive("/blog")} 
-          />
-          <NavLink 
             label="Feedback" 
             path="/feedback" 
             isActive={isActive("/(tabs)/feedback")} 
