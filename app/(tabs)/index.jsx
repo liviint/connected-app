@@ -74,7 +74,7 @@ export default function HomePage() {
 
       {/* About */}
       <View style={styles.aboutContainer}>
-        <Text>
+        <Text style={{ textAlign:"center" }}>
           <Text style={{ fontWeight: 'bold' }}>ZeniaHub</Text> helps you reflect on your thoughts, track habits, and improve your daily life with simple journaling and habit tracking tools.
         </Text>
       </View>
@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
     maxWidth: 700,
     alignSelf: 'center',
     marginBottom: 40,
+    textAlign:"center"
   },
   aboutText: {
     fontSize: 16,
