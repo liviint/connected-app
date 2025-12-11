@@ -267,11 +267,12 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: "#fff",
         marginTop: 6,
+        marginBottom: 25,
     },
     richToolbar: {
         backgroundColor: "#f5f5f5",
         borderRadius: 12,
-        marginBottom: 6,
+        marginBottom: 0,
     },
 
 
