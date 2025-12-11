@@ -7,14 +7,18 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  useWindowDimensions
 } from "react-native";
+import RenderHtml from "react-native-render-html";
 import {useRouter, useLocalSearchParams } from "expo-router";
 import Markdown from "react-native-markdown-display";
 import { Audio } from "expo-av";
 import { api } from "../../../../api";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
+import { htmlStyles } from "../../../../utils/htmlStyles";
 
 export default function ViewJournalPage() {
+  const width = useWindowDimensions()
     const router = useRouter()
   const { id } = useLocalSearchParams();
 
@@ -122,12 +126,11 @@ export default function ViewJournalPage() {
 
         <View style={styles.divider} />
 
-        {/* Markdown Content */}
-        {entry.content && (
-          <Markdown style={markdownStyles}>
-            {entry.content.replace(/\\n/g, "\n").replace(/\n(?!\n)/g, "  \n")}
-          </Markdown>
-        )}
+        <RenderHtml
+          contentWidth={width}
+          source={{ html: entry.content }}
+          tagsStyles={htmlStyles}
+        />
 
         {/* Audio Player */}
         {entry.audio_file && (

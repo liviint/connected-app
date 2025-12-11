@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import {
     View,
     Text,
@@ -11,10 +11,12 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
+import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import { api } from "../../../api";
 
 export default function AddEdit({ id }) {
     const router = useRouter()
+    const richText = useRef();
     const [moods, setMoods] = useState([]);
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({ title: "", content: "", mood_id: "" });
@@ -149,15 +151,36 @@ export default function AddEdit({ id }) {
 
         <View style={styles.formGroup}>
             <Text style={styles.label}>Your Thoughts</Text>
-            <TextInput
-            style={[styles.input, { height: 120 }]}
-            multiline
-            placeholder="Write your thoughts..."
-            value={form.content}
-            onChangeText={(text) => handleChange("content", text)}
+
+            {/* Toolbar on top */}
+            <RichToolbar
+                editor={richText}
+                actions={[
+                actions.setBold,
+                actions.setItalic,
+                actions.setUnderline,
+                actions.insertBulletsList,
+                actions.insertOrderedList,
+                actions.insertLink,
+                ]}
+                style={styles.richToolbar}
             />
+
+            <RichEditor
+                ref={richText}
+                initialContentHTML={form.content}
+                style={styles.richEditor}
+                placeholder="Write your thoughts..."
+                onChange={(text) => handleChange("content", text)}
+                editorStyle={{
+                backgroundColor: "#fff",
+                contentCSSText: "padding: 10px; min-height: 150px;",
+                }}
+            />
+
             {errors.content && <Text style={styles.error}>{errors.content}</Text>}
         </View>
+
 
         <View style={styles.formGroup}>
             <Text style={styles.label}>Mood</Text>
@@ -235,4 +258,21 @@ const styles = StyleSheet.create({
   recordButtonText: { color: "#fff", fontWeight: "600" },
   submitButton: { backgroundColor: "#2E8B8B", paddingVertical: 16, borderRadius: 12, alignItems: "center", marginTop: 24 },
   submitButtonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+
+    richEditor: {
+        minHeight: 180, 
+        borderWidth: 1,
+        borderColor: "#ddd",
+        borderRadius: 12,
+        padding: 10,
+        backgroundColor: "#fff",
+        marginTop: 6,
+    },
+    richToolbar: {
+        backgroundColor: "#f5f5f5",
+        borderRadius: 12,
+        marginBottom: 6,
+    },
+
+
 });

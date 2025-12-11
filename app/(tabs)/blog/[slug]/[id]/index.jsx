@@ -3,7 +3,6 @@ import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator , useWindo
 import RenderHtml from "react-native-render-html";
 import { blogApi,api } from "../../../../../api";
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { dateFormat } from "../../../../../utils/dateFormat";
 import LikeButton from "../../../../../src/components/blogs/LikeButton";
 import Comments from "../../../../../src/components/blogComments/index";
 import ViewsCount from "../../../../../src/components/blogs/ViewsCount";
@@ -12,6 +11,7 @@ import EditButton from "../../../../../src/components/common/EditButton";
 import { globalStyles } from "../../../../../src/styles/global";
 import DeleteButton from "../../../../../src/components/common/DeleteButton";
 import UserLinkBtn from "../../../../../src/components/profile/UserLinkBtn";
+import { htmlStyles } from "../../../../../utils/htmlStyles";
 
 export default function SingleBlogPage({ route }) {
   const router = useRouter()
@@ -149,16 +149,3 @@ const styles = StyleSheet.create({
   },
 });
 
-const htmlStyles = {
-  body: {
-    color: "#333333",
-    fontSize: 16,
-    lineHeight: 24,
-    fontFamily: "Inter",
-  },
-  h1: { color: "#2E8B8B", fontSize: 24, fontFamily: "Poppins", marginVertical: 8 },
-  h2: { color: "#2E8B8B", fontSize: 20, fontFamily: "Poppins", marginVertical: 6 },
-  p: { marginBottom: 10 },
-  a: { color: "#FF6B6B", textDecorationLine: "underline" },
-  img: { borderRadius: 10, marginVertical: 10, maxWidth: "100%" },
-};

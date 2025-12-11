@@ -8,14 +8,17 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  useWindowDimensions
 } from "react-native";
 import { Link, useFocusEffect } from "expo-router";
 import { api } from "../../../api";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
-import Markdown from "react-native-markdown-display";
 import { Audio } from "expo-av";
+import RenderHtml from "react-native-render-html";
+import { htmlStyles } from "../../../utils/htmlStyles";
 
 export default function JournalListPage() {
+  const { width } = useWindowDimensions();
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +108,6 @@ export default function JournalListPage() {
       }
     >
       <View style={styles.contentWrapper}>
-        {/* Header */}
         <View style={styles.headerBar}>
           <Text style={styles.header}>My Journal</Text>
 
@@ -138,11 +140,14 @@ export default function JournalListPage() {
 
                   {/* Content */}
                   <View style={styles.cardContent}>
-                    {item.content && (
-                      <Markdown style={markdownStyles}>
-                        {item.content}
-                      </Markdown>
-                    )}
+                    
+
+                    <RenderHtml
+                      contentWidth={width}
+                      source={{ html: item.content }}
+                      tagsStyles={htmlStyles}
+                    />
+                    
 
                     {/* Audio Player */}
                     {item.audio_file && (
