@@ -72,7 +72,6 @@ export default function AddEdit({ id }) {
     formData.append("mood_id", form.mood_id);
 
     if (audioUri && !audioUri.startsWith("http")) {
-      // Only append if it's a newly recorded file
       const uriParts = audioUri.split("/");
       const name = uriParts[uriParts.length - 1];
       formData.append("audio_file", { uri: audioUri, name, type: "audio/mpeg" });

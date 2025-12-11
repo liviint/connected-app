@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     zIndex: 998,
   },
   navSmall: {
-    //position: "absolute",
     backgroundColor: "#2E8B8B",
     paddingVertical: 20,
     alignItems: "center",
