@@ -40,15 +40,6 @@ export default function HomePage() {
           >
             <Text style={styles.buttonText}>Track Habits</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.tertiaryButton]}
-            onPress={() => router.push('/blog')}
-          >
-            <Text style={[styles.buttonText, styles.tertiaryButtonText]}>
-              Read Blog
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -83,10 +74,8 @@ export default function HomePage() {
 
       {/* About */}
       <View style={styles.aboutContainer}>
-        <Text style={styles.aboutText}>
-          <Text style={{ fontWeight: 'bold' }}>ZeniaHub</Text> helps you
-          improve your mental and emotional wellness through tools like
-          journaling, habit tracking, and inspiring blog content.
+        <Text>
+          <Text style={{ fontWeight: 'bold' }}>ZeniaHub</Text> helps you reflect on your thoughts, track habits, and improve your daily life with simple journaling and habit tracking tools.
         </Text>
       </View>
     </ScrollView>

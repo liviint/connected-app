@@ -29,7 +29,7 @@ export default function FeedbackPage() {
         <View style={styles.card}>
           <Text style={styles.title}>Share Your Feedback</Text>
           <Text style={styles.subtitle}>
-            Your thoughts help us make ZeniaHub a better space for mental wellness.
+            Your input helps us make ZeniaHub a better space for personal growth and productivity.
           </Text>
 
           {submitted ? (
