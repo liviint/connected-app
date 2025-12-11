@@ -9,7 +9,6 @@ import * as Linking from 'expo-linking';
 import { Alert } from 'react-native';
 import Header from '@/src/components/header';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import LogRocket from '@logrocket/react-native';
 
 
 export const unstable_settings = {
@@ -19,7 +18,6 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
-  LogRocket.init('ovbdsd/zeniahub-dev');
 
   useEffect(() => {
     const handleDeepLink = (event) => {
