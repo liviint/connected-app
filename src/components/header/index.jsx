@@ -95,8 +95,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height:"100%",
-    //backgroundColor: "rgba(0,0,0,0.3)",
-    backgroundColor:"#f6a015ff",
     zIndex: 998,
   },
   navSmall: {
