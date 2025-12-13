@@ -129,19 +129,11 @@ export default function HabitEntriesPage() {
           activeOpacity={0.85}
           style={{
             backgroundColor: habit.completed ? "#e8fbe8" : "white",
-            borderRadius: 16,
-            padding: 16,
-            marginBottom: 12,
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            shadowColor: "#000",
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
+            ...styles.rowContainer
           }}
         >
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: "600", color: "#333" }}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>
               {habit.title}
             </Text>
             <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
@@ -151,7 +143,6 @@ export default function HabitEntriesPage() {
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            {/* STATS BUTTON */}
             <TouchableOpacity
               onPress={() => router.push(`/habits/${habit.habit_id}/stats`)}
               style={{
@@ -228,4 +219,29 @@ export default function HabitEntriesPage() {
       </View>
     </ScrollView>
   );
+}
+
+const styles = {
+  rowContainer:{
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    gap:12,
+  },
+  titleContainer:{
+    flex:1,
+    minWidth:0,
+  },
+  title:{
+    fontSize: 18, 
+    fontWeight: "600", 
+    color: "#333" ,
+    flexWrap:"wrap",
+    flexShrink: 1,
+  }
 }

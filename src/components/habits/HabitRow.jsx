@@ -1,10 +1,9 @@
-import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { api } from "../../../api";
 import DeleteButton from "../common/DeleteButton";
 
-export default function HabitRow({ habit, index, drag, isActive, setRefreshData }) {
+export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
   const handleDelete = () => {
     api
       .delete(`/habits/${habit.id}/`)
