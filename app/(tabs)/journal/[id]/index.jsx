@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import RenderHtml from "react-native-render-html";
 import {useRouter, useLocalSearchParams } from "expo-router";
-import Markdown from "react-native-markdown-display";
 import { Audio } from "expo-av";
 import { api } from "../../../../api";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
@@ -157,9 +156,7 @@ export default function ViewJournalPage() {
                 item={"journal"}
                 contentAuthor={entry.user}
             />
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.deleteButtonText}>Delete Entry</Text>
-          </TouchableOpacity>
+          
 
           <TouchableOpacity
             style={styles.editButton}

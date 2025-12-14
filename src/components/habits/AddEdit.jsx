@@ -15,14 +15,16 @@ export default function AddEdit() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  const [form, setForm] = useState({
+  const inititialForm = {
     title: "",
     description: "",
     frequency: "daily",
     reminder_time: "",
     color: "#FF6B6B",
     icon: "🔥",
-  });
+  }
+
+  const [form, setForm] = useState(inititialForm);
 
   const [errors, setErrors] = useState({
     title: "",
@@ -31,9 +33,7 @@ export default function AddEdit() {
 
   const [loading, setLoading] = useState(false);
 
-  // --------------------------
-  // Handlers
-  // --------------------------
+
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
@@ -63,8 +63,6 @@ export default function AddEdit() {
 
   const handleSubmit = async () => {
     if (!validate()) return;
-
-    try {
       setLoading(true);
 
       const url = id ? `habits/${id}/` : "habits/";
@@ -74,21 +72,19 @@ export default function AddEdit() {
         url,
         method,
         data: form,
-      });
-
-      setTimeout(() => {
+      })
+      .then(() => {
         router.push("/habits");
-      }, 10);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setForm(inititialForm)
+      })
+      .catch ((err) => {
+        console.error("Error:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      })
+  }
 
-  // --------------------------
-  // Fetch habit on edit
-  // --------------------------
   useEffect(() => {
     if (!id) return;
 

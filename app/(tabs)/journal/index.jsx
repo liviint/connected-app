@@ -10,7 +10,7 @@ import {
   RefreshControl,
   useWindowDimensions
 } from "react-native";
-import { Link, useFocusEffect } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
 import { api } from "../../../api";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 import { Audio } from "expo-av";
@@ -19,6 +19,7 @@ import { htmlStyles } from "../../../utils/htmlStyles";
 import { globalStyles } from "../../../src/styles/global";
 
 export default function JournalListPage() {
+  const router = useRouter()
   const { width } = useWindowDimensions();
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
   const [journals, setJournals] = useState([]);
@@ -111,13 +112,21 @@ export default function JournalListPage() {
       <View style={styles.contentWrapper}>
         <View style={styles.headerBar}>
           <Text style={globalStyles.title}>My Journal</Text>
-
-          <Link href="/journal/create" asChild>
-            <TouchableOpacity style={styles.newEntryButton}>
-              <Text style={styles.newEntryButtonText}>+ New Entry</Text>
-            </TouchableOpacity>
-          </Link>
         </View>
+        
+        
+        <TouchableOpacity 
+          onPress={() => router.push("/journal/create")}  
+          style={{
+            ...globalStyles.primaryBtn,
+            marginBottom:20,
+            width:200,
+            marginLeft:"25%",
+          }}>
+          <Text style={globalStyles.primaryBtnText}>
+            + New Entry
+          </Text>
+        </TouchableOpacity>
 
         {/* Journal List */}
         <View style={styles.journalList}>
@@ -201,7 +210,6 @@ const styles = StyleSheet.create({
   contentWrapper: { padding: 24, maxWidth: 768, alignSelf: "center", width: "100%" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 10, fontSize: 16, color: "#333" },
-  headerBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 },
   newEntryButton: { backgroundColor: "#FF6B6B", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
   newEntryButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
   journalList: { gap: 16 },

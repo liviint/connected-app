@@ -18,10 +18,14 @@ import { globalStyles } from "../../styles/global";
 export default function AddEdit({ id }) {
   const router = useRouter();
   const richText = useRef();
-
   const [moods, setMoods] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ title: "", content: "", mood_id: "" });
+  const initialForm = {
+    title: "", 
+    content: "", 
+    mood_id: ""
+  }
+  const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [recording, setRecording] = useState(null);
   const [audioUri, setAudioUri] = useState("");
@@ -89,6 +93,7 @@ export default function AddEdit({ id }) {
       });
       Alert.alert("Success", "Journal entry saved!");
       router.push("/journal");
+      setForm(initialForm)
     } catch (err) {
       console.error(err);
       Alert.alert("Error", "Failed to save entry");
