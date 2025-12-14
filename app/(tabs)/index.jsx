@@ -52,7 +52,7 @@ export default function HomePage() {
           </Text>
           <TouchableOpacity
             style={[styles.button, styles.smallButton, styles.primaryButton]}
-            onPress={() => router.push('Journal')}
+            onPress={() => router.push('/journal')}
           >
             <Text style={styles.buttonText}>Go to Journal</Text>
           </TouchableOpacity>
@@ -65,7 +65,7 @@ export default function HomePage() {
           </Text>
           <TouchableOpacity
             style={[styles.button, styles.smallButton, styles.secondaryButton]}
-            onPress={() => router.push('Habits')}
+            onPress={() => router.push('/habits')}
           >
             <Text style={styles.buttonText}>View Habits</Text>
           </TouchableOpacity>
