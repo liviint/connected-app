@@ -275,7 +275,7 @@ export default function AddEdit({ id }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24 },
+  container: { padding: 0 },
   formGroup: { marginBottom: 16 },
   label: { marginBottom: 6, fontWeight: "600", fontSize: 16 },
   input: {

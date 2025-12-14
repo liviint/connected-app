@@ -81,6 +81,13 @@ export default function TabLayout() {
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="[...notfound]"
+        options={{
+          href: null,
+        }}
+      />
       
     </Tabs>
     </>
