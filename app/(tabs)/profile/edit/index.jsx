@@ -82,16 +82,18 @@ const ProfilePage = () => {
     const data = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === "profilePic" && value?.uri) {
+      if (key === "profilePic") {
+        if (value && typeof value === "object" && value.uri) {
           data.append("profilePic", {
             uri: value.uri,
             name: value.fileName || "profile.jpg",
             type: value.mimeType || "image/jpeg",
           });
-        } else {
-          data.append(key, value);
         }
-    });
+      }else {
+            data.append(key, value);
+          }
+      });
 
         api({
             url:`accounts/profile/`,
@@ -106,7 +108,7 @@ const ProfilePage = () => {
               params:{refresh:refresh}
             });
         }).catch(error => {
-            console.log(error)
+            console.log(error.response.data)
             setError(error?.response?.data?.username?.[0] || "An error occurred.")
         })
         .finally(() => setUpdating(false))

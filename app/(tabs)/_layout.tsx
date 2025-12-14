@@ -27,7 +27,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="journal/index"
+        name="journal"
         options={{
           title: 'Journal',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="book.fill" color={color} />,
@@ -35,7 +35,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="habits/index"
+        name="habits"
         options={{
           title: 'Habits',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark.seal.fill" color={color} />,
@@ -43,7 +43,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="profile/index"
+        name="profile"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.crop.circle.fill" color={color} />,
@@ -57,36 +57,12 @@ export default function TabLayout() {
       />
       
       <Tabs.Screen
-        name="blog"
-        options={{
-          href: null,
-        }}
-      />
-      
-      <Tabs.Screen
         name="profile/edit/index"
         options={{
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="journal/[id]/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="journal/[id]/edit/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="journal/create/index"
-        options={{
-          href: null,
-        }}
-      />
+      
       <Tabs.Screen
         name="feedback/index"
         options={{
@@ -105,30 +81,7 @@ export default function TabLayout() {
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="habits/[id]/edit/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="habits/[id]/stats/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="habits/add/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="habits/entries/index"
-        options={{
-          href: null,
-        }}
-      />
+      
     </Tabs>
     </>
   );
