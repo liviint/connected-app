@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  useWindowDimensions
+  useWindowDimensions,
+  Dimensions
 } from "react-native";
 import { Link, useFocusEffect, useRouter } from "expo-router";
 import { api } from "../../../api";
@@ -152,12 +153,7 @@ export default function JournalListPage() {
                   <View style={styles.cardContent}>
                     
 
-                    <RenderHtml
-                      contentWidth={width}
-                      source={{ html: item.content }}
-                      tagsStyles={htmlStyles}
-                    />
-                    
+                    <HtmlPreview html={item.content}  />
 
                     {/* Audio Player */}
                     {item.audio_file && (
@@ -205,6 +201,21 @@ export default function JournalListPage() {
   );
 }
 
+
+
+const screenWidth = Dimensions.get('window').width;
+function HtmlPreview({ html, maxLength = 200 }) {
+  let text = html.replace(/<[^>]*>/g, '');
+
+  if (text.length > maxLength) {
+    text = text.slice(0, maxLength) + '...';
+  }
+
+  const truncatedHtml = `<p>${text}</p>`;
+
+  return <RenderHtml contentWidth={screenWidth} source={{ html: truncatedHtml }} />;
+}
+
 const styles = StyleSheet.create({
   outerContainer: { flex: 1, backgroundColor: "#f8f8f8" },
   contentWrapper: { padding: 24, maxWidth: 768, alignSelf: "center", width: "100%" },
@@ -223,10 +234,3 @@ const styles = StyleSheet.create({
   audioButton: { backgroundColor: "#eee", padding: 8, borderRadius: 8, alignItems: "center" },
   audioButtonText: { fontSize: 14, fontWeight: "600" },
 });
-
-const markdownStyles = {
-  body: { color: "#4b5563", fontSize: 14, lineHeight: 20 },
-  link: { color: "#2E8B8B" },
-  heading1: { fontSize: 22, fontWeight: "700" },
-  heading2: { fontSize: 20, fontWeight: "700" },
-};
