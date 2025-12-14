@@ -6,10 +6,9 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import ReduxProvider from '@/store/ReduxProvider';
 import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
-import { Alert } from 'react-native';
 import Header from '@/src/components/header';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import { BackHandler } from 'react-native';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -35,14 +34,39 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, [router]);
 
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress",() => {
+      if(router.canGoBack()){
+        router.back()
+        return true
+      }
+      return false
+    })
+    return () => sub.remove()
+  },[router])
+
+
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ReduxProvider>
-      <Header />
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)"/>
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack >
+          <Stack.Screen 
+            name="(tabs)"
+            options={{
+              header:() => <Header />
+            }}
+          />
+          <Stack.Screen 
+            name="modal" 
+            options={{ 
+              presentation: 'modal', 
+              title: 'Modal',
+              header:() => <Header />
+            }} 
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

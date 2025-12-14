@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Dimensions, ActivityIndicator } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
-import { weekdays } from "moment/moment";
 
 export default function HabitStatsScreen() {
-  const router = useRouter();
   const { id } = useLocalSearchParams();
   const [stats, setStats] = useState(null);
 
