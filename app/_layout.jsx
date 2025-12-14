@@ -19,20 +19,40 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleDeepLink = (event) => {
-      const data = Linking.parse(event.url);
-      if (data.path === 'verify-email' && data.queryParams?.uid && data.queryParams?.token) {
-        router.push(`/verify-email?uid=${data.queryParams.uid}&token=${data.queryParams.token}`);
-      } 
-    };
+  const handleDeepLink = ({ url }) => {
+    const parsed = Linking.parse(url);
+    console.log('Deep link parsed:', parsed);
+    if (
+      parsed.path === 'verify-email' &&
+      parsed.queryParams?.uid &&
+      parsed.queryParams?.token
+    ) {
+      router.push(
+        `/verify-email?uid=${parsed.queryParams.uid}&token=${parsed.queryParams.token}`
+      );
+      return;
+    }
 
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-    Linking.getInitialURL().then(url => {
-      if (url) handleDeepLink({ url });
-    });
+    if (
+      parsed.path === 'reset-password-confirm' &&
+      parsed.queryParams?.uid &&
+      parsed.queryParams?.token
+    ) {
+      router.push(
+        `/reset-password-confirm?uid=${parsed.queryParams.uid}&token=${parsed.queryParams.token}`
+      );
+    }
+  };
 
-    return () => subscription.remove();
-  }, [router]);
+  const subscription = Linking.addEventListener('url', handleDeepLink);
+
+  Linking.getInitialURL().then((url) => {
+    if (url) handleDeepLink({ url });
+  });
+
+  return () => subscription.remove();
+}, []);
+
 
 
   useEffect(() => {
