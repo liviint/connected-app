@@ -47,8 +47,11 @@ export default function AddEdit({ id }) {
       .get(`journal/${id}/`)
       .then((res) => {
         const entry = res.data;
-        setForm({ ...entry, mood_id: entry.mood.id });
-        if (entry.audio_file) setAudioUri(entry.audio_file); // set existing audio
+        setForm({ ...entry, mood_id: String(entry.mood.id) });
+        if (entry.audio_file) setAudioUri(entry.audio_file); 
+        if (richText.current) {
+          richText.current.setContentHTML(entry.content || "");
+        }
       })
       .catch((err) => console.error(err));
   }, [id]);
