@@ -9,12 +9,13 @@ import {
   ScrollView,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { useRouter , useFocusEffect} from "expo-router";
+import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
 import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
 
 const ProfileView = () => {
   const router = useRouter();
+  const {refresh} = useLocalSearchParams()
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.userDetails);
   const [userData, setUserData] = useState(null);
@@ -44,6 +45,10 @@ const ProfileView = () => {
       router.push("/login");
     }
   }, [user]);
+
+  useEffect(() => {
+    if(refresh) getUserData()
+  },[refresh])
 
   if (loading) {
     return (

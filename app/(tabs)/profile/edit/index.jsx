@@ -33,6 +33,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
+  const [refresh,setRefresh] = useState(0)
 
   const getUserData = async () => {
     api({
@@ -81,11 +82,15 @@ const ProfilePage = () => {
     const data = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === "profilePic") {
-        value instanceof File && data.append("profilePic", formData.profilePic)
-      } else {
-        data.append(key, value);
-      }
+      if (key === "profilePic" && value?.uri) {
+          data.append("profilePic", {
+            uri: value.uri,
+            name: value.fileName || "profile.jpg",
+            type: value.mimeType || "image/jpeg",
+          });
+        } else {
+          data.append(key, value);
+        }
     });
 
         api({
@@ -95,7 +100,11 @@ const ProfilePage = () => {
             data,
         }).then(res => {
             Alert.alert("Success", "Profile updated successfully.");
-            router.push("/profile");
+            setRefresh(prev => prev + 1)
+            router.push({
+              pathname:"/profile",
+              params:{refresh:refresh}
+            });
         }).catch(error => {
             console.log(error)
             setError(error?.response?.data?.username?.[0] || "An error occurred.")
