@@ -77,10 +77,10 @@ useEffect(() => {
         <Text style={styles.emptyMessage}>No habits yet. Create your first one!</Text>
 
         <TouchableOpacity
-          style={styles.addButton}
+          style={globalStyles.primaryBtn}
           onPress={() => router.push("/habits/add")}
         >
-          <Text style={styles.addButtonText}>+ Add habit</Text>
+          <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
         </TouchableOpacity>
       </View>
     );
@@ -107,17 +107,17 @@ useEffect(() => {
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
-                style={styles.addButton}
+                style={{flex:1,...globalStyles.primaryBtn}}
                 onPress={() => router.push("/habits/add")}
               >
-                <Text style={styles.addButtonText}>+ Add habit</Text>
+                <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.trackButton}
+                style={{flex:1,...globalStyles.secondaryBtn}}
                 onPress={() => router.push("/habits/entries")}
               >
-                <Text style={styles.trackButtonText}>Track progress</Text>
+                <Text style={globalStyles.secondaryBtnText}>Track progress</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -136,33 +136,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
-  },
-  addButton: {
-    flex: 1,
-    backgroundColor: "#FF6B6B",
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginRight: 8,
-    alignItems: "center",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  trackButton: {
-    flex: 1,
-    borderColor: "#2E8B8B",
-    borderWidth: 2,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginLeft: 8,
-    alignItems: "center",
-  },
-  trackButtonText: {
-    color: "#2E8B8B",
-    fontWeight: "bold",
-    fontSize: 16,
   },
   emptyMessage: {
     textAlign: "center",

@@ -189,31 +189,18 @@ export default function HabitEntriesPage() {
       >
         <TouchableOpacity
           onPress={() => router.push("/habits/add")}
-          style={{
-            flex: 1,
-            backgroundColor: "#FF6B6B",
-            paddingVertical: 14,
-            borderRadius: 14,
-            alignItems: "center",
-          }}
+          style={{flex:1,...globalStyles.primaryBtn}}
         >
-          <Text style={{ color: "white", fontWeight: "600", fontSize: 16 }}>
+          <Text style={globalStyles.primaryBtnText}>
             + Add habit
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => router.push("/habits")}
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: "#FF6B6B",
-            paddingVertical: 14,
-            borderRadius: 14,
-            alignItems: "center",
-          }}
+          style={{flex:1,...globalStyles.secondaryBtn}}
         >
-          <Text style={{ color: "#FF6B6B", fontWeight: "600", fontSize: 16 }}>
+          <Text style={globalStyles.secondaryBtnText}>
             All Habits
           </Text>
         </TouchableOpacity>

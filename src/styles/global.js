@@ -17,10 +17,58 @@ export const globalStyles = StyleSheet.create({
         color:'#FF6B6B',
         marginBottom: 16,
     },
-    secondaryBtn: {
-        backgroundColor: '#2E8B8B',
-        borderRadius: 8,
-        paddingVertical: 10,
+    addButton: {
+    flex: 1,
+    backgroundColor: "#FF6B6B",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginRight: 8,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+    primaryBtn:{
+        backgroundColor: "#FF6B6B",
+        paddingVertical: 12,
         paddingHorizontal: 16,
+        borderRadius: 12,
+        marginRight: 8,
+        alignItems: "center",
     },
+    primaryBtnText:{
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+    secondaryBtn: {
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderColor: "#2E8B8B",
+        borderWidth: 2,
+        alignItems: "center",
+    },
+    secondaryBtnText:{
+        color: "#2E8B8B",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+
+    trackButton: {
+    flex: 1,
+    borderColor: "#2E8B8B",
+    borderWidth: 2,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginLeft: 8,
+    alignItems: "center",
+  },
+  trackButtonText: {
+    color: "#2E8B8B",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 });
