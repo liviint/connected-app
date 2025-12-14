@@ -5,6 +5,7 @@ import { View, Text, ScrollView, Dimensions, ActivityIndicator } from "react-nat
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
+import { weekdays } from "moment/moment";
 
 export default function HabitStatsScreen() {
   const router = useRouter();
@@ -96,79 +97,104 @@ if (total > 0) {
       </View>
 
         <ChartCard title="Completion Breakdown">
-            {completionPieData.length > 0 ? (
-                <PieChart
-                data={completionPieData}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                accessor="population"
-                backgroundColor="transparent"
-                paddingLeft="20"
-                />
+          {
+            width => 
+              {
+                return completionPieData.length > 0 ? (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <PieChart
+                      data={completionPieData}
+                      width={width + 20}
+                      height={220}
+                      chartConfig={chartConfig}
+                      accessor="population"
+                      backgroundColor="transparent"
+                      paddingLeft="20"
+                    />
+                  </ScrollView>
             ) : (
                 <Text style={{ textAlign: "center", color: "#666" }}>
                 No completion data yet.
                 </Text>
             )}
+          }
         </ChartCard>
 
 
       {/* Weekday Bar Chart */}
       <ChartCard title="Completions Per Weekday">
-        {weekdayData.length > 0 ? (
-          <BarChart
-            data={{
-              labels: weekdayData.map((d) => d.label),
-              datasets: [{ data: weekdayData.map((d) => d.value) }],
-            }}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            fromZero
-            showValuesOnTopOfBars
-          />
-        ) : (
-          <Text style={{ textAlign: "center", color: "#666" }}>No weekday data yet.</Text>
+        {
+          width => 
+            {
+              const minWidth = Math.max(width,weekdayData.length * 60)
+              return weekdayData.length > 0 ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <BarChart
+                    data={{
+                      labels: weekdayData.map((d) => d.label),
+                      datasets: [{ data: weekdayData.map((d) => d.value) }],
+                    }}
+                    width={minWidth}
+                    height={220}
+                    chartConfig={chartConfig}
+                    fromZero
+                    showValuesOnTopOfBars
+                  />
+                </ScrollView>
+              ) : (
+              <Text style={{ textAlign: "center", color: "#666" }}>No weekday data yet.</Text>
         )}
+        }
       </ChartCard>
 
       {/* Monthly Bar Chart */}
       <ChartCard title="Monthly Activity">
-        {monthlyData.length > 0 ? (
-          <BarChart
-            data={{
-              labels: monthlyData.map((d) => d.month),
-              datasets: [{ data: monthlyData.map((d) => d.count) }],
-            }}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            fromZero
-            showValuesOnTopOfBars
-          />
+        {
+          width => {
+            const minWidth = Math.max(width,monthlyData.length * 60)
+            return monthlyData.length > 0 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <BarChart
+                    data={{
+                      labels: monthlyData.map((d) => d.month),
+                      datasets: [{ data: monthlyData.map((d) => d.count) }],
+                    }}
+                    width={minWidth}
+                    height={220}
+                    chartConfig={chartConfig}
+                    fromZero
+                    showValuesOnTopOfBars
+                  />
+              </ScrollView>
         ) : (
           <Text style={{ textAlign: "center", color: "#666" }}>No monthly data yet.</Text>
         )}
+        }
       </ChartCard>
 
       {/* Trend Line Chart */}
       <ChartCard title="Completion Trend">
-        {trendData.length > 0 ? (
-          <LineChart
-            data={{
-              labels: trendData.map((d) => d.date.slice(5) || "-"),
-              datasets: [{ data: trendData.map((d) => d.value) }],
-            }}
-            width={screenWidth}
-            height={240}
-            chartConfig={chartConfig}
-            bezier
-            fromZero
-          />
-        ) : (
-          <Text style={{ textAlign: "center", color: "#666" }}>No trend data yet.</Text>
-        )}
+        {
+          width => {
+            const minWidth = Math.max(width,trendData.length * 60)
+            return trendData.length > 0 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <LineChart
+                  data={{
+                    labels: trendData.map((d) => d.date.slice(5) || "-"),
+                    datasets: [{ data: trendData.map((d) => d.value) }],
+                  }}
+                  width={minWidth}
+                  height={240}
+                  chartConfig={chartConfig}
+                  bezier
+                  fromZero
+                />
+              </ScrollView>
+            ) : (
+              <Text style={{ textAlign: "center", color: "#666" }}>No trend data yet.</Text>
+            )}
+        }
       </ChartCard>
     </ScrollView>
   );
@@ -185,17 +211,26 @@ function StatCard({ title, value }) {
         borderRadius: 12,
         elevation: 2,
         marginBottom: 12,
+        overflow:"hidden",
       }}
     >
-      <Text style={{ color: "#777", fontSize: 12 }}>{title}</Text>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginTop: 6 }}>{value}</Text>
+      <Text 
+        style={{ color: "#777", fontSize: 12 }}>
+          {title}
+      </Text>
+      <Text 
+        style={{ fontSize: 24, fontWeight: "bold", marginTop: 6 }}>
+          {value}
+      </Text>
     </View>
   );
 }
 
 function ChartCard({ title, children }) {
+  const [width,setWidth] = useState(0)
   return (
     <View
+      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       style={{
         backgroundColor: "#fff",
         padding: 16,
@@ -205,7 +240,7 @@ function ChartCard({ title, children }) {
       }}
     >
       <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 12 }}>{title}</Text>
-      {children}
+      {width > 0 && children(width - 16)}
     </View>
   );
 }

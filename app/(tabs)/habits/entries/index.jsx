@@ -125,7 +125,7 @@ export default function HabitEntriesPage() {
       {/* HABIT LIST */}
       {entries.map((habit) => (
         <TouchableOpacity
-          key={habit.id}
+          key={habit.id + habit.title }
           activeOpacity={0.85}
           style={{
             backgroundColor: habit.completed ? "#e8fbe8" : "white",
