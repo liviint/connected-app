@@ -16,6 +16,7 @@ import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessP
 import { Audio } from "expo-av";
 import RenderHtml from "react-native-render-html";
 import { htmlStyles } from "../../../utils/htmlStyles";
+import { globalStyles } from "../../../src/styles/global";
 
 export default function JournalListPage() {
   const { width } = useWindowDimensions();
@@ -109,7 +110,7 @@ export default function JournalListPage() {
     >
       <View style={styles.contentWrapper}>
         <View style={styles.headerBar}>
-          <Text style={styles.header}>My Journal</Text>
+          <Text style={globalStyles.title}>My Journal</Text>
 
           <Link href="/journal/create" asChild>
             <TouchableOpacity style={styles.newEntryButton}>
@@ -201,7 +202,6 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 10, fontSize: 16, color: "#333" },
   headerBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 },
-  header: { fontSize: 28, fontWeight: "bold", color: "#FF6B6B" },
   newEntryButton: { backgroundColor: "#FF6B6B", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
   newEntryButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
   journalList: { gap: 16 },

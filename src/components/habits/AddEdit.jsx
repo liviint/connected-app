@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { api } from "../../../api";
+import { globalStyles } from "../../styles/global";
 
 export default function AddEdit() {
   const { id } = useLocalSearchParams();
@@ -108,7 +109,7 @@ export default function AddEdit() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-      <Text style={styles.title}>{id ? "Edit Habit" : "Create a Habit"}</Text>
+      <Text style={globalStyles.title}>{id ? "Edit Habit" : "Create a Habit"}</Text>
 
       <View style={styles.card}>
         {/* TITLE */}
@@ -246,7 +247,6 @@ export default function AddEdit() {
 
 const styles = StyleSheet.create({
   container: { backgroundColor: "#FAF9F7", padding: 20, flex: 1 },
-  title: { fontSize: 28, fontWeight: "700", color: "#333", marginBottom: 16 },
   card: {
     backgroundColor: "white",
     padding: 20,

@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { router } from "expo-router";
 import { api } from "../../../api";
 import HabitRow from "./HabitRow";
+import { globalStyles } from "../../styles/global";
 
 export default function HabitsScreen() {
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
@@ -102,7 +103,7 @@ useEffect(() => {
         onDragEnd={onDragEnd}
         ListHeaderComponent={() => (
           <View style={styles.header}>
-            <Text style={styles.title}>Your Habits</Text>
+            <Text style={globalStyles.title}>Your Habits</Text>
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
@@ -129,12 +130,6 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
   header: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#FF6B6B",
     marginBottom: 20,
   },
   buttonRow: {

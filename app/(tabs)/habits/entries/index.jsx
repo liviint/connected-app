@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "../../../../api";
+import { globalStyles } from "../../../../src/styles/global";
 
 export default function HabitEntriesPage() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function HabitEntriesPage() {
       contentContainerStyle={{ paddingBottom: 80 }}
     >
       <Text
-        style={{ fontSize: 28, fontWeight: "700", color: "#333333", marginBottom: 16 }}
+        style={globalStyles.title}
       >
         Today’s Habits
       </Text>

@@ -13,6 +13,7 @@ import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import { api } from "../../../api";
+import { globalStyles } from "../../styles/global";
 
 export default function AddEdit({ id }) {
   const router = useRouter();
@@ -149,7 +150,7 @@ export default function AddEdit({ id }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
+      <Text style={globalStyles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Title (Optional)</Text>
@@ -267,7 +268,6 @@ export default function AddEdit({ id }) {
 
 const styles = StyleSheet.create({
   container: { padding: 24 },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 24 },
   formGroup: { marginBottom: 16 },
   label: { marginBottom: 6, fontWeight: "600", fontSize: 16 },
   input: {
