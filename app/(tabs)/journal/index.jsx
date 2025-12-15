@@ -114,21 +114,33 @@ export default function JournalListPage() {
         <View style={styles.headerBar}>
           <Text style={globalStyles.title}>My Journal</Text>
         </View>
-        
-        
-        <TouchableOpacity 
-          onPress={() => router.push("/journal/create")}  
+
+        <View 
           style={{
-            ...globalStyles.primaryBtn,
-            marginBottom:20,
-            width:200,
-            marginLeft:"25%",
-          }}>
+              marginBottom:20,
+              display:"flex",
+              flexDirection:"row",
+              justifyContent:"center",
+            }}
+        >
+          <TouchableOpacity 
+            onPress={() => router.push("/journal/create")}  
+            style={globalStyles.primaryBtn}
+          >
           <Text style={globalStyles.primaryBtnText}>
             + New Entry
           </Text>
         </TouchableOpacity>
 
+        <TouchableOpacity 
+          onPress={() => router.push("/journal/stats")}  
+          style={globalStyles.secondaryBtn}>
+          <Text style={globalStyles.secondaryBtnText}>
+            Stats
+          </Text>
+        </TouchableOpacity>
+        </View>
+        
         {/* Journal List */}
         <View style={styles.journalList}>
           {journals.length === 0 ? (
