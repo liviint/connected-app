@@ -5,7 +5,7 @@ export default {
     scheme: "zeniahub",
     name: "ZeniaHub",
     slug: "zeniahub",
-    version: "1.0.3",
+    version: "1.0.4",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     userInterfaceStyle: "automatic",
@@ -18,14 +18,19 @@ export default {
     },
 
     android: {
+      package: "com.zeniahub.app",
+
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
         foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
+        backgroundColor: "#E6F4FE",
         monochromeImage: "./assets/images/android-icon-monochrome.png",
       },
+
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
+
+      enableProguardInReleaseBuilds: true,
+
       intentFilters: [
         {
           action: "VIEW",
@@ -35,14 +40,17 @@ export default {
               host: "zeniahub.com",
               pathPrefix: "/verify",
             },
-            { scheme: "zeniahub" },
+            {
+              scheme: "zeniahub",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
-      package: "com.zeniahub.app",
+
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
     },
+
 
     web: {
       output: "static",
