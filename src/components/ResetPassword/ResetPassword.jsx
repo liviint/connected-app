@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { api } from "@/api";
 import { useRouter } from "expo-router";
+import { globalStyles } from "../../styles/global";
 
 const ResetPassword = ({ navigation }) => {
   const router = useRouter()
@@ -52,7 +53,7 @@ const ResetPassword = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Reset Your Password</Text>
+      <Text style={globalStyles.title}>Reset Your Password</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {success ? <Text style={styles.success}>{success}</Text> : null}
@@ -85,7 +86,7 @@ const ResetPassword = ({ navigation }) => {
         Remember your password?{" "}
         <Text
           style={styles.link}
-          onPress={() => router.push("Login")}
+          onPress={() => router.push("/login")}
         >
           Back to Login
         </Text>
@@ -99,12 +100,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 20,
-    textAlign: "center",
   },
   formGroup: {
     marginBottom: 15,
