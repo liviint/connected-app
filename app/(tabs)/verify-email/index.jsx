@@ -23,29 +23,22 @@ export default function VerifyEmail() {
       return;
     }
 
-    const verifyEmail = async () => {
-      try {
-        const res = await api.get(`/accounts/verify-email/?uid=${uid}&token=${token}`);
-        
-        if (res?.data?.detail) {
-          setMessage(res.data.detail);
-          setStatus("success");
-          return;
-        }
-
-        // Save user data to Redux store
+    const verifyEmail = () => {
+      api.get(`/accounts/verify-email/?uid=${uid}&token=${token}`)
+      .then((res) => {
         dispatch(setUserDetails(res.data.user));
         safeLocalStorage.setItem("token", res.data.access);
-
         setStatus("success");
         setMessage("Email verified and logged in! Redirecting...");
-
-        setTimeout(() => router.replace("/profile"), 3000); // Redirect after 3s
-      } catch (err) {
+      })
+      .then(() => {
+        router.push("/profile");
+      })
+      .catch((err) => {
         console.log(err, "Verification error");
         setStatus("error");
         setMessage(err.response?.data?.detail || "Verification failed.");
-      }
+      })
     };
 
     verifyEmail();
