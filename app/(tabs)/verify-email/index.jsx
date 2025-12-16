@@ -27,11 +27,12 @@ export default function VerifyEmail() {
       api.get(`/accounts/verify-email/?uid=${uid}&token=${token}`)
       .then((res) => {
         dispatch(setUserDetails(res.data.user));
-        safeLocalStorage.setItem("token", res.data.access);
-        setStatus("success");
-        setMessage("Email verified and logged in! Redirecting...");
+        api.defaults.headers.common.Authorization = `Bearer ${res.data.access}`;
+        return safeLocalStorage.setItem("token", res.data.access);
       })
       .then(() => {
+        setStatus("success");
+        setMessage("Email verified and logged in! Redirecting...");
         router.push("/profile");
       })
       .catch((err) => {
