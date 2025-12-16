@@ -83,11 +83,25 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="reset-password-confirm/index"
+        name="signup/index"
         options={{
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="verify-email/index"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="reset-password-confirm/index"
+        options={{
+          href: null,
+        }}
+      /> 
 
       <Tabs.Screen
         name="[...notfound]"

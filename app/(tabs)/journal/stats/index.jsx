@@ -11,6 +11,7 @@ import {
   PieChart,
 } from "react-native-chart-kit";
 import { api } from "../../../../api";
+import { globalStyles } from "../../../../src/styles/global";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 const screenWidth = Dimensions.get("window").width;
@@ -59,7 +60,7 @@ export default function JournalStats() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.pageTitle}>Journaling Summary</Text>
+      <Text style={globalStyles.title}>Journaling Summary</Text>
 
       {/* STATS CARDS */}
       <View style={styles.cards}>
@@ -97,12 +98,13 @@ export default function JournalStats() {
       {/* MOOD DISTRIBUTION */}
       <ChartCard title="Mood Distribution">
         {
-          () => {
+          (width) => {
+            const minWidth = Math.max(width,weekdayCounts.length * 60)
             return (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <PieChart
                 data={moodData}
-                width={screenWidth - 45}
+                width={minWidth}
                 height={260}
                 accessor="population"
                 backgroundColor="transparent"
@@ -189,11 +191,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 20,
   },
   cards: {
     flexDirection: "row",

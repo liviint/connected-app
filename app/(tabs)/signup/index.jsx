@@ -8,7 +8,8 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-import { api } from "../../api";
+import { api } from "../../../api";
+import { globalStyles } from "../../../src/styles/global";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -63,7 +64,7 @@ const Signup = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.form}>
-        <Text style={styles.title}>Create an Account</Text>
+        <Text style={globalStyles.title}>Create an Account</Text>
 
         {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
         {success ? (
@@ -128,13 +129,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 4,
-  },
-  title: {
-    fontSize: 22,
-    fontFamily: "Poppins-Bold",
-    color: "#333333",
-    textAlign: "center",
-    marginBottom: 20,
   },
   formGroup: {
     marginBottom: 15,

@@ -8,11 +8,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { api } from "@/api";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { globalStyles } from "../../styles/global";
 
-const ResetPasswordConfirm = ({ route, navigation }) => {
+const ResetPasswordConfirm = () => {
   const router = useRouter()
-  const { uid, token } = route.params; 
+  const { uid, token } = useLocalSearchParams(); 
 
   const [formData, setFormData] = useState({
     new_password: "",
@@ -73,7 +74,7 @@ const ResetPasswordConfirm = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Set a New Password</Text>
+      <Text style={globalStyles.title}>Set a New Password</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {success ? <Text style={styles.success}>{success}</Text> : null}
@@ -115,7 +116,7 @@ const ResetPasswordConfirm = ({ route, navigation }) => {
       <Text style={styles.hint}>
         <Text
           style={styles.link}
-          onPress={() => router.push("Login")}
+          onPress={() => router.push("/login")}
         >
           Back to Login
         </Text>
@@ -130,12 +131,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 20,
-    textAlign: "center",
-  },
+  
   formGroup: {
     marginBottom: 15,
   },

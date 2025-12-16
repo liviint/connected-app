@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import { useRouter, useSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useDispatch } from "react-redux";
-import { setUserDetails } from "../../store/features/userSlice";
-import { api } from "../../api";
+import { setUserDetails } from "../../../store/features/userSlice";
+import { api } from "../../../api";
 
 export default function VerifyEmail() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const searchParams = useSearchParams(); // Expo Router hook
+  const searchParams = useLocalSearchParams();
   const [status, setStatus] = useState("loading"); 
   const [message, setMessage] = useState("");
 

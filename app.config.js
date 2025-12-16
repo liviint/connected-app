@@ -31,27 +31,25 @@ export default {
 
       enableProguardInReleaseBuilds: true,
 
-      intentFilters: [
-        {
-          action: "VIEW",
-          category: ["BROWSABLE", "DEFAULT"],
-          data: [
-            {
-              scheme: "https",
-              host: "zeniahub.com",
-              pathPrefix: "/verify-email",
-            },
-            {
-              scheme: "https",
-              host: "zeniahub.com",
-              pathPrefix: "/reset-password-confirm",
-            },
-            {
-              scheme: "zeniahub",
-            },
-          ],
-        },
-      ],
+      "intentFilters": [
+          // 1. Regular Deep Link (zeniahub://)
+          {
+            "action": "VIEW",
+            "category": ["BROWSABLE", "DEFAULT"],
+            "data": [
+              { "scheme": "zeniahub" }
+            ]
+          },
+          // 2. Universal App Link (https://zeniahub.com)
+          {
+            "action": "VIEW",
+            "autoVerify": true, 
+            "category": ["BROWSABLE", "DEFAULT"],
+            "data": [
+              { "scheme": "https", "host": "zeniahub.com", "pathPrefix": "/" }
+            ]
+          }
+        ],
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
     },
 
