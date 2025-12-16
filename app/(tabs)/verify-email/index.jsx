@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "../../../store/features/userSlice";
 import { api } from "../../../api";
+import { safeLocalStorage } from "../../../utils/storage";
 
 export default function VerifyEmail() {
   const dispatch = useDispatch();
@@ -33,7 +34,8 @@ export default function VerifyEmail() {
         }
 
         // Save user data to Redux store
-        dispatch(setUserDetails(res.data));
+        dispatch(setUserDetails(res.data.user));
+        safeLocalStorage.setItem("token", res.data.access);
 
         setStatus("success");
         setMessage("Email verified and logged in! Redirecting...");
