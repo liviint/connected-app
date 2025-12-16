@@ -34,20 +34,24 @@ export default {
       intentFilters: [
         {
           action: "VIEW",
+          category: ["BROWSABLE", "DEFAULT"],
           data: [
             {
               scheme: "https",
               host: "zeniahub.com",
-              pathPrefix: "/verify",
+              pathPrefix: "/verify-email",
+            },
+            {
+              scheme: "https",
+              host: "zeniahub.com",
+              pathPrefix: "/reset-password-confirm",
             },
             {
               scheme: "zeniahub",
             },
           ],
-          category: ["BROWSABLE", "DEFAULT"],
         },
       ],
-
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
     },
 

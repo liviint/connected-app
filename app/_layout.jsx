@@ -19,39 +19,43 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-  const handleDeepLink = ({ url }) => {
-    const parsed = Linking.parse(url);
-    console.log('Deep link parsed:', parsed);
-    if (
-      parsed.path === 'verify-email' &&
-      parsed.queryParams?.uid &&
-      parsed.queryParams?.token
-    ) {
-      router.push(
-        `/verify-email?uid=${parsed.queryParams.uid}&token=${parsed.queryParams.token}`
-      );
-      return;
-    }
+    const handleDeepLink = ({ url }) => {
+      const parsed = Linking.parse(url);
+      const route = parsed.path ?? parsed.hostname;
 
-    if (
-      parsed.path === 'reset-password-confirm' &&
-      parsed.queryParams?.uid &&
-      parsed.queryParams?.token
-    ) {
-      router.push(
-        `/reset-password-confirm?uid=${parsed.queryParams.uid}&token=${parsed.queryParams.token}`
-      );
-    }
-  };
+      console.log('Deep link parsed:', parsed);
 
-  const subscription = Linking.addEventListener('url', handleDeepLink);
+      if (
+        route === 'verify-email' &&
+        parsed.queryParams?.uid &&
+        parsed.queryParams?.token
+      ) {
+        router.push(
+          `/verify-email?uid=${parsed.queryParams.uid}&token=${parsed.queryParams.token}`
+        );
+        return;
+      }
 
-  Linking.getInitialURL().then((url) => {
-    if (url) handleDeepLink({ url });
-  });
+      if (
+        route === 'reset-password-confirm' &&
+        parsed.queryParams?.uid &&
+        parsed.queryParams?.token
+      ) {
+        router.push(
+          `/reset-password-confirm?uid=${parsed.queryParams.uid}&token=${parsed.queryParams.token}`
+        );
+      }
+    };
 
-  return () => subscription.remove();
-}, []);
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+
+    return () => subscription.remove();
+  }, []);
+
 
 
 
