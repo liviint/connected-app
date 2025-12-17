@@ -12,6 +12,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
 import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
+import * as Sentry from "@sentry/react-native";
 
 const ProfileView = () => {
   const router = useRouter();
@@ -88,10 +89,20 @@ const ProfileView = () => {
         <View style={styles.btnGroup}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push("/profile/edit")}
+            onPress={() => {
+              Sentry.captureException(new Error('Test sentry'))
+              router.push("/profile/edit")
+            }}
           >
             <Text style={styles.btnText}>Update Profile</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={ () => { Sentry.captureException(new Error('First error')) }}
+          >
+            <Text style={styles.btnText}>Update Error sentry</Text>
+          </TouchableOpacity>
+          
 
           <TouchableOpacity
             style={[styles.button, styles.logoutButton]}

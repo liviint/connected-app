@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setUserDetails } from "../../../store/features/userSlice";
 import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
+import * as Sentry from "@sentry/react-native";
 
 export default function VerifyEmail() {
   const dispatch = useDispatch();
@@ -36,7 +37,9 @@ export default function VerifyEmail() {
         router.push("/profile");
       })
       .catch((err) => {
-        console.log(err, "Verification error");
+        Sentry.captureException(err, {
+          tags: { flow: "verify-email" },
+        });
         setStatus("error");
         setMessage(err.response?.data?.detail || "Verification failed.");
       })

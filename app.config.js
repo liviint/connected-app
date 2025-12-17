@@ -71,6 +71,14 @@ export default {
           dark: { backgroundColor: "#000000" },
         },
       ],
+      [
+      "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "zeniahub",
+          "organization": "zeniahub"
+        }
+      ]
     ],
 
     experiments: {
@@ -86,6 +94,6 @@ export default {
       },
     },
 
-    owner: process.env.EXPO_OWNER || "kevinmosigisi1",
+    owner: process.env.EXPO_OWNER || "zeniahub",
   },
 };
