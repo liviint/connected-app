@@ -51,7 +51,7 @@ export default function Index() {
 
     try {
       const response = await api.post("accounts/login/", formData);
-      dispatch(setUserDetails(response.data.user));
+      dispatch(setUserDetails(response.data));
       safeLocalStorage.setItem("token", response.data.access);
       setSuccess(true);
       router.push("/profile");

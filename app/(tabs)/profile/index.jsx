@@ -30,20 +30,24 @@ const ProfileView = () => {
   const getUserData = async () => {
     api.get("accounts/profile/")
     .then(res => {
+        Sentry.captureMessage("hello test user successfu;")
         setUserData(res.data);
     }).catch(err =>  {
+      Sentry.captureMessage("hello test user eror successfu")
       console.error(err);
     })
     .finally(() =>  setLoading(false))
   };
 
-  useFocusEffect(() => {if (!user) router.push("/login")})
+  //useFocusEffect(() => {if (!user) router.push("/login")})
 
   useEffect(() => {
+    Sentry.captureMessage("hello test user outer")
     if (user) {
+      Sentry.captureMessage("hello test user inner")
       getUserData();
     } else {
-      router.push("/login");
+      //router.push("/login");
     }
   }, [user]);
 
@@ -96,13 +100,6 @@ const ProfileView = () => {
           >
             <Text style={styles.btnText}>Update Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={ () => { Sentry.captureException(new Error('First error')) }}
-          >
-            <Text style={styles.btnText}>Update Error sentry</Text>
-          </TouchableOpacity>
-          
 
           <TouchableOpacity
             style={[styles.button, styles.logoutButton]}

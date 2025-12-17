@@ -27,13 +27,15 @@ export default function VerifyEmail() {
     const verifyEmail = () => {
       api.get(`/accounts/verify-email/?uid=${uid}&token=${token}`)
       .then((res) => {
-        dispatch(setUserDetails(res.data.user));
+        Sentry.captureMessage("verify email successful")
+        dispatch(setUserDetails(res.data));
         api.defaults.headers.common.Authorization = `Bearer ${res.data.access}`;
         return safeLocalStorage.setItem("token", res.data.access);
       })
       .then(() => {
         setStatus("success");
         setMessage("Email verified and logged in! Redirecting...");
+        Sentry.captureMessage("verify email successful 22")
         router.push("/profile");
       })
       .catch((err) => {
