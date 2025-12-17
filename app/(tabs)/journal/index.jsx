@@ -53,13 +53,8 @@ export default function JournalListPage() {
     }, [fetchJournals, isUserLoggedIn])
   );
 
-  if (!isUserLoggedIn)
-    return (
-      <ProtectedAccessPage
-        message="Your personal journal is waiting. Sign up or log in to continue."
-      />
-    );
-
+  if (!isUserLoggedIn) return <ProtectedAccessPage />
+  
   if (loading && journals.length === 0) {
     return (
       <View style={styles.loadingContainer}>

@@ -8,23 +8,23 @@ const ProtectedAccessPage = ({ message }) => {
     return (
         <View style={styles.container}>
         <Text style={styles.heading}>
-            Oops! You need an account to access this.
+            Your space awaits
         </Text>
         <Text style={styles.subtext}>
-            {message || "Your personal journal and habit tracker are waiting. Sign up or log in to continue."}
+            {message || "Your personal journal and habit tracker are waiting for you. Please sign up or log in to continue."}
         </Text>
 
         <View style={styles.buttonContainer}>
             <TouchableOpacity
             style={styles.loginButton}
-            onPress={() => router.push('login')}
+            onPress={() => router.push('/login')}
             >
             <Text style={styles.loginButtonText}>Log In</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
             style={styles.signupButton}
-            onPress={() => router.push('signup')}
+            onPress={() => router.push('/signup')}
             >
             <Text style={styles.signupButtonText}>Sign Up</Text>
             </TouchableOpacity>

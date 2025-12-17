@@ -1,4 +1,4 @@
-import { useEffect, useState} from "react";
+import { useCallback, useState} from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
 import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
 import * as Sentry from "@sentry/react-native";
+import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 
 const ProfileView = () => {
   const router = useRouter();
@@ -20,7 +21,7 @@ const ProfileView = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.userDetails);
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     dispatch(clearUserDetails());
@@ -28,6 +29,7 @@ const ProfileView = () => {
   };
 
   const getUserData = async () => {
+    setLoading(true)
     api.get("accounts/profile/")
     .then(res => {
         Sentry.captureMessage("hello test user successfu;")
@@ -39,21 +41,14 @@ const ProfileView = () => {
     .finally(() =>  setLoading(false))
   };
 
-  //useFocusEffect(() => {if (!user) router.push("/login")})
-
-  useEffect(() => {
-    Sentry.captureMessage("hello test user outer")
-    if (user) {
-      Sentry.captureMessage("hello test user inner")
-      getUserData();
-    } else {
-      //router.push("/login");
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if(refresh) getUserData()
-  },[refresh])
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        getUserData();
+      }
+      else setUserData(null)
+    }, [user, refresh])
+  );
 
   if (loading) {
     return (
@@ -63,13 +58,7 @@ const ProfileView = () => {
     );
   }
 
-  if (!userData) {
-    return (
-      <View style={styles.container}>
-        <Text>No profile data available.</Text>
-      </View>
-    );
-  }
+  if (!userData) return <ProtectedAccessPage />
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
