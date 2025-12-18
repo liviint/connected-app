@@ -1,5 +1,9 @@
 export default {
-    prefixes: ["zeniahub://", "https://zeniahub.com"],
+    prefixes: [
+        "zeniahub://",
+        "https://zeniahub.com",
+        "https://www.zeniahub.com",
+    ],
     config: {
         screens: {
             "(tabs)": {
