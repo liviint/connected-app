@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { api } from "../../../api";
 import { globalStyles } from "../../../src/styles/global";
+import { validateEmail } from "../../../src/helpers";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -30,9 +31,10 @@ const Signup = () => {
 
   const validateForm = () => {
     let newErrors = {};
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Invalid email format";
+
+    let isEmailValid = validateEmail(formData.email)
+    if(isEmailValid.errorMessage) newErrors.email = isEmailValid.errorMessage 
+
     if (formData.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
     setErrors(newErrors);
@@ -46,7 +48,7 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      const res = await api.post("/accounts/register/", formData);
+      const res = await api.post("/accounts/register/", {...formData,email: formData.email.trim().toLowerCase()});
       setSuccess(true);
       setFormData({ email: "", password: "" });
       Alert.alert("Success", "A verification link has been sent to your email.");

@@ -10,33 +10,28 @@ import {
 import { api } from "@/api";
 import { useRouter } from "expo-router";
 import { globalStyles } from "../../styles/global";
+import { validateEmail } from "../../helpers";
 
-const ResetPassword = ({ navigation }) => {
+const ResetPassword = () => {
   const router = useRouter()
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
-
   const handleSubmit = async () => {
     setError("");
     setSuccess("");
 
-    if (!email.trim()) {
-      setError("Email is required");
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
+    let isEmailValid = validateEmail(email)
+    if (!isEmailValid.isValid) {
+      setError(isEmailValid.errorMessage);
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.post("/accounts/password-reset/", { email });
+      const response = await api.post("/accounts/password-reset/", { email:email.trim().toLowerCase() });
       console.log("Reset email sent:", response.data);
       setSuccess("Password reset link sent to your email.");
       setEmail("");

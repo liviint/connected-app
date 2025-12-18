@@ -13,6 +13,7 @@ import { setUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
 import * as WebBrowser from "expo-web-browser";
+import { validateEmail } from "../../../src/helpers";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -33,14 +34,15 @@ export default function Index() {
   };
 
   const validateForm = () => {
-    const newErrors = {};
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Invalid email format";
-    if (!formData.password.trim())
-      newErrors.password = "Password is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+      const newErrors = {};
+      let isEmailValid = validateEmail(formData.email)
+      if(isEmailValid.errorMessage) newErrors.email = isEmailValid.errorMessage 
+
+      if (!formData.password.trim()) newErrors.password = "Please enter your password.";
+
+      setErrors(newErrors);
+      console.log(newErrors,"hello new erro")
+      return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
@@ -50,7 +52,7 @@ export default function Index() {
     setSuccess(false);
 
     try {
-      const response = await api.post("accounts/login/", formData);
+      const response = await api.post("accounts/login/", {...formData,email: formData.email.trim().toLowerCase()});
       dispatch(setUserDetails(response.data));
       safeLocalStorage.setItem("token", response.data.access);
       setSuccess(true);
