@@ -37,10 +37,9 @@ export default function HabitsPage() {
         }
     }, [habits]);
 
-    // Authentication check
-    if (!isUserLoggedIn && !loading) return <ProtectedAccessPage />
-    
 
+    if (!isUserLoggedIn) return <ProtectedAccessPage />
+    
     if (loading) {
         return (
         <View style={styles.loader}>
