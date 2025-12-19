@@ -22,6 +22,7 @@ const Signup = () => {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
@@ -90,14 +91,22 @@ const Signup = () => {
 
         <View style={styles.formGroup}>
           <Text style={styles.label}>Password</Text>
-          <TextInput
-            placeholder="Enter password"
-            style={styles.input}
-            value={formData.password}
-            onChangeText={(value) => handleChange("password", value)}
-            secureTextEntry
-          />
-          {errors.password ? <Text style={styles.error}>{errors.password}</Text> : null}
+          <View style={globalStyles.passwordWrapper}>
+            <TextInput
+              placeholder="Enter password"
+              style={styles.input}
+              value={formData.password}
+              onChangeText={(value) => handleChange("password", value)}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+                style={globalStyles.togglePassword}
+                onPress={() => setShowPassword((prev) => !prev)}
+              >
+                <Text style={globalStyles.togglePasswordText}>{showPassword ? "🙈" : "👁️"}</Text>
+            </TouchableOpacity>
+            {errors.password ? <Text style={styles.error}>{errors.password}</Text> : null}
+          </View>
         </View>
 
         <TouchableOpacity

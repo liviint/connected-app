@@ -71,4 +71,20 @@ export const globalStyles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  passwordWrapper: {
+    position: "relative",
+    width: "100%",
+    marginBottom: 12,
+  },
+
+  togglePassword: {
+    position: "absolute",
+    right: 12,
+    top: "33%",
+    transform: [{ translateY: -10 }],
+    padding: 6,
+  },
+  togglePasswordText:{
+    fontSize: 20,
+  }
 });

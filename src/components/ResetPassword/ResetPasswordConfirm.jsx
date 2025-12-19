@@ -23,6 +23,8 @@ const ResetPasswordConfirm = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -81,24 +83,40 @@ const ResetPasswordConfirm = () => {
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>New Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter new password"
-          secureTextEntry
-          value={formData.new_password}
-          onChangeText={(value) => handleChange("new_password", value)}
-        />
+        <View style={globalStyles.passwordWrapper}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter new password"
+            secureTextEntry={!showPassword}
+            value={formData.new_password}
+            onChangeText={(value) => handleChange("new_password", value)}
+          />
+          <TouchableOpacity
+                style={globalStyles.togglePassword}
+                onPress={() => setShowPassword((prev) => !prev)}
+              >
+                <Text style={globalStyles.togglePasswordText}>{showPassword ? "🙈" : "👁️"}</Text>
+            </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Confirm Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm new password"
-          secureTextEntry
-          value={formData.confirm_password}
-          onChangeText={(value) => handleChange("confirm_password", value)}
-        />
+        <View style={globalStyles.passwordWrapper}>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm new password"
+            secureTextEntry={!showPassword}
+            value={formData.confirm_password}
+            onChangeText={(value) => handleChange("confirm_password", value)}
+          />
+          <TouchableOpacity
+                style={globalStyles.togglePassword}
+                onPress={() => setShowPassword((prev) => !prev)}
+              >
+                <Text style={globalStyles.togglePasswordText}>{showPassword ? "🙈" : "👁️"}</Text>
+            </TouchableOpacity>
+        </View>
       </View>
 
       <TouchableOpacity

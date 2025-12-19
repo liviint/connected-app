@@ -14,6 +14,7 @@ import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
 import * as WebBrowser from "expo-web-browser";
 import { validateEmail } from "../../../src/helpers";
+import { globalStyles } from "../../../src/styles/global";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -26,6 +27,7 @@ export default function Index() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -95,16 +97,24 @@ export default function Index() {
 
         <View style={styles.formGroup}>
           <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter password"
-            secureTextEntry
-            value={formData.password}
-            onChangeText={(value) => handleChange("password", value)}
-          />
-          {errors.password ? (
-            <Text style={styles.error}>{errors.password}</Text>
-          ) : null}
+          <View style={globalStyles.passwordWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter password"
+              secureTextEntry={!showPassword}
+              value={formData.password}
+              onChangeText={(value) => handleChange("password", value)}
+            />
+            <TouchableOpacity
+                style={globalStyles.togglePassword}
+                onPress={() => setShowPassword((prev) => !prev)}
+              >
+                <Text style={globalStyles.togglePasswordText}>{showPassword ? "🙈" : "👁️"}</Text>
+            </TouchableOpacity>
+            {errors.password ? (
+              <Text style={styles.error}>{errors.password}</Text>
+            ) : null}
+          </View>
         </View>
 
         <View style={styles.forgotPass}>
