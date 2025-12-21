@@ -9,9 +9,10 @@ import { useSelector } from "react-redux";
 import { router } from "expo-router";
 import { api } from "../../../api";
 import HabitRow from "./HabitRow";
-import { globalStyles } from "../../styles/global";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 export default function HabitsScreen() {
+  const { globalStyles, colors } = useThemeStyles();
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
     const isFocused = useIsFocused()
   const [habits, setHabits] = useState([]);

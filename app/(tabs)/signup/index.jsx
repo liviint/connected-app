@@ -9,10 +9,11 @@ import {
   ScrollView,
 } from "react-native";
 import { api } from "../../../api";
-import { globalStyles } from "../../../src/styles/global";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { validateEmail } from "../../../src/helpers";
 
 const Signup = () => {
+   const { globalStyles, colors } = useThemeStyles();
   const [formData, setFormData] = useState({
     email: "",
     password: "",

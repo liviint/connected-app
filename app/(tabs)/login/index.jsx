@@ -14,11 +14,12 @@ import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
 import * as WebBrowser from "expo-web-browser";
 import { validateEmail } from "../../../src/helpers";
-import { globalStyles } from "../../../src/styles/global";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Index() {
+  const { globalStyles, colors } = useThemeStyles();
   const router = useRouter();
   const dispatch = useDispatch();
 

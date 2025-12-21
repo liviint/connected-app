@@ -13,9 +13,10 @@ import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import { api } from "../../../api";
-import { globalStyles } from "../../styles/global";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 export default function AddEdit({ id }) {
+  const { globalStyles, colors } = useThemeStyles();
   const router = useRouter();
   const richText = useRef();
   const [moods, setMoods] = useState([]);

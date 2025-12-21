@@ -8,17 +8,20 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import {useThemeStyles} from "../../src/hooks/useThemeStyles"
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function HomePage() {
+   const { globalStyles, colors } = useThemeStyles();
+   console.log(colors,"hello colors")
   const router = useRouter()
 
   // Responsive card width: 90% on small screens, 45% on larger screens
   const cardWidth = SCREEN_WIDTH < 500 ? '90%' : '45%';
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={globalStyles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to ZeniaHub</Text>
@@ -83,11 +86,6 @@ export default function HomePage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#FAF9F7',
-    alignItems: 'center',
-  },
   header: {
     alignItems: 'center',
     marginBottom: 30,

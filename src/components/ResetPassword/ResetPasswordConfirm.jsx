@@ -9,9 +9,10 @@ import {
 } from "react-native";
 import { api } from "@/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { globalStyles } from "../../styles/global";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 const ResetPasswordConfirm = () => {
+  const { globalStyles, colors } = useThemeStyles();
   const router = useRouter()
   const { uid, token } = useLocalSearchParams(); 
 

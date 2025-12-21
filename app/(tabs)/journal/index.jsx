@@ -17,10 +17,11 @@ import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessP
 import { Audio } from "expo-av";
 import RenderHtml from "react-native-render-html";
 import { htmlStyles } from "../../../utils/htmlStyles";
-import { globalStyles } from "../../../src/styles/global";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 export default function JournalListPage() {
   const router = useRouter()
+   const { globalStyles, colors } = useThemeStyles();
   const { width } = useWindowDimensions();
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
   const [journals, setJournals] = useState([]);

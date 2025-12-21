@@ -11,11 +11,12 @@ import {
   PieChart,
 } from "react-native-chart-kit";
 import { api } from "../../../../api";
-import { globalStyles } from "../../../../src/styles/global";
+import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 const screenWidth = Dimensions.get("window").width;
 export default function JournalStats() {
+   const { globalStyles, colors } = useThemeStyles();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {

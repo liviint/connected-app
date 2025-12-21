@@ -9,10 +9,11 @@ import {
 } from "react-native";
 import { api } from "@/api";
 import { useRouter } from "expo-router";
-import { globalStyles } from "../../styles/global";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { validateEmail } from "../../helpers";
 
 const ResetPassword = () => {
+  const { globalStyles, colors } = useThemeStyles();
   const router = useRouter()
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");

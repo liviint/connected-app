@@ -9,9 +9,10 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { api } from "../../../api";
-import { globalStyles } from "../../styles/global";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 export default function AddEdit() {
+  const { globalStyles, colors } = useThemeStyles();
   const { id } = useLocalSearchParams();
   const router = useRouter();
 

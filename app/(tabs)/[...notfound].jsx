@@ -4,12 +4,13 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { globalStyles } from '../../src/styles/global';
+import { useThemeStyles } from '../../src/hooks/useThemeStyles';
 
 export default function NotFound() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const { globalStyles, colors } = useThemeStyles();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>

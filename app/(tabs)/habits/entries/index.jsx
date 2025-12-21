@@ -10,14 +10,14 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "../../../../api";
-import { globalStyles } from "../../../../src/styles/global";
+import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 
 export default function HabitEntriesPage() {
   const router = useRouter();
   const isFocused = useIsFocused()
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-
+   const { globalStyles, colors } = useThemeStyles();
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
