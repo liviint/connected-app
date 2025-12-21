@@ -9,12 +9,14 @@ import {
   ActivityIndicator,
   useWindowDimensions
 } from "react-native";
+import * as ClipBoard from "expo-clipboard"
 import RenderHtml from "react-native-render-html";
 import {useRouter, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 import { api } from "../../../../api";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
 import { htmlStyles } from "../../../../utils/htmlStyles";
+import { htmlToPlainText } from "../../../../src/helpers";
 
 export default function ViewJournalPage() {
   const width = useWindowDimensions()
@@ -95,6 +97,13 @@ export default function ViewJournalPage() {
     }
   };
 
+  const handleCopy = async () => {
+    let content = htmlToPlainText(entry.content)
+    await ClipBoard.setStringAsync(content);
+    Alert.alert('Copied', 'Journal entry copied to clipboard');
+  };
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -150,20 +159,23 @@ export default function ViewJournalPage() {
 
         {/* Actions */}
         <View style={styles.actions}>
-            
-            <DeleteButton 
-                handleOk={handleDelete}
-                item={"journal"}
-                contentAuthor={entry.user}
-            />
-          
-
           <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => router.push(`/journal/${id}/edit`)}
-          >
+              style={styles.editButton}
+              onPress={handleCopy}
+            >
+            <Text style={styles.editButtonText}>Copy</Text>
+          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => router.push(`/journal/${id}/edit`)}
+            >
             <Text style={styles.editButtonText}>Edit Entry</Text>
           </TouchableOpacity>
+          <DeleteButton 
+            handleOk={handleDelete}
+            item={"journal"}
+            contentAuthor={entry.user}
+          />
         </View>
       </View>
     </ScrollView>
@@ -191,10 +203,3 @@ const styles = StyleSheet.create({
   editButton: { backgroundColor: "#2E8B8B", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12 },
   editButtonText: { color: "#fff", fontWeight: "600" },
 });
-
-const markdownStyles = {
-  body: { color: "#4b5563", fontSize: 14, lineHeight: 20 },
-  link: { color: "#2E8B8B" },
-  heading1: { fontSize: 22, fontWeight: "700" },
-  heading2: { fontSize: 20, fontWeight: "700" },
-};

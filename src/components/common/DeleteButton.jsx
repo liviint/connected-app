@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const DeleteButton = ({ handleOk, item, contentAuthor }) => {
     const loggedUser = useSelector(
-        (state) => state?.user?.userDetails.id
+        (state) => state?.user?.userDetails.user.id
     );
 
     const [visible, setVisible] = useState(false);
