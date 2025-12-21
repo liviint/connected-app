@@ -88,7 +88,7 @@ useEffect(() => {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={globalStyles.container}>
       <DraggableFlatList
         data={habits}
         keyExtractor={(item) => item.id.toString()}

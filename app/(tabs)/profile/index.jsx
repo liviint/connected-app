@@ -14,8 +14,10 @@ import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
 import * as Sentry from "@sentry/react-native";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 const ProfileView = () => {
+  const {globalStyles,colors} = useThemeStyles()
   const router = useRouter();
   const {refresh} = useLocalSearchParams()
   const dispatch = useDispatch();
@@ -61,7 +63,7 @@ const ProfileView = () => {
   if (!userData) return <ProtectedAccessPage />
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>
       <View style={styles.card}>
         {userData.profilePic ? (
           <View style={styles.avatarWrapper}>
@@ -108,10 +110,8 @@ export default ProfileView;
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#FAF9F7",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
   },
   loadingContainer: {
     flex: 1,

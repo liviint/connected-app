@@ -14,8 +14,10 @@ import { useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import { api } from "../../../../api";
 import * as ImagePicker from "expo-image-picker";
+import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 
 const ProfilePage = () => {
+  const {globalStyles,colors} = useThemeStyles()
   const router = useRouter();
   const user = useSelector((state) => state?.user?.userDetails);
 
@@ -124,7 +126,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>
       <View style={styles.form}>
         <Text style={styles.title}>Profile Form</Text>
 
@@ -184,7 +186,6 @@ export default ProfilePage;
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#FAF9F7",
     alignItems: "center",
     justifyContent: "center",
     padding: 16,

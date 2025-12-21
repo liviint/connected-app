@@ -101,7 +101,7 @@ export default function JournalListPage() {
 
   return (
     <ScrollView
-      style={styles.outerContainer}
+      style={globalStyles.container}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={fetchJournals} />
       }
@@ -225,7 +225,6 @@ function HtmlPreview({ html, maxLength = 200 }) {
 }
 
 const styles = StyleSheet.create({
-  outerContainer: { flex: 1, backgroundColor: "#f8f8f8" },
   contentWrapper: { padding: 24, maxWidth: 768, alignSelf: "center", width: "100%" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 10, fontSize: 16, color: "#333" },
