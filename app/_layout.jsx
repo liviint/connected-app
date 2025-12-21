@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
@@ -9,6 +9,7 @@ import Header from '@/src/components/header';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BackHandler } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+import ThemeProvider from "../src/components/ThemeProvider"
 
 Sentry.init({
   dsn: 'https://48bbd82038bb8c934670f33b8148b11f@o4510547845382144.ingest.us.sentry.io/4510547919765504',
@@ -52,7 +53,7 @@ export default Sentry.wrap(function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ReduxProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <ThemeProvider >
           <Stack>
             {/* Main Tabs */}
             <Stack.Screen

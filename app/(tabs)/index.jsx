@@ -14,7 +14,6 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function HomePage() {
   const { globalStyles, colors } = useThemeStyles();
-  console.log(colors,"hello colors")
   const router = useRouter()
 
   // Responsive card width: 90% on small screens, 45% on larger screens
