@@ -100,7 +100,6 @@ export default function ViewJournalPage() {
   const handleCopy = async () => {
     let content = htmlToPlainText(entry.content)
     await ClipBoard.setStringAsync(content);
-    Alert.alert('Copied', 'Journal entry copied to clipboard');
   };
 
 
