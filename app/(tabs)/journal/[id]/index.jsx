@@ -114,7 +114,7 @@ export default function ViewJournalPage() {
   }
 
   return (
-    <ScrollView contentContainerStyle={globalStyles.container}>
+    <ScrollView style={styles.container} >
       <View style={styles.card}>
         {/* Header */}
         <View style={styles.headerSection}>

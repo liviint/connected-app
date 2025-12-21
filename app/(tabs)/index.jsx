@@ -7,6 +7,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
+import {BodyText} from "../../src/components/ThemeProvider/components"
 import { useRouter } from 'expo-router';
 import {useThemeStyles} from "../../src/hooks/useThemeStyles"
 
@@ -24,9 +25,9 @@ export default function HomePage() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to ZeniaHub</Text>
-        <Text style={globalStyles.subTitle}>
+        <BodyText style={globalStyles.subTitle}>
           Your personal space to reflect, grow, and thrive.
-        </Text>
+        </BodyText>
 
         <View style={styles.ctaContainer}>
           <TouchableOpacity
@@ -76,9 +77,9 @@ export default function HomePage() {
 
       {/* About */}
       <View style={styles.aboutContainer}>
-        <Text style={{ textAlign:"center" }}>
+        <BodyText style={{ textAlign:"center" }}>
           <Text style={{ fontWeight: 'bold' }}>ZeniaHub</Text> helps you reflect on your thoughts, track habits, and improve your daily life with simple journaling and habit tracking tools.
-        </Text>
+        </BodyText>
       </View>
     </ScrollView>
   );

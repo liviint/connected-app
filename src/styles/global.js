@@ -50,7 +50,6 @@ export const createGlobalStyles = (colors) =>
       fontSize: 18,
       marginBottom: 20,
       textAlign: 'center',
-      color: colors.text,
     },
     body: {
       fontSize: 16,
