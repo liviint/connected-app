@@ -5,8 +5,10 @@ import { View, Text, ScrollView, Dimensions, ActivityIndicator } from "react-nat
 import { useLocalSearchParams } from "expo-router";
 import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
+import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
 
 export default function HabitStatsScreen() {
+  const {globalStyles}  = useThemeStyles()
   const { id } = useLocalSearchParams();
   const [stats, setStats] = useState(null);
 
@@ -81,7 +83,7 @@ if (total > 0) {
 
 
   return (
-    <ScrollView style={{ padding: 16 }}>
+    <ScrollView style={globalStyles.container}>
       <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
         {stats?.habit ?? "Habit"} — Stats
       </Text>

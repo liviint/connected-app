@@ -17,8 +17,9 @@ import { api } from "../../../../api";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
 import { htmlStyles } from "../../../../utils/htmlStyles";
 import { htmlToPlainText } from "../../../../src/helpers";
-
+import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 export default function ViewJournalPage() {
+  const {globalStyles} = useThemeStyles()
   const width = useWindowDimensions()
     const router = useRouter()
   const { id } = useLocalSearchParams();
@@ -113,7 +114,7 @@ export default function ViewJournalPage() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={globalStyles.container}>
       <View style={styles.card}>
         {/* Header */}
         <View style={styles.headerSection}>

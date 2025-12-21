@@ -7,7 +7,7 @@ const DeleteButton = ({ handleOk, item, contentAuthor }) => {
         (state) => state?.user?.userDetails.user.id
     );
 
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(false)
 
     const confirmDelete = async () => {
         setVisible(false);

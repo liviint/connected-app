@@ -1,22 +1,16 @@
-import { StyleSheet, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import AddEdit from "../../../../../src/components/journal/AddEdit";
+import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
 
 export default function CreateJournalPage() {
+  const {globalStyles} = useThemeStyles()
   const { id } = useLocalSearchParams();
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={globalStyles.container}>
       <AddEdit id={id}/>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    maxWidth: 768,
-    width: "100%",
-    alignSelf: "center",
-    gap: 24, 
-  },
-});
+

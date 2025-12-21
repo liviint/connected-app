@@ -158,7 +158,9 @@ export default function AddEdit({ id }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView 
+      contentContainerStyle={styles.container}
+    >
       <Text style={globalStyles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
 
       <View style={styles.formGroup}>

@@ -71,7 +71,7 @@ export default function HabitEntriesPage() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#FAF9F7", padding: 16 }}
+      style={globalStyles.container}
       contentContainerStyle={{ paddingBottom: 80 }}
     >
       <Text

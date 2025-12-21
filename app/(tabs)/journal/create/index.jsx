@@ -1,21 +1,12 @@
-import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import AddEdit from "../../../../src/components/journal/AddEdit";
+import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 
 export default function CreateJournalPage() {
+  const {globalStyles} = useThemeStyles()
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={globalStyles.container}>
       <AddEdit />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    maxWidth: 768,
-    width: "100%",
-    alignSelf: "center",
-    gap: 24, // spacing between elements, similar to space-y-6 in Tailwind
-  },
-});
