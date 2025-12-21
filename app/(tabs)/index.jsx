@@ -13,8 +13,8 @@ import {useThemeStyles} from "../../src/hooks/useThemeStyles"
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function HomePage() {
-   const { globalStyles, colors } = useThemeStyles();
-   console.log(colors,"hello colors")
+  const { globalStyles, colors } = useThemeStyles();
+  console.log(colors,"hello colors")
   const router = useRouter()
 
   // Responsive card width: 90% on small screens, 45% on larger screens
@@ -25,7 +25,7 @@ export default function HomePage() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to ZeniaHub</Text>
-        <Text style={styles.subtitle}>
+        <Text style={globalStyles.subTitle}>
           Your personal space to reflect, grow, and thrive.
         </Text>
 
@@ -95,12 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: '#FF6B6B',
     marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 18,
-    marginBottom: 20,
     textAlign: 'center',
   },
   ctaContainer: {

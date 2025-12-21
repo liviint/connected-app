@@ -45,6 +45,17 @@ export const createGlobalStyles = (colors) =>
       color: colors.primary,
       marginBottom: 16,
     },
+    subTitle: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 18,
+      marginBottom: 20,
+      textAlign: 'center',
+      color: colors.text,
+    },
+    body: {
+      fontSize: 16,
+      color: colors.text,
+    },
 
     addButton: {
       flex: 1,
