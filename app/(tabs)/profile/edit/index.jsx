@@ -132,7 +132,7 @@ const ProfilePage = () => {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <View style={styles.formGroup}>
+        <View style={globalStyles.formGroup}>
           <BodyText style={styles.label}>Username</BodyText>
           <Input
             value={formData.username}
@@ -141,7 +141,7 @@ const ProfilePage = () => {
           />
         </View>
 
-        <View style={styles.formGroup}>
+        <View style={globalStyles.formGroup}>
           <BodyText style={styles.label}>Bio</BodyText>
           <TextArea
             multiline
@@ -152,7 +152,7 @@ const ProfilePage = () => {
           />
         </View>
 
-        <View style={styles.formGroup}>
+        <View style={globalStyles.formGroup}>
           <BodyText style={styles.label}>Profile Photo</BodyText>
           <TouchableOpacity onPress={pickImage} style={styles.uploadBox}>
             <BodyText style={styles.uploadText}>Tap to choose a photo</BodyText>
@@ -210,9 +210,6 @@ const styles = StyleSheet.create({
     color: "#FF6B6B",
     fontWeight: "700",
     marginBottom: 16,
-  },
-  formGroup: {
-    marginBottom: 14,
   },
   label: {
     color: "#2E8B8B",

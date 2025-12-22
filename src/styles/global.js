@@ -111,4 +111,7 @@ export const createGlobalStyles = (colors) =>
       fontSize: 20,
       color: colors.text,
     },
+    formGroup: {
+      marginBottom: 14,
+    },
   });

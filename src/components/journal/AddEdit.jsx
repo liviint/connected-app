@@ -163,7 +163,7 @@ export default function AddEdit({ id }) {
     >
       <Text style={globalStyles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
 
-      <View style={styles.formGroup}>
+      <View style={globalStyles.formGroup}>
         <FormLabel style={styles.label}>Title (Optional)</FormLabel>
         <Input
           placeholder="Enter title"
@@ -172,7 +172,7 @@ export default function AddEdit({ id }) {
         />
       </View>
 
-      <View style={styles.formGroup}>
+      <View style={globalStyles.formGroup}>
         <FormLabel style={styles.label}>Your Thoughts</FormLabel>
 
         {/* Toolbar on top */}
@@ -226,7 +226,7 @@ export default function AddEdit({ id }) {
         {errors.content && <Text style={styles.error}>{errors.content}</Text>}
       </View>
 
-      <View style={styles.formGroup}>
+      <View style={globalStyles.formGroup}>
         <FormLabel >Mood</FormLabel>
         <CustomPicker
           selectedValue={form.mood_id}
@@ -240,7 +240,7 @@ export default function AddEdit({ id }) {
         {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
       </View>
 
-      <View style={styles.formGroup}>
+      <View style={globalStyles.formGroup}>
         <FormLabel >Voice Journal (Optional)</FormLabel>
 
         {!recording && !audioUri && (
@@ -300,7 +300,6 @@ export default function AddEdit({ id }) {
 
 const styles = StyleSheet.create({
   container: { padding: 0 },
-  formGroup: { marginBottom: 16 },
   error: { color: "red", marginTop: 4, fontSize: 12 },
   recordButton: {
     backgroundColor: "#2E8B8B",

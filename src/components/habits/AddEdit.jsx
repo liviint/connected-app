@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -10,6 +9,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
+import { FormLabel, Input, Card, BodyText } from "../ThemeProvider/components";
 
 export default function AddEdit() {
   const { globalStyles, colors } = useThemeStyles();
@@ -105,26 +105,25 @@ export default function AddEdit() {
   }, [id]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <Text style={globalStyles.title}>{id ? "Edit Habit" : "Create a Habit"}</Text>
 
-      <View style={styles.card}>
+      <Card >
         {/* TITLE */}
-        <View>
-          <Text style={styles.label}>Title</Text>
-          <TextInput
+        <View style={globalStyles.formGroup}>
+          <FormLabel style={styles.label}>Title</FormLabel>
+          <Input
             value={form.title}
             onChangeText={(v) => handleChange("title", v)}
             placeholder="e.g., Drink Water"
-            style={styles.input}
           />
           {errors.title ? <Text style={styles.error}>{errors.title}</Text> : null}
         </View>
 
         {/* DESCRIPTION */}
-        <View>
-          <Text style={styles.label}>Description</Text>
-          <TextInput
+        <View style={globalStyles.formGroup}>
+          <FormLabel style={styles.label}>Description</FormLabel>
+          <Input
             value={form.description}
             onChangeText={(v) => handleChange("description", v)}
             placeholder="Optional details..."
@@ -134,8 +133,8 @@ export default function AddEdit() {
         </View>
 
         {/* FREQUENCY */}
-        <View>
-          <Text style={styles.label}>Frequency</Text>
+        <View style={globalStyles.formGroup}>
+          <FormLabel >Frequency</FormLabel>
 
           {/* Simple Picker Substitute */}
           <View style={styles.selectBox}>
@@ -146,14 +145,13 @@ export default function AddEdit() {
                 form.frequency === "daily" && styles.activeOption,
               ]}
             >
-              <Text
+              <BodyText
                 style={[
-                  styles.optionText,
                   form.frequency === "daily" && styles.activeOptionText,
                 ]}
               >
                 Daily
-              </Text>
+              </BodyText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -163,14 +161,13 @@ export default function AddEdit() {
                 form.frequency === "weekly" && styles.activeOption,
               ]}
             >
-              <Text
+              <BodyText
                 style={[
-                  styles.optionText,
                   form.frequency === "weekly" && styles.activeOptionText,
                 ]}
               >
                 Weekly
-              </Text>
+              </BodyText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -180,22 +177,21 @@ export default function AddEdit() {
                 form.frequency === "monthly" && styles.activeOption,
               ]}
             >
-              <Text
+              <BodyText
                 style={[
-                  styles.optionText,
                   form.frequency === "monthly" && styles.activeOptionText,
                 ]}
               >
                 Monthly
-              </Text>
+              </BodyText>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* REMINDER TIME */}
-        <View>
-          <Text style={styles.label}>Reminder Time</Text>
-          <TextInput
+        <View style={globalStyles.formGroup}>
+          <FormLabel >Reminder Time</FormLabel>
+          <Input
             value={form.reminder_time}
             onChangeText={(v) => handleChange("reminder_time", v)}
             placeholder="HH:MM"
@@ -207,9 +203,9 @@ export default function AddEdit() {
         </View>
 
         {/* COLOR */}
-        <View>
-          <Text style={styles.label}>Color</Text>
-          <TextInput
+        <View style={globalStyles.formGroup}>
+          <FormLabel style={styles.label}>Color</FormLabel>
+          <Input
             value={form.color}
             onChangeText={(v) => handleChange("color", v)}
             style={[styles.input, { height: 50 }]}
@@ -217,9 +213,9 @@ export default function AddEdit() {
         </View>
 
         {/* ICON */}
-        <View>
-          <Text style={styles.label}>Icon</Text>
-          <TextInput
+        <View style={globalStyles.formGroup}>
+          <FormLabel style={styles.label}>Icon</FormLabel>
+          <Input
             value={form.icon}
             onChangeText={(v) => handleChange("icon", v)}
             style={styles.input}
@@ -237,29 +233,12 @@ export default function AddEdit() {
             {loading ? (id ? "Updating..." : "Creating...") : id ? "Edit Habit" : "Create Habit"}
           </Text>
         </TouchableOpacity>
-      </View>
+      </Card>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#FAF9F7", padding: 20, flex: 1 },
-  card: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#F4E1D2",
-    gap: 20,
-  },
-  label: { fontWeight: "700", marginBottom: 6, color: "#2E8B8B" },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    backgroundColor: "white",
-    borderColor: "#ddd",
-  },
   error: { color: "#FF6B6B", fontSize: 13, marginTop: 4 },
   selectBox: { flexDirection: "row", gap: 10 },
   selectOption: {
@@ -275,7 +254,6 @@ const styles = StyleSheet.create({
     borderColor: "#2E8B8B",
   },
   activeOptionText: { color: "white", fontWeight: "600" },
-  optionText: { color: "#333", fontWeight: "500" },
   submitButton: {
     backgroundColor: "#2E8B8B",
     paddingVertical: 16,
