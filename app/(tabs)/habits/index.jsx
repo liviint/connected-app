@@ -5,8 +5,10 @@ import { useSelector } from "react-redux";
 import { api } from "../../../api";
 import AllHabits from "../../../src/components/habits/AllHabits";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 export default function HabitsPage() {
+    const {globalStyles} = useThemeStyles()
     const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
     const isFocused = useIsFocused()
     const [habits, setHabits] = useState([]);
@@ -42,7 +44,7 @@ export default function HabitsPage() {
     
     if (loading) {
         return (
-        <View style={styles.loader}>
+        <View style={{...globalStyles.container,...styles.loader}}>
             <ActivityIndicator size="large" color="#FF6B6B" />
         </View>
         );

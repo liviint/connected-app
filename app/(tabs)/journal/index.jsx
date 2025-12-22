@@ -55,9 +55,9 @@ export default function JournalListPage() {
   
   if (loading && journals.length === 0) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={{...globalStyles.container,...styles.loadingContainer}}>
         <ActivityIndicator size="large" color="#FF6B6B" />
-        <Text style={styles.loadingText}>Loading Entries...</Text>
+        <BodyText style={styles.loadingText}>Loading Entries...</BodyText>
       </View>
     );
   }
@@ -209,7 +209,6 @@ export default function JournalListPage() {
 const styles = StyleSheet.create({
   contentWrapper: { padding: 24, maxWidth: 768, alignSelf: "center", width: "100%" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  loadingText: { marginTop: 10, fontSize: 16, color: "#333" },
   newEntryButton: { backgroundColor: "#FF6B6B", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
   newEntryButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
   journalList: { gap: 16 },

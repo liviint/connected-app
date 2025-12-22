@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { router, Link } from "expo-router";
+import { router, } from "expo-router";
 import { api } from "../../../api";
 import DeleteButton from "../common/DeleteButton";
-import { Card } from "../ThemeProvider/components";
+import { Card, BodyText } from "../ThemeProvider/components";
 
 export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
   const handleDelete = () => {
@@ -39,8 +39,8 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
 
         {/* CONTENT */}
         <View style={styles.content}>
-          <Text style={styles.title}>{habit.title}</Text>
-          <Text style={styles.description}>{habit.description}</Text>
+          <BodyText style={styles.title}>{habit.title}</BodyText>
+          <BodyText style={styles.description}>{habit.description}</BodyText>
         </View>
 
         {/* ACTION BUTTONS */}
@@ -102,10 +102,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#2E8B8B",
   },
   description: {
-    color: "#555",
     marginTop: 4,
   },
   actions: {
