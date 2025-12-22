@@ -6,6 +6,7 @@ import { useLocalSearchParams } from "expo-router";
 import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
+import { BodyText } from "../../../../../src/components/ThemeProvider/components";
 
 export default function HabitStatsScreen() {
   const {globalStyles}  = useThemeStyles()
@@ -84,9 +85,9 @@ if (total > 0) {
 
   return (
     <ScrollView style={globalStyles.container}>
-      <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
+      <BodyText style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
         {stats?.habit ?? "Habit"} — Stats
-      </Text>
+      </BodyText>
 
       {/* Summary Cards */}
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>

@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { router } from "expo-router";
+import { router, Link } from "expo-router";
 import { api } from "../../../api";
 import DeleteButton from "../common/DeleteButton";
+import { Card } from "../ThemeProvider/components";
 
 export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
   const handleDelete = () => {
@@ -22,59 +23,61 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
   };
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.row,
-        { opacity: isActive ? 0.6 : 1 },
-      ]}
-      onPress={() => router.push(`/habits/${habit.id}/stats`)}
-      activeOpacity={0.9}
-    >
-      {/* DRAG HANDLE */}
-      <TouchableOpacity onLongPress={drag} style={styles.dragHandle}>
-        <Text style={styles.dragIcon}>≡</Text>
-      </TouchableOpacity>
-
-      {/* CONTENT */}
-      <View style={styles.content}>
-        <Text style={styles.title}>{habit.title}</Text>
-        <Text style={styles.description}>{habit.description}</Text>
-      </View>
-
-      {/* ACTION BUTTONS */}
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.editBtn}
-          onPress={() => router.push(`/habits/${habit.id}/edit`)}
-        >
-          <Text style={styles.editText}>Edit</Text>
+    <TouchableOpacity onPress={() => router.push(`/habits/${habit.id}/stats`)}>
+      <Card
+        style={[
+          styles.row,
+          { opacity: isActive ? 0.6 : 1 },
+        ]}
+        activeOpacity={0.9}
+      >
+      
+           {/* DRAG HANDLE */}
+        <TouchableOpacity onLongPress={drag} style={styles.dragHandle}>
+          <Text style={styles.dragIcon}>≡</Text>
         </TouchableOpacity>
 
-        <DeleteButton 
-            handleOk={handleDelete}
-            item={"habit"}
-            contentAuthor={habit.user}
-        />
+        {/* CONTENT */}
+        <View style={styles.content}>
+          <Text style={styles.title}>{habit.title}</Text>
+          <Text style={styles.description}>{habit.description}</Text>
+        </View>
 
-        <TouchableOpacity
-          style={[
-            styles.toggleBtn,
-            habit.is_active ? styles.active : styles.inactive,
-          ]}
-          onPress={handleStateToggle}
-        >
-          <Text style={styles.toggleText}>
-            {habit.is_active ? "Deactivate" : "Activate"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        {/* ACTION BUTTONS */}
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => router.push(`/habits/${habit.id}/edit`)}
+          >
+            <Text style={styles.editText}>Edit</Text>
+          </TouchableOpacity>
+
+          <DeleteButton 
+              handleOk={handleDelete}
+              item={"habit"}
+              contentAuthor={habit.user}
+          />
+
+          <TouchableOpacity
+            style={[
+              styles.toggleBtn,
+              habit.is_active ? styles.active : styles.inactive,
+            ]}
+            onPress={handleStateToggle}
+          >
+            <Text style={styles.toggleText}>
+              {habit.is_active ? "Deactivate" : "Activate"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+      </Card>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
-    backgroundColor: "#fff",
     padding: 16,
     marginBottom: 14,
     borderRadius: 16,
