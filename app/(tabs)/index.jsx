@@ -7,7 +7,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import {BodyText} from "../../src/components/ThemeProvider/components"
+import {BodyText, Card} from "../../src/components/ThemeProvider/components"
 import { useRouter } from 'expo-router';
 import {useThemeStyles} from "../../src/hooks/useThemeStyles"
 
@@ -48,34 +48,33 @@ export default function HomePage() {
 
       {/* Features */}
       <View style={styles.featuresContainer}>
-        <View style={[styles.featureCard, { width: cardWidth }]}>
-          <Text style={styles.featureTitle}>📝 Journal</Text>
-          <Text style={styles.featureText}>
+        <Card style={[styles.featureCard, { width: cardWidth }]}>
+          <BodyText style={styles.featureTitle}>📝 Journal</BodyText>
+          <BodyText style={styles.featureText}>
             Capture your thoughts and track your personal growth.
-          </Text>
+          </BodyText>
           <TouchableOpacity
             style={[styles.button, styles.smallButton, styles.primaryButton]}
             onPress={() => router.push('/journal')}
           >
-            <Text style={styles.buttonText}>Go to Journal</Text>
+            <BodyText style={styles.buttonText}>Go to Journal</BodyText>
           </TouchableOpacity>
-        </View>
+        </Card>
 
-        <View style={[styles.featureCard, { width: cardWidth }]}>
-          <Text style={styles.featureTitle}>✅ Habits</Text>
-          <Text style={styles.featureText}>
+        <Card style={[styles.featureCard, { width: cardWidth }]}>
+          <BodyText style={styles.featureTitle}>✅ Habits</BodyText>
+          <BodyText style={styles.featureText}>
             Build and maintain habits that improve your daily life.
-          </Text>
+          </BodyText>
           <TouchableOpacity
             style={[styles.button, styles.smallButton, styles.secondaryButton]}
             onPress={() => router.push('/habits')}
           >
-            <Text style={styles.buttonText}>View Habits</Text>
+            <BodyText style={styles.buttonText}>View Habits</BodyText>
           </TouchableOpacity>
-        </View>
+        </Card>
       </View>
 
-      {/* About */}
       <View style={styles.aboutContainer}>
         <BodyText style={{ textAlign:"center" }}>
           <Text style={{ fontWeight: 'bold' }}>ZeniaHub</Text> helps you reflect on your thoughts, track habits, and improve your daily life with simple journaling and habit tracking tools.
@@ -134,7 +133,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   featureCard: {
-    backgroundColor: 'white',
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',

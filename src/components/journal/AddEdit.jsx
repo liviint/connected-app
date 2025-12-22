@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
-import { Input, BodyText, FormLabel, CustomPicker } from "../ThemeProvider/components";
+import { Input, FormLabel, CustomPicker } from "../ThemeProvider/components";
 
 export default function AddEdit({ id }) {
   const { globalStyles, colors } = useThemeStyles();
