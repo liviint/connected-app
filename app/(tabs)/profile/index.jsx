@@ -5,7 +5,6 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
   ScrollView,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,6 +15,7 @@ import * as Sentry from "@sentry/react-native";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
+import PageLoader from "../../../src/components/common/PageLoader";
 
 const ProfileView = () => {
   const {globalStyles} = useThemeStyles()
@@ -53,13 +53,7 @@ const ProfileView = () => {
     }, [user, refresh])
   );
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-      </View>
-    );
-  }
+  if (loading) return <PageLoader />
 
   if (!userData) return <ProtectedAccessPage />
 

@@ -7,6 +7,7 @@ import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
 import { BodyText } from "../../../../../src/components/ThemeProvider/components";
+import PageLoader from "../../../../../src/components/common/PageLoader";
 
 export default function HabitStatsScreen() {
   const {globalStyles}  = useThemeStyles()
@@ -22,13 +23,7 @@ export default function HabitStatsScreen() {
       .catch((err) => console.log(err));
   }, [id]);
 
-  if (!stats)
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-        <Text style={{ marginTop: 10 }}>Loading stats...</Text>
-      </View>
-    );
+  if (!stats) return <PageLoader message={"Loading stats..."} />
 
   const screenWidth = Dimensions.get("window").width - 20;
 

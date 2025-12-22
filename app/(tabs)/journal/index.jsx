@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
   ScrollView,
   TouchableOpacity,
   RefreshControl,
@@ -16,6 +15,7 @@ import { Audio } from "expo-av";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../src/components/journal/HtmlPreview";
+import PageLoader from "../../../src/components/common/PageLoader";
 
 export default function JournalListPage() {
   const router = useRouter()
@@ -53,14 +53,7 @@ export default function JournalListPage() {
 
   if (!isUserLoggedIn) return <ProtectedAccessPage />
   
-  if (loading && journals.length === 0) {
-    return (
-      <View style={{...globalStyles.container,...styles.loadingContainer}}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-        <BodyText style={styles.loadingText}>Loading Entries...</BodyText>
-      </View>
-    );
-  }
+  if (loading && journals.length === 0) return <PageLoader />
 
   const handlePlayAudio = async (uri, id) => {
     try {

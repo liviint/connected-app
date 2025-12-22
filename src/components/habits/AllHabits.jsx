@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
 import DraggableFlatList from "react-native-draggable-flatlist";
@@ -10,6 +10,7 @@ import { router } from "expo-router";
 import { api } from "../../../api";
 import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
+import PageLoader from "../common/PageLoader";
 
 export default function HabitsScreen() {
   const { globalStyles, colors } = useThemeStyles();
@@ -64,13 +65,7 @@ useEffect(() => {
     );
   }
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-      </View>
-    );
-  }
+  if (loading) return <PageLoader />
 
   if (habits.length === 0) {
     return (

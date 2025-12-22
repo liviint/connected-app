@@ -17,6 +17,7 @@ import { htmlToPlainText } from "../../../../src/helpers";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../../src/components/journal/HtmlPreview";
 import { Card , BodyText} from "../../../../src/components/ThemeProvider/components";
+import PageLoader from "../../../../src/components/common/PageLoader";
 
 export default function ViewJournalPage() {
   const {globalStyles} = useThemeStyles()
@@ -103,14 +104,7 @@ export default function ViewJournalPage() {
   };
 
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-        <Text style={{ marginTop: 10 }}>Loading Journal...</Text>
-      </View>
-    );
-  }
+  if (loading) return <PageLoader message={"Loading Journal"} />
 
   return (
     <ScrollView style={globalStyles.container} >

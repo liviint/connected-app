@@ -5,13 +5,13 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { api } from "../../../../api";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../../src/components/ThemeProvider/components";
+import PageLoader from "../../../../src/components/common/PageLoader";
 
 export default function HabitEntriesPage() {
   const router = useRouter();
@@ -53,23 +53,8 @@ export default function HabitEntriesPage() {
       .catch(console.error);
   };
 
-  if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#FAF9F7",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color="#FF6B6B" />
-      </View>
-    );
-  }
-
+  if (loading) return  <PageLoader />
   
-
   return (
     <ScrollView
       style={globalStyles.container}

@@ -11,6 +11,7 @@ export const lightTheme = {
     surface: "#FFFFFF",
     border: "#DDDDDD",
     textMuted: "#777777",
+    tint: "#4DB6AC",
   },
   fonts: {
     heading: "Poppins_700Bold",
@@ -30,6 +31,7 @@ export const darkTheme = {
     inputText:"#fafafa",
     border: "#333333",
     textMuted: "#B0B0B0",
+    tint: "#4DB6AC",
   },
   fonts: {
     heading: "Poppins_700Bold",

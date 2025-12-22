@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator, StyleSheet} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { api } from "../../../api";
 import AllHabits from "../../../src/components/habits/AllHabits";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
-import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
+import PageLoader from "../../../src/components/common/PageLoader";
 
 export default function HabitsPage() {
-    const {globalStyles} = useThemeStyles()
     const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
     const isFocused = useIsFocused()
     const [habits, setHabits] = useState([]);
@@ -42,83 +40,7 @@ export default function HabitsPage() {
 
     if (!isUserLoggedIn) return <ProtectedAccessPage />
     
-    if (loading) {
-        return (
-        <View style={{...globalStyles.container,...styles.loader}}>
-            <ActivityIndicator size="large" color="#FF6B6B" />
-        </View>
-        );
-    }
+    if (loading) return <PageLoader />
 
     return <AllHabits habits={habits} setHabits={setHabits} />
     }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    paddingBottom: 80,
-    backgroundColor: "#FAF9F7",
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#FF6B6B",
-    marginBottom: 20,
-  },
-
-  buttonRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 20,
-  },
-
-  addButton: {
-    flex: 1,
-    backgroundColor: "#FF6B6B",
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-
-  addButtonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  trackButton: {
-    flex: 1,
-    borderWidth: 2,
-    borderColor: "#FF6B6B",
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-
-  trackButtonText: {
-    color: "#FF6B6B",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  loader: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  protectedWrapper: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 30,
-  },
-
-  protectedText: {
-    fontSize: 18,
-    textAlign: "center",
-    color: "#333",
-    lineHeight: 26,
-  },
-});

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import ResetPassword from '../../../src/components/ResetPassword/ResetPassword';
+import PageLoader from '../../../src/components/common/PageLoader';
 
 const ResetPasswordScreen = () => {
   const [loading, setLoading] = useState(true);
@@ -10,14 +11,7 @@ const ResetPasswordScreen = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2E8B8B" />
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  if (loading) return <PageLoader message={"Loading..."} /> 
 
   return (
     <View style={styles.container}>

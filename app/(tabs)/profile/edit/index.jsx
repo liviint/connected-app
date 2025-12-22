@@ -6,7 +6,6 @@ import {
   Image,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   Alert,
 } from "react-native";
 import { useSelector } from "react-redux";
@@ -15,6 +14,7 @@ import { api } from "../../../../api";
 import * as ImagePicker from "expo-image-picker";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import { Card, BodyText, Input, TextArea } from "../../../../src/components/ThemeProvider/components";
+import PageLoader from "../../../../src/components/common/PageLoader";
 
 const ProfilePage = () => {
   const {globalStyles,colors} = useThemeStyles()
@@ -116,14 +116,7 @@ const ProfilePage = () => {
         .finally(() => setUpdating(false))
 };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
-        <Text>Loading profile...</Text>
-      </View>
-    );
-  }
+  if (loading) return <PageLoader message={"Loading profile..."} /> 
 
   return (
     <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>
