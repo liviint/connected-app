@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { api } from "../../../../api";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
+import { Card, BodyText } from "../../../../src/components/ThemeProvider/components";
 
 export default function HabitEntriesPage() {
   const router = useRouter();
@@ -81,9 +82,8 @@ export default function HabitEntriesPage() {
       </Text>
 
       {/* PROGRESS CARD */}
-      <View
+      <Card
         style={{
-          backgroundColor: "white",
           borderRadius: 16,
           padding: 16,
           marginBottom: 20,
@@ -92,9 +92,11 @@ export default function HabitEntriesPage() {
           shadowRadius: 4,
         }}
       >
-        <Text style={{ fontSize: 18, fontWeight: "600", color: "#333333" }}>
-          Today’s progress
-        </Text>
+        <View>
+          <BodyText style={{ fontSize: 18, fontWeight: "600",}}>
+            Today’s progress
+          </BodyText> 
+        </View>
 
         <View
           style={{
@@ -118,10 +120,10 @@ export default function HabitEntriesPage() {
           />
         </View>
 
-        <Text style={{ marginTop: 6, color: "#666", fontSize: 14 }}>
+        <BodyText style={{ marginTop: 6, color: "#666", fontSize: 14 }}>
           {completed}/{total}
-        </Text>
-      </View>
+        </BodyText>
+      </Card>
 
       {/* HABIT LIST */}
       {entries.map((habit) => (
@@ -129,18 +131,18 @@ export default function HabitEntriesPage() {
           key={habit.id + habit.title }
           activeOpacity={0.85}
           style={{
-            backgroundColor: habit.completed ? "#e8fbe8" : "white",
+            backgroundColor: habit.completed ? "#e8fbe8" : colors.background,
             ...styles.rowContainer
           }}
         >
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>
+            <BodyText style={{...styles.title,color:habit.completed ? "#000" : colors.text}}>
               {habit.title}
-            </Text>
-            <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
+            </BodyText>
+            <BodyText style={{ fontSize: 14, marginTop: 4, color:habit.completed ? "#666" : colors.text}}>
               Streak: {habit.current_streak}{" "}
               {habit.current_streak > 1 ? "days" : "day"}
-            </Text>
+            </BodyText>
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
@@ -228,7 +230,6 @@ const styles = {
   title:{
     fontSize: 18, 
     fontWeight: "600", 
-    color: "#333" ,
     flexWrap:"wrap",
     flexShrink: 1,
   }
