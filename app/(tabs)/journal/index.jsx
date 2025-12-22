@@ -8,21 +8,18 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  useWindowDimensions,
-  Dimensions
 } from "react-native";
 import { Link, useFocusEffect, useRouter } from "expo-router";
 import { api } from "../../../api";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 import { Audio } from "expo-av";
-import RenderHtml from "react-native-render-html";
-import { htmlStyles } from "../../../utils/htmlStyles";
+import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
+import HtmlPreview from "../../../src/components/journal/HtmlPreview";
 
 export default function JournalListPage() {
   const router = useRouter()
-   const { globalStyles, colors } = useThemeStyles();
-  const { width } = useWindowDimensions();
+  const { globalStyles } = useThemeStyles();
   const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -145,15 +142,15 @@ export default function JournalListPage() {
             </Text>
           ) : (
             journals.map((item) => (
-              <Link key={item.id} href={`/journal/${item.id}`} asChild>
-                <TouchableOpacity style={styles.card}>
+              <Link key={item.id} href={`/journal/${item.id}`} >
+                <Card >
                   {/* Header */}
                   <View style={styles.cardHeader}>
-                    <Text style={styles.cardTitle}>
+                    <BodyText style={styles.cardTitle}>
                       {item.title || "Untitled"}
-                    </Text>
+                    </BodyText>
                     {item.mood && (
-                      <Text style={styles.cardMoodText}>{item.mood.name}</Text>
+                      <BodyText style={styles.cardMoodText}>{item.mood.name}</BodyText>
                     )}
                   </View>
 
@@ -161,20 +158,19 @@ export default function JournalListPage() {
                   <View style={styles.cardContent}>
                     
 
-                    <HtmlPreview html={item.content}  />
+                    <HtmlPreview html={item.content} maxLength={200} />
 
                     {/* Audio Player */}
                     {item.audio_file && (
                       <View style={{ marginTop: 8 }}>
-                        <Text
+                        <BodyText
                           style={{
                             marginBottom: 4,
                             fontSize: 12,
-                            color: "#555",
                           }}
                         >
                           Audio:
-                        </Text>
+                        </BodyText>
                         <TouchableOpacity
                           style={styles.audioButton}
                           onPress={() =>
@@ -183,23 +179,23 @@ export default function JournalListPage() {
                               : handlePlayAudio(item.audio_file, item.id)
                           }
                         >
-                          <Text style={styles.audioButtonText}>
+                          <BodyText style={styles.audioButtonText}>
                             {playingId === item.id ? "⏸ Pause" : "▶ Play"}
-                          </Text>
+                          </BodyText>
                         </TouchableOpacity>
                       </View>
                     )}
 
                     {/* Transcript */}
                     {item.transcript && (
-                      <Text style={styles.transcriptText} numberOfLines={3}>
+                      <BodyText style={styles.transcriptText} numberOfLines={3}>
                         {item.transcript.length > 150
                           ? `${item.transcript.slice(0, 150)}...`
                           : item.transcript}
-                      </Text>
+                      </BodyText>
                     )}
                   </View>
-                </TouchableOpacity>
+                </Card>
               </Link>
             ))
           )}
@@ -210,20 +206,6 @@ export default function JournalListPage() {
 }
 
 
-
-const screenWidth = Dimensions.get('window').width;
-function HtmlPreview({ html, maxLength = 200 }) {
-  let text = html.replace(/<[^>]*>/g, '');
-
-  if (text.length > maxLength) {
-    text = text.slice(0, maxLength) + '...';
-  }
-
-  const truncatedHtml = `<p>${text}</p>`;
-
-  return <RenderHtml contentWidth={screenWidth} source={{ html: truncatedHtml }} />;
-}
-
 const styles = StyleSheet.create({
   contentWrapper: { padding: 24, maxWidth: 768, alignSelf: "center", width: "100%" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -231,11 +213,10 @@ const styles = StyleSheet.create({
   newEntryButton: { backgroundColor: "#FF6B6B", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
   newEntryButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
   journalList: { gap: 16 },
-  card: { backgroundColor: "white", borderRadius: 16, padding: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3, elevation: 3, marginBottom: 16 },
+  card: {  },
   cardHeader: { marginBottom: 8, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTitle: { fontSize: 20, fontWeight: "600", flex: 1, marginRight: 8 },
   cardMoodText: { fontSize: 12, color: "#6b7280", paddingHorizontal: 6, paddingVertical: 2, backgroundColor: "#F4E1D2", borderRadius: 6, overflow: "hidden" },
-  cardContent: {},
   transcriptText: { marginTop: 8, color: "#6b7280", fontSize: 12 },
   emptyText: { textAlign: "center", marginTop: 40, fontSize: 16, color: "#6b7280" },
   audioButton: { backgroundColor: "#eee", padding: 8, borderRadius: 8, alignItems: "center" },

@@ -7,20 +7,19 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  useWindowDimensions
 } from "react-native";
 import * as ClipBoard from "expo-clipboard"
-import RenderHtml from "react-native-render-html";
 import {useRouter, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 import { api } from "../../../../api";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
-import { htmlStyles } from "../../../../utils/htmlStyles";
 import { htmlToPlainText } from "../../../../src/helpers";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
+import HtmlPreview from "../../../../src/components/journal/HtmlPreview";
+import { Card , BodyText} from "../../../../src/components/ThemeProvider/components";
+
 export default function ViewJournalPage() {
   const {globalStyles} = useThemeStyles()
-  const width = useWindowDimensions()
     const router = useRouter()
   const { id } = useLocalSearchParams();
 
@@ -114,11 +113,11 @@ export default function ViewJournalPage() {
   }
 
   return (
-    <ScrollView style={styles.container} >
-      <View style={styles.card}>
+    <ScrollView style={globalStyles.container} >
+      <Card >
         {/* Header */}
         <View style={styles.headerSection}>
-          <Text style={styles.title}>{entry.title || "Untitled"}</Text>
+          <BodyText style={styles.title}>{entry.title || "Untitled"}</BodyText>
           {entry.mood && <Text style={styles.mood}>{entry.mood.name}</Text>}
         </View>
 
@@ -134,11 +133,7 @@ export default function ViewJournalPage() {
 
         <View style={styles.divider} />
 
-        <RenderHtml
-          contentWidth={width}
-          source={{ html: entry.content }}
-          tagsStyles={htmlStyles}
-        />
+        <HtmlPreview  html={entry.content}/>
 
         {/* Audio Player */}
         {entry.audio_file && (
@@ -177,13 +172,12 @@ export default function ViewJournalPage() {
             contentAuthor={entry.user}
           />
         </View>
-      </View>
+      </Card>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24 },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   card: { backgroundColor: "#fff", borderRadius: 16, padding: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3, elevation: 3 },
   headerSection: { marginBottom: 12 },
