@@ -1,29 +1,5 @@
 import { StyleSheet } from "react-native";
 
-
-export const colors = {
-  primary: "#FF6B6B",  
-  secondary: "#2E8B8B",
-  accent: "#F4E1D2",     
-  background: "#FAF9F7",
-  text: "#333333",
-}
-export const lightColors = {
-  primary: "#FF6B6B",
-  secondary: "#2E8B8B",
-  accent: "#F4E1D2",
-  background: "#FAF9F7",
-  text: "#333333",
-};
-
-export const darkColors = {
-  primary: "#FF6B6B",
-  secondary: "#4DB6AC",
-  accent: "#2A2A2A",
-  background: "#121212",
-  text: "#FFFFFF",
-};
-
 export const createGlobalStyles = (colors) =>
   StyleSheet.create({
     container: {

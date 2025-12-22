@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
   StyleSheet,
@@ -15,6 +14,7 @@ import { useRouter } from "expo-router";
 import { api } from "../../../../api";
 import * as ImagePicker from "expo-image-picker";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
+import { Card, BodyText, Input, TextArea } from "../../../../src/components/ThemeProvider/components";
 
 const ProfilePage = () => {
   const {globalStyles,colors} = useThemeStyles()
@@ -127,15 +127,14 @@ const ProfilePage = () => {
 
   return (
     <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>
-      <View style={styles.form}>
+      <Card style={styles.form}>
         <Text style={styles.title}>Profile Form</Text>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={styles.input}
+          <BodyText style={styles.label}>Username</BodyText>
+          <Input
             value={formData.username}
             onChangeText={(text) => handleChange("username", text)}
             placeholder="Username"
@@ -143,9 +142,8 @@ const ProfilePage = () => {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Bio</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
+          <BodyText style={styles.label}>Bio</BodyText>
+          <TextArea
             multiline
             numberOfLines={3}
             value={formData.bio}
@@ -155,9 +153,9 @@ const ProfilePage = () => {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Profile Photo</Text>
+          <BodyText style={styles.label}>Profile Photo</BodyText>
           <TouchableOpacity onPress={pickImage} style={styles.uploadBox}>
-            <Text style={styles.uploadText}>Tap to choose a photo</Text>
+            <BodyText style={styles.uploadText}>Tap to choose a photo</BodyText>
           </TouchableOpacity>
 
           {preview ? (
@@ -174,7 +172,7 @@ const ProfilePage = () => {
             {updating ? "Updating..." : "Save Changes"}
           </Text>
         </TouchableOpacity>
-      </View>
+      </Card>
     </ScrollView>
   );
 };
@@ -196,7 +194,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   form: {
-    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
     width: "100%",
@@ -228,7 +225,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     fontSize: 16,
-    color: "#333",
   },
   textArea: {
     height: 100,

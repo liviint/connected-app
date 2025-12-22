@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { lightColors, darkColors } from "../styles/global"; 
+import { lightTheme, darkTheme } from "../styles/theme";
 import { createGlobalStyles } from "../styles/global";
 
 export const useThemeStyles = () => {
     const theme = useSelector((state) => state.settings.theme);
-    const colors = theme === "light" ? darkColors : lightColors;
+    const colors = theme === "light" ? darkTheme.colors : lightTheme.colors;
 
     const styles = useMemo(() => createGlobalStyles(colors), [theme]);
 

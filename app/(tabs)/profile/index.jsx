@@ -15,9 +15,10 @@ import { api } from "../../../api";
 import * as Sentry from "@sentry/react-native";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
+import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
 
 const ProfileView = () => {
-  const {globalStyles,colors} = useThemeStyles()
+  const {globalStyles} = useThemeStyles()
   const router = useRouter();
   const {refresh} = useLocalSearchParams()
   const dispatch = useDispatch();
@@ -64,7 +65,7 @@ const ProfileView = () => {
 
   return (
     <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>
-      <View style={styles.card}>
+      <Card style={styles.card}>
         {userData.profilePic ? (
           <View style={styles.avatarWrapper}>
             <Image
@@ -74,12 +75,9 @@ const ProfileView = () => {
           </View>
         ) : null}
 
-        <Text style={styles.name}>
-          {userData.first_name} {userData.last_name}
-        </Text>
-        <Text style={styles.username}>Username: {userData.username}</Text>
+        <BodyText style={styles.username}>Username: {userData.username}</BodyText>
         <Text style={styles.email}>{userData.email}</Text>
-        {userData.bio ? <Text style={styles.bio}>{userData.bio}</Text> : null}
+        {userData.bio ? <BodyText style={styles.bio}>{userData.bio}</BodyText> : null}
 
         <View style={styles.btnGroup}>
           <TouchableOpacity
@@ -99,7 +97,7 @@ const ProfileView = () => {
             <Text style={styles.btnText}>Log Out</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Card>
     </ScrollView>
   );
 };
@@ -120,7 +118,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAF9F7",
   },
   card: {
-    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 25,
     width: "100%",
@@ -148,19 +145,8 @@ const styles = StyleSheet.create({
     color: "#FF6B6B",
     marginBottom: 5,
   },
-  username: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 15,
-    color: "#777",
-    marginBottom: 4,
-  },
   bio: {
     fontSize: 15,
-    color: "#333",
     marginTop: 8,
     textAlign: "center",
     lineHeight: 22,

@@ -20,3 +20,19 @@ export const Card = styled.View`
   margin-bottom: 16px;
 `;
 
+export const Input = styled.TextInput`
+  color: ${({ theme }) => theme.colors.text};
+  background-color: ${({ theme }) => theme.colors.surface};
+
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+
+  padding: 12px;
+  font-size: 16px;
+`;
+
+export const TextArea = styled(Input)`
+  min-height: 80px;
+  text-align-vertical: top;
+`;
