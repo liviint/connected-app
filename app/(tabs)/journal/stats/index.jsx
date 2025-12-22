@@ -60,7 +60,7 @@ export default function JournalStats() {
   const weekdayCounts = stats.entries_per_weekday.map((item) => item.count);
 
   return (
-    <ScrollView contentContainerStyle={globalStyles.container}>
+    <ScrollView style={globalStyles.container} >
       <Text style={globalStyles.title}>Journaling Summary</Text>
 
       {/* STATS CARDS */}

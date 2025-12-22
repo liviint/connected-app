@@ -200,7 +200,7 @@ export default function JournalListPage() {
 
 
 const styles = StyleSheet.create({
-  contentWrapper: { padding: 24, maxWidth: 768, alignSelf: "center", width: "100%" },
+  contentWrapper: { maxWidth: 768, alignSelf: "center", width: "100%" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   newEntryButton: { backgroundColor: "#FF6B6B", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
   newEntryButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
