@@ -4,8 +4,8 @@ import { lightTheme, darkTheme } from "../../styles/theme";
 import { SafeAreaView, StatusBar } from "react-native";
 
 export default function ThemedApp({children}) {
-    const theme = useSelector((state) => state.theme);
-    const currentTheme = theme !== "dark" ? darkTheme : lightTheme;
+    const theme = useSelector((state) => state.settings.theme);
+    const currentTheme = theme === "dark" ? darkTheme : lightTheme;
 
     return (
         <ThemeProvider theme={currentTheme}>

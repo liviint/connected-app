@@ -5,7 +5,7 @@ import { createGlobalStyles } from "../styles/global";
 
 export const useThemeStyles = () => {
     const theme = useSelector((state) => state.settings.theme);
-    const colors = theme === "light" ? darkTheme.colors : lightTheme.colors;
+    const colors = theme === "light" ? lightTheme.colors : darkTheme.colors;
 
     const styles = useMemo(() => createGlobalStyles(colors), [theme]);
 

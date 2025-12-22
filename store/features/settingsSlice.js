@@ -12,7 +12,7 @@ const settingsSlice = createSlice({
         state.theme = action.payload;
         },
         toggleTheme: (state) => {
-        state.theme = state.theme === "light" ? "dark" : "light";
+          state.theme = state.theme === "light" ? "dark" : "light";
         },
     },
 });

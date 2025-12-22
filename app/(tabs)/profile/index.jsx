@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Switch
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
@@ -16,16 +17,18 @@ import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessP
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../src/components/common/PageLoader";
+import {toggleTheme} from "../../../store/features/settingsSlice"
+
 
 const ProfileView = () => {
   const {globalStyles} = useThemeStyles()
   const router = useRouter();
+  const theme = useSelector((state) => state.settings.theme);
   const {refresh} = useLocalSearchParams()
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.userDetails);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const handleLogout = () => {
     dispatch(clearUserDetails());
     router.push("/");
@@ -83,6 +86,21 @@ const ProfileView = () => {
           >
             <Text style={styles.btnText}>Update Profile</Text>
           </TouchableOpacity>
+
+          <View style={styles.settingsSection}>
+            <BodyText style={styles.sectionTitle}>Preferences</BodyText>
+
+            <View style={styles.settingRow}>
+              <BodyText style={styles.settingLabel}>
+                Dark mode
+              </BodyText>
+
+              <Switch
+                value={theme === "dark"}
+                onValueChange={() => dispatch(toggleTheme())}
+              />
+            </View>
+          </View>
 
           <TouchableOpacity
             style={[styles.button, styles.logoutButton]}
@@ -165,4 +183,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  settingsSection: {
+  width: "100%",
+  marginTop: 20,
+  paddingTop: 16,
+  borderTopWidth: 1,
+  borderColor: "#E5E5E5",
+},
+
+sectionTitle: {
+  fontSize: 14,
+  fontWeight: "600",
+  marginBottom: 12,
+  opacity: 0.8,
+},
+
+settingRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+},
+
+settingLabel: {
+  fontSize: 15,
+},
 });

@@ -8,7 +8,7 @@ export const BodyText = styled.Text`
 `;
 
 export const Card = styled.View`
-  background-color: ${({ theme }) => theme.surface};
+  background-color: ${({ theme }) => theme.colors.surface};
   border-radius: 16px;
   padding: 16px;
 
