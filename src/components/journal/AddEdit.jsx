@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -14,6 +13,7 @@ import { useRouter } from "expo-router";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
+import { Input, BodyText, FormLabel, CustomPicker } from "../ThemeProvider/components";
 
 export default function AddEdit({ id }) {
   const { globalStyles, colors } = useThemeStyles();
@@ -164,9 +164,8 @@ export default function AddEdit({ id }) {
       <Text style={globalStyles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Title (Optional)</Text>
-        <TextInput
-          style={styles.input}
+        <FormLabel style={styles.label}>Title (Optional)</FormLabel>
+        <Input
           placeholder="Enter title"
           value={form.title}
           onChangeText={(text) => handleChange("title", text)}
@@ -174,7 +173,7 @@ export default function AddEdit({ id }) {
       </View>
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Your Thoughts</Text>
+        <FormLabel style={styles.label}>Your Thoughts</FormLabel>
 
         {/* Toolbar on top */}
         <RichToolbar
@@ -187,27 +186,49 @@ export default function AddEdit({ id }) {
             actions.insertOrderedList,
             actions.insertLink,
           ]}
-          style={styles.richToolbar}
+          style={{
+            backgroundColor: colors.surface,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+          }}
+          iconTint={colors.textMuted}
+          selectedIconTint={colors.primary}
         />
+
 
         <RichEditor
           ref={richText}
           initialContentHTML={form.content}
-          style={styles.richEditor}
           placeholder="Write your thoughts..."
           onChange={(text) => handleChange("content", text)}
+          style={{
+            backgroundColor: colors.surface,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 12,
+          }}
           editorStyle={{
-            backgroundColor: "#fff",
-            contentCSSText: "padding: 10px; min-height: 180px;",
+            backgroundColor: colors.surface,
+            color: colors.text,
+            placeholderColor: colors.textMuted,
+            contentCSSText: `
+              padding: 12px;
+              min-height: 180px;
+              font-size: 16px;
+              line-height: 24px;
+              color: ${colors.text};
+              caret-color: ${colors.primary};
+            `,
           }}
         />
+
 
         {errors.content && <Text style={styles.error}>{errors.content}</Text>}
       </View>
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Mood</Text>
-        <Picker
+        <FormLabel >Mood</FormLabel>
+        <CustomPicker
           selectedValue={form.mood_id}
           onValueChange={(value) => handleChange("mood_id", value)}
         >
@@ -215,12 +236,12 @@ export default function AddEdit({ id }) {
           {moods.map((m) => (
             <Picker.Item key={m.id} label={m.name} value={String(m.id)} />
           ))}
-        </Picker>
+        </CustomPicker>
         {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
       </View>
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Voice Journal (Optional)</Text>
+        <FormLabel >Voice Journal (Optional)</FormLabel>
 
         {!recording && !audioUri && (
           <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
@@ -280,15 +301,6 @@ export default function AddEdit({ id }) {
 const styles = StyleSheet.create({
   container: { padding: 0 },
   formGroup: { marginBottom: 16 },
-  label: { marginBottom: 6, fontWeight: "600", fontSize: 16 },
-  input: {
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    fontSize: 14,
-  },
   error: { color: "red", marginTop: 4, fontSize: 12 },
   recordButton: {
     backgroundColor: "#2E8B8B",
