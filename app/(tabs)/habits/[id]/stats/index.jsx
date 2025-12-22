@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Dimensions, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
@@ -24,8 +24,6 @@ export default function HabitStatsScreen() {
   }, [id]);
 
   if (!stats) return <PageLoader message={"Loading stats..."} />
-
-  const screenWidth = Dimensions.get("window").width - 20;
 
   // ===== Formatting Helpers =====
   const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -80,7 +78,7 @@ if (total > 0) {
 
   return (
     <ScrollView style={globalStyles.container}>
-      <BodyText style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
+      <BodyText style={globalStyles.title}>
         {stats?.habit ?? "Habit"} — Stats
       </BodyText>
 
