@@ -30,7 +30,7 @@ const ProfileView = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const refereshToken = useSelector(
-          (state) => state?.user?.userDetails.refresh
+          (state) => state?.user?.userDetails?.refresh
       );
 
   const handleLogout = () => {
