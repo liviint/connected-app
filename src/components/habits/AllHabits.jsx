@@ -5,16 +5,15 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
 import DraggableFlatList from "react-native-draggable-flatlist";
-import { useSelector } from "react-redux";
 import { router } from "expo-router";
 import { api } from "../../../api";
 import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
+import { BodyText } from "../ThemeProvider/components";
 
 export default function HabitsScreen() {
-  const { globalStyles, colors } = useThemeStyles();
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+  const { globalStyles } = useThemeStyles();
     const isFocused = useIsFocused()
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,22 +54,12 @@ useEffect(() => {
     saveOrder(data);
   };
 
-  if (!isUserLoggedIn && !loading) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.authMessage}>
-          Your personal habit tracker is waiting. Log in to continue.
-        </Text>
-      </View>
-    );
-  }
-
   if (loading) return <PageLoader />
 
   if (habits.length === 0) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.emptyMessage}>No habits yet. Create your first one!</Text>
+      <View style={globalStyles.container}>
+        <BodyText style={styles.emptyMessage}>No habits yet. Create your first one!</BodyText>
 
         <TouchableOpacity
           style={globalStyles.primaryBtn}
@@ -135,8 +124,6 @@ const styles = StyleSheet.create({
   },
   emptyMessage: {
     textAlign: "center",
-    color: "#666",
-    fontSize: 16,
     marginBottom: 16,
   },
   center: {

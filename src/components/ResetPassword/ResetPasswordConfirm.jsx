@@ -10,9 +10,10 @@ import {
 import { api } from "@/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
+import { BodyText, Card, FormLabel, Input } from "../ThemeProvider/components";
 
 const ResetPasswordConfirm = () => {
-  const { globalStyles, colors } = useThemeStyles();
+  const { globalStyles } = useThemeStyles();
   const router = useRouter()
   const { uid, token } = useLocalSearchParams(); 
 
@@ -76,17 +77,16 @@ const ResetPasswordConfirm = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={globalStyles.title}>Set a New Password</Text>
+    <Card >
+      <BodyText style={globalStyles.title}>Set a New Password</BodyText>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {success ? <Text style={styles.success}>{success}</Text> : null}
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>New Password</Text>
+        <FormLabel >New Password</FormLabel>
         <View style={globalStyles.passwordWrapper}>
-          <TextInput
-            style={styles.input}
+          <Input
             placeholder="Enter new password"
             secureTextEntry={!showPassword}
             value={formData.new_password}
@@ -102,10 +102,9 @@ const ResetPasswordConfirm = () => {
       </View>
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Confirm Password</Text>
+        <FormLabel >Confirm Password</FormLabel>
         <View style={globalStyles.passwordWrapper}>
-          <TextInput
-            style={styles.input}
+          <Input
             placeholder="Confirm new password"
             secureTextEntry={!showPassword}
             value={formData.confirm_password}
@@ -140,34 +139,17 @@ const ResetPasswordConfirm = () => {
           Back to Login
         </Text>
       </Text>
-    </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-  },
   
   formGroup: {
     marginBottom: 15,
   },
-  label: {
-    marginBottom: 5,
-    fontWeight: "500",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 16,
-  },
   button: {
-    backgroundColor: "#2E8B8B",
+    backgroundColor: "#FF6B6B",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",

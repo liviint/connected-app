@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import ResetPassword from '../../../src/components/ResetPassword/ResetPassword';
 import PageLoader from '../../../src/components/common/PageLoader';
+import { useThemeStyles } from '../../../src/hooks/useThemeStyles';
 
 const ResetPasswordScreen = () => {
+  const {globalStyles} = useThemeStyles()
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,22 +16,11 @@ const ResetPasswordScreen = () => {
   if (loading) return <PageLoader message={"Loading..."} /> 
 
   return (
-    <View style={styles.container}>
+    <View style={{...globalStyles.container,flex: 1,justifyContent: "center"}}>
       <ResetPassword />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default ResetPasswordScreen;

@@ -2,7 +2,6 @@ import  { useState} from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -15,11 +14,12 @@ import { safeLocalStorage } from "../../../utils/storage";
 import * as WebBrowser from "expo-web-browser";
 import { validateEmail } from "../../../src/helpers";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
+import { Card, BodyText, FormLabel, Input } from "../../../src/components/ThemeProvider/components";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Index() {
-  const { globalStyles, colors } = useThemeStyles();
+  const { globalStyles } = useThemeStyles();
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -73,9 +73,9 @@ export default function Index() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.title}>Welcome Back</Text>
+    <View style={{...globalStyles.container,...styles.container}}>
+      <Card style={styles.form}>
+        <BodyText style={styles.title}>Welcome Back</BodyText>
 
         {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
         {success ? (
@@ -83,9 +83,8 @@ export default function Index() {
         ) : null}
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
+          <FormLabel style={styles.label}>Email</FormLabel>
+          <Input
             placeholder="Enter email"
             keyboardType="email-address"
             value={formData.email}
@@ -97,9 +96,9 @@ export default function Index() {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Password</Text>
+          <FormLabel >Password</FormLabel>
           <View style={globalStyles.passwordWrapper}>
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="Enter password"
               secureTextEntry={!showPassword}
@@ -136,13 +135,13 @@ export default function Index() {
           )}
         </TouchableOpacity>
 
-        <Text style={styles.hint}>
+        <BodyText style={styles.hint}>
           Don’t have an account?{" "}
           <Text style={styles.link} onPress={() => router.push("/signup")}>
             Sign up
           </Text>
-        </Text>
-      </View>
+        </BodyText>
+      </Card>
     </View>
   );
 }
@@ -151,13 +150,11 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF9F7",
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
   },
   form: {
-    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 16,
     width: "100%",
@@ -177,20 +174,7 @@ const styles = StyleSheet.create({
   formGroup: {
     marginBottom: 16,
   },
-  label: {
-    fontWeight: "600",
-    marginBottom: 6,
-    color: "#2E8B8B",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-    color: "#333",
-    backgroundColor: "#fff",
-  },
+
   button: {
     backgroundColor: "#FF6B6B",
     paddingVertical: 14,

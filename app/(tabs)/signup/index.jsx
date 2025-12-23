@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -11,9 +10,10 @@ import {
 import { api } from "../../../api";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { validateEmail } from "../../../src/helpers";
+import { Card, FormLabel, Input, BodyText } from "../../../src/components/ThemeProvider/components";
 
 const Signup = () => {
-   const { globalStyles, colors } = useThemeStyles();
+   const { globalStyles } = useThemeStyles();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -70,9 +70,9 @@ const Signup = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.form}>
-        <Text style={globalStyles.title}>Create an Account</Text>
+    <ScrollView style={globalStyles.container} contentContainerStyle={styles.container}>
+      <Card style={styles.form}>
+        <BodyText style={globalStyles.title}>Create an Account</BodyText>
 
         {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
         {success ? (
@@ -82,10 +82,9 @@ const Signup = () => {
         ) : null}
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
+          <FormLabel >Email</FormLabel>
+          <Input
             placeholder="Enter email"
-            style={styles.input}
             value={formData.email}
             onChangeText={(value) => handleChange("email", value)}
             keyboardType="email-address"
@@ -95,11 +94,10 @@ const Signup = () => {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Password</Text>
+          <FormLabel >Password</FormLabel>
           <View style={globalStyles.passwordWrapper}>
-            <TextInput
+            <Input
               placeholder="Enter password"
-              style={styles.input}
               value={formData.password}
               onChangeText={(value) => handleChange("password", value)}
               secureTextEntry={!showPassword}
@@ -123,7 +121,7 @@ const Signup = () => {
             {loading ? "Signing up..." : "Sign Up"}
           </Text>
         </TouchableOpacity>
-      </View>
+      </Card>
     </ScrollView>
   );
 };
@@ -135,10 +133,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#FAF9F7",
   },
   form: {
-    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 16,
     shadowColor: "#000",
@@ -149,22 +145,7 @@ const styles = StyleSheet.create({
   formGroup: {
     marginBottom: 15,
   },
-  label: {
-    fontSize: 14,
-    fontFamily: "Inter-Regular",
-    color: "#333333",
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    fontFamily: "Inter-Regular",
-    backgroundColor: "#FAF9F7",
-  },
+  
   error: {
     color: "#FF6B6B",
     marginTop: 5,

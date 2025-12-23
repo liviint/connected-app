@@ -1,18 +1,21 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { BodyText } from '../ThemeProvider/components';
 
 const ProtectedAccessPage = ({ message }) => {
     const router = useRouter()
+    const {globalStyles} = useThemeStyles()
 
     return (
-        <View style={styles.container}>
-        <Text style={styles.heading}>
+        <View style={{...globalStyles.container,...styles.container}}>
+        <BodyText style={styles.heading}>
             Your space awaits
-        </Text>
-        <Text style={styles.subtext}>
+        </BodyText>
+        <BodyText style={styles.subtext}>
             {message || "Your personal journal and habit tracker are waiting for you. Please sign up or log in to continue."}
-        </Text>
+        </BodyText>
 
         <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -36,7 +39,6 @@ const ProtectedAccessPage = ({ message }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F7',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -44,13 +46,11 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333333',
     textAlign: 'center',
     marginBottom: 16,
   },
   subtext: {
     fontSize: 16,
-    color: '#333333',
     textAlign: 'center',
     marginBottom: 24,
   },

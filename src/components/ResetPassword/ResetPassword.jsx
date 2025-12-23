@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -11,9 +10,10 @@ import { api } from "@/api";
 import { useRouter } from "expo-router";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { validateEmail } from "../../helpers";
+import { BodyText, FormLabel, Input , Card} from "../ThemeProvider/components";
 
 const ResetPassword = () => {
-  const { globalStyles, colors } = useThemeStyles();
+  const { globalStyles } = useThemeStyles();
   const router = useRouter()
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -48,16 +48,15 @@ const ResetPassword = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={globalStyles.title}>Reset Your Password</Text>
+    <Card style={{...styles.container}}>
+      <BodyText style={globalStyles.title}>Reset Your Password</BodyText>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {success ? <Text style={styles.success}>{success}</Text> : null}
 
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Email Address</Text>
-        <TextInput
-          style={styles.input}
+        <FormLabel >Email Address</FormLabel>
+        <Input
           placeholder="Enter your email"
           value={email}
           onChangeText={setEmail}
@@ -78,7 +77,7 @@ const ResetPassword = () => {
         )}
       </TouchableOpacity>
 
-      <Text style={styles.hint}>
+      <BodyText style={styles.hint}>
         Remember your password?{" "}
         <Text
           style={styles.link}
@@ -86,34 +85,20 @@ const ResetPassword = () => {
         >
           Back to Login
         </Text>
-      </Text>
-    </View>
+      </BodyText>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
     justifyContent: "center",
   },
   formGroup: {
     marginBottom: 15,
   },
-  label: {
-    marginBottom: 5,
-    fontWeight: "500",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 16,
-  },
   button: {
-    backgroundColor: "#2E8B8B",
+    backgroundColor: "#FF6B6B",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
