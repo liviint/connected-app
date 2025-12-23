@@ -29,10 +29,23 @@ const ProfileView = () => {
   const user = useSelector((state) => state?.user?.userDetails);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const refereshToken = useSelector(
+          (state) => state?.user?.userDetails.refresh
+      );
+
   const handleLogout = () => {
-    dispatch(clearUserDetails());
-    router.push("/");
-  };
+      api({
+            url:"accounts/logout/",
+            method:"POST",
+            data:{refresh: refereshToken}
+        }).then(res => {
+          console.log(res,"hello res")
+        }).catch(error => console.log(error))
+        .finally(() => {
+          dispatch(clearUserDetails())
+          router.push("/")
+        })
+    }
 
   const getUserData = async () => {
     setLoading(true)

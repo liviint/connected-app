@@ -37,8 +37,8 @@ const Signup = () => {
     let isEmailValid = validateEmail(formData.email)
     if(isEmailValid.errorMessage) newErrors.email = isEmailValid.errorMessage 
 
-    if (formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
+    if (formData.password.length < 8)
+      newErrors.password = "Password must be at least 8 characters";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -50,16 +50,20 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      const res = await api.post("/accounts/register/", {...formData,email: formData.email.trim().toLowerCase()});
+      await api.post("/accounts/register/", {...formData,email: formData.email.trim().toLowerCase()});
       setSuccess(true);
       setFormData({ email: "", password: "" });
       Alert.alert("Success", "A verification link has been sent to your email.");
     } catch (error) {
-      const errMsg =
-        error?.response?.data?.email?.[0] ||
-        error?.response?.data?.message ||
-        "Something went wrong. Please try again.";
-      setServerError(errMsg);
+      const data = error?.response?.data;
+      let errMsg = "Something went wrong. Please try again.";
+      if (data && typeof data === "object") {
+        const firstKey = Object.keys(data)[0];
+        if (Array.isArray(data[firstKey])) {
+          errMsg = data[firstKey][0];
+        }
+      }
+    setServerError(errMsg);
     } finally {
       setLoading(false);
     }
