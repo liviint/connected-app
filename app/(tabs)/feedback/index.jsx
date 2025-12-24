@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { blogApi } from '../../../api';
+import {useThemeStyles} from "../../../src/hooks/useThemeStyles"
+import { Card, BodyText, Input, TextArea } from '../../../src/components/ThemeProvider/components';
 
 export default function FeedbackPage() {
+  const {globalStyles} = useThemeStyles()
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,13 +27,13 @@ export default function FeedbackPage() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Share Your Feedback</Text>
-          <Text style={styles.subtitle}>
+        <Card >
+          <BodyText style={globalStyles.title}>Share Your Feedback</BodyText>
+          <BodyText style={styles.subtitle}>
             Your input helps us make ZeniaHub a better space for personal growth and productivity.
-          </Text>
+          </BodyText>
 
           {submitted ? (
             <View style={styles.centered}>
@@ -41,7 +44,7 @@ export default function FeedbackPage() {
             </View>
           ) : (
             <>
-              <TextInput
+              <TextArea
                 value={message}
                 onChangeText={setMessage}
                 placeholder="Write your feedback here..."
@@ -62,32 +65,19 @@ export default function FeedbackPage() {
               </TouchableOpacity>
             </>
           )}
-        </View>
+        </Card>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAF9F7',
-    justifyContent: 'center',
-  },
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
   },
-  card: {
-    backgroundColor: '#F4E1D2',
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
-  },
+  
   title: {
     fontSize: 24,
     textAlign: 'center',
@@ -96,17 +86,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subtitle: {
-    textAlign: 'center',
-    color: '#333',
-    fontWeight: '400',
     marginBottom: 20,
   },
   textArea: {
-    borderColor: '#FF6B6B',
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
-    backgroundColor: '#FAF9F7',
     color: '#333',
     fontSize: 16,
     minHeight: 120,
@@ -114,7 +99,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   submitBtn: {
-    backgroundColor: '#2E8B8B',
+    backgroundColor: '#FF6B6B',
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
