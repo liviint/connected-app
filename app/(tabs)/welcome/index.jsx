@@ -1,15 +1,14 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
-import {BodyText, Card} from "../../src/components/ThemeProvider/components"
 import { useRouter } from 'expo-router';
-import {useThemeStyles} from "../../src/hooks/useThemeStyles"
+import {
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { BodyText, Card } from "../../../src/components/ThemeProvider/components";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

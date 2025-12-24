@@ -40,6 +40,11 @@ export default function Header() {
             path="/feedback" 
             isActive={isActive("/(tabs)/feedback")} 
           />
+          <NavLink 
+            label="Welcome" 
+            path="/welcome" 
+            isActive={isActive("/(tabs)/welcome")} 
+          />
         </View>
       </View>
     )}
