@@ -29,6 +29,12 @@ export default function TabLayout() {
         }}
       >
       <Tabs.Screen
+        name="welcome/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
@@ -68,13 +74,6 @@ export default function TabLayout() {
       
       <Tabs.Screen
         name="profile/edit/index"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="welcome/index"
         options={{
           href: null,
         }}

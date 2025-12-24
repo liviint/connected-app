@@ -1,8 +1,6 @@
-import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import ReduxProvider from '@/store/ReduxProvider';
 import { useEffect } from 'react';
 import Header from '@/src/components/header';
@@ -35,7 +33,6 @@ export const unstable_settings = {
 };
 
 export default Sentry.wrap(function RootLayout() {
-  const colorScheme = useColorScheme();
   const router = useRouter();
 
   // Handle Android hardware back button
