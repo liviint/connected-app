@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
-    color: '#333',
     fontSize: 16,
     minHeight: 120,
     textAlignVertical: 'top',
