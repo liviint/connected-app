@@ -6,8 +6,10 @@ import { setUserDetails } from "../../../store/features/userSlice";
 import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
 import * as Sentry from "@sentry/react-native";
+import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 export default function VerifyEmail() {
+  const {globalStyles} = useThemeStyles()
   const dispatch = useDispatch();
   const router = useRouter();
   const searchParams = useLocalSearchParams();
@@ -51,7 +53,7 @@ export default function VerifyEmail() {
   }, [searchParams, dispatch, router]);
 
   return (
-    <View style={styles.container}>
+    <View style={{...globalStyles.container,...styles.container}}>
       {status === "loading" && (
         <>
           <ActivityIndicator size="large" color="#FF6B6B" />
@@ -70,7 +72,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#FAF9F7",
   },
   text: {
     marginTop: 20,
