@@ -1,20 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
 
-const DeleteButton = ({ handleOk, item, contentAuthor }) => {
-    const loggedUser = useSelector(
-        (state) => state?.user?.userDetails.user.id
-    );
-
+const DeleteButton = ({ handleOk, item}) => {
     const [visible, setVisible] = useState(false)
 
     const confirmDelete = async () => {
         setVisible(false);
         if (handleOk) await handleOk();
     };
-
-    if (loggedUser != contentAuthor) return null;
 
     return (
         <>

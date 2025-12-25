@@ -33,9 +33,6 @@ export default function JournalListPage() {
     setRefreshing(true);
     try {
       const res = await getJournals()
-      for(let j of res){
-        console.log(j.uuid,j.content,"hello single")
-      }
       setJournals(res);
     } catch (err) {
       console.error("Journal fetch error:", err);
@@ -138,7 +135,7 @@ export default function JournalListPage() {
             </Text>
           ) : (
             journals.map((item) => (
-              <Link key={item.id} href={`/journal/${item.id}`} >
+              <Link key={item.uuid} href={`/journal/${item.uuid}`} >
                 <Card >
                   {/* Header */}
                   <View style={styles.cardHeader}>
@@ -170,13 +167,13 @@ export default function JournalListPage() {
                         <TouchableOpacity
                           style={styles.audioButton}
                           onPress={() =>
-                            playingId === item.id
+                            playingId === item.uuid
                               ? handlePauseAudio()
-                              : handlePlayAudio(item.audio_file, item.id)
+                              : handlePlayAudio(item.audio_file, item.uuid)
                           }
                         >
                           <BodyText style={styles.audioButtonText}>
-                            {playingId === item.id ? "⏸ Pause" : "▶ Play"}
+                            {playingId === item.uuid ? "⏸ Pause" : "▶ Play"}
                           </BodyText>
                         </TouchableOpacity>
                       </View>

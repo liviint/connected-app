@@ -4,14 +4,13 @@ import { getDatabase } from './database';
  * Save a journal locally
  */
 export const createJournal = async (uuid, title, content, mood) => {
-  console.log("hello processing 1")
   const db = await getDatabase();
   const now = new Date().toISOString();
   try {
     await db.runAsync(
       `INSERT INTO journal_entries 
         (uuid, title, content, mood_label, created_at, updated_at, synced)
-       VALUES (?, ?, ?, ?, ?, ?, 0)`,
+      VALUES (?, ?, ?, ?, ?, ?, 0)`,
       [uuid, title, content, mood, now, now]
     );
     console.log('✅ Journal saved locally');
@@ -23,20 +22,39 @@ export const createJournal = async (uuid, title, content, mood) => {
 /**
  * Fetch all journals (local)
  */
-export const getJournals = async () => {
+export const getJournals = async (uuid = null) => {
   const db = await getDatabase();
+
   try {
+    if (uuid) {
+      // 🔹 Fetch single journal by UUID
+      const journal = await db.getFirstAsync(
+        `
+        SELECT * FROM journal_entries
+        WHERE uuid = ? AND deleted = 0
+        LIMIT 1
+        `,
+        [uuid]
+      );
+      return journal;
+    }
+
+    // 🔹 Fetch all journals
     const rows = await db.getAllAsync(
-      `SELECT * FROM journal_entries 
-       WHERE deleted = 0
-       ORDER BY created_at DESC`
+      `
+      SELECT * FROM journal_entries
+      WHERE deleted = 0
+      ORDER BY created_at DESC
+      `
     );
+
     return rows;
   } catch (error) {
-    console.error('❌ Failed to fetch journals:', error);
-    return [];
+    console.error("❌ Failed to fetch journals:", error);
+    return uuid ? null : [];
   }
 };
+
 
 /**
  * Mark journal as synced after API success

@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import * as ClipBoard from "expo-clipboard"
 import {useRouter, useLocalSearchParams } from "expo-router";
@@ -18,6 +17,7 @@ import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../../src/components/journal/HtmlPreview";
 import { Card , BodyText} from "../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../src/components/common/PageLoader";
+import { getJournals } from "../../../../src/db/journalsDb";
 
 export default function ViewJournalPage() {
   const {globalStyles} = useThemeStyles()
@@ -34,8 +34,8 @@ export default function ViewJournalPage() {
   useEffect(() => {
     const fetchJournal = async () => {
       try {
-        const res = await api.get(`journal/${id}/`);
-        setEntry(res.data);
+        const res = await getJournals(id)
+        setEntry(res);
       } catch (err) {
         console.error(err);
       } finally {

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  TextInput
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Audio } from "expo-av";
@@ -14,7 +15,7 @@ import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor"
 import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { Input, FormLabel, CustomPicker } from "../ThemeProvider/components";
-import { createJournal, markJournalSynced } from "../../db/journalsDb";
+import { createJournal, markJournalSynced, getJournals } from "../../db/journalsDb";
 import uuid from 'react-native-uuid';
 
 export default function AddEdit({ id }) {
@@ -48,17 +49,15 @@ export default function AddEdit({ id }) {
   // Fetch existing journal entry if editing
   useEffect(() => {
     if (!id) return;
-    api
-      .get(`journal/${id}/`)
-      .then((res) => {
-        const entry = res.data;
-        setForm({ ...entry, mood_id: String(entry.mood.id) });
-        if (entry.audio_file) setAudioUri(entry.audio_file); 
-        if (richText.current) {
-          richText.current.setContentHTML(entry.content || "");
-        }
-      })
-      .catch((err) => console.error(err));
+    let fetchJournal = async () => {
+      let entry = await getJournals(id)
+      setForm({ ...entry});
+      if (entry.audio_file) setAudioUri(entry.audio_file); 
+      if (richText.current) {
+        richText.current.setContentHTML(entry.content || "");
+      }
+    }
+    fetchJournal()
   }, [id]);
 
   const handleChange = (name, value) => {
@@ -184,7 +183,7 @@ const handleSubmit = async () => {
 
       <View style={globalStyles.formGroup}>
         <FormLabel style={styles.label}>Title (Optional)</FormLabel>
-        <Input
+        <TextInput
           placeholder="Enter title"
           value={form.title}
           onChangeText={(text) => handleChange("title", text)}
@@ -217,7 +216,6 @@ const handleSubmit = async () => {
 
         <RichEditor
           ref={richText}
-          initialContentHTML={form.content}
           placeholder="Write your thoughts..."
           onChange={(text) => handleChange("content", text)}
           style={{

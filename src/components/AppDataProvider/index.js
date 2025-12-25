@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { initDatabase, getDatabase } from '../../db/database';
+import { initDatabase } from '../../db/database';
 import { syncJournalsFromApi } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
@@ -37,9 +37,6 @@ export default function AppDataProvider({ children }) {
 
             console.log('🔄 Syncing journals from server...');
             const response = await fetchJournals();
-            for(const journal of response){
-                console.log(journal.uuid,"hello uuid")
-            }
             await syncJournalsFromApi(response);
 
             console.log('✅ Data ready');
