@@ -12,7 +12,6 @@ export default function AppDataProvider({ children }) {
         try {
             const res = await api.get(`/journal/`);
             journals = res.data.results
-            console.log(journals,"hello journals")
         } catch (err) {
             console.error("Journal fetch error:", err);
         } finally{

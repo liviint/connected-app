@@ -5,8 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
-  TextInput
+  Alert
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Audio } from "expo-av";
@@ -51,8 +50,8 @@ export default function AddEdit({ id }) {
     if (!id) return;
     let fetchJournal = async () => {
       let entry = await getJournals(id)
-      setForm({ ...entry});
-      if (entry.audio_file) setAudioUri(entry.audio_file); 
+      setForm({ ...entry,mood_id:String(entry.mood_id)});
+      if (entry?.audio_uri) setAudioUri(entry.audio_uri); 
       if (richText.current) {
         richText.current.setContentHTML(entry.content || "");
       }
@@ -183,7 +182,7 @@ const handleSubmit = async () => {
 
       <View style={globalStyles.formGroup}>
         <FormLabel style={styles.label}>Title (Optional)</FormLabel>
-        <TextInput
+        <Input
           placeholder="Enter title"
           value={form.title}
           onChangeText={(text) => handleChange("title", text)}
@@ -215,9 +214,11 @@ const handleSubmit = async () => {
 
 
         <RichEditor
+          key={id}
           ref={richText}
           placeholder="Write your thoughts..."
           onChange={(text) => handleChange("content", text)}
+          initialContentHTML={form.content}
           style={{
             backgroundColor: colors.surface,
             borderWidth: 1,
