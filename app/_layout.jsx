@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BackHandler } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import ThemeProvider from "../src/components/ThemeProvider"
+import { initDatabase } from "../src/db/database"
 
 Sentry.init({
   dsn: 'https://48bbd82038bb8c934670f33b8148b11f@o4510547845382144.ingest.us.sentry.io/4510547919765504',
@@ -46,6 +47,10 @@ export default Sentry.wrap(function RootLayout() {
     });
     return () => sub.remove();
   }, [router]);
+
+  useEffect(() => {
+    initDatabase()
+  },[])
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
