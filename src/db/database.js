@@ -1,13 +1,20 @@
-import { openDatabase } from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite';
 
-export const db = openDatabase('zeniahub.db');
+let db
 
-export const initDatabase = () => {
-  db.transaction(tx => {
+export const getDatabase = async () => {
+    if (!db) {
+        db = await SQLite.openDatabaseAsync('zeniahub.db');
+    }
+    return db;
+};
 
-    // Journals
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS journal_entries (
+export const initDatabase = async () => {
+    const db = await getDatabase()
+    await db.execAsync(`
+        PRAGMA journal_mode = WAL;
+
+        CREATE TABLE IF NOT EXISTS journal_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uuid TEXT UNIQUE,
         user_uuid TEXT,
@@ -21,12 +28,9 @@ export const initDatabase = () => {
         updated_at TEXT,
         synced INTEGER DEFAULT 0,
         deleted INTEGER DEFAULT 0
-      );
-    `);
+        );
 
-    // Habits
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS habits (
+        CREATE TABLE IF NOT EXISTS habits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uuid TEXT UNIQUE,
         user_uuid TEXT,
@@ -43,12 +47,9 @@ export const initDatabase = () => {
         updated_at TEXT,
         synced INTEGER DEFAULT 0,
         deleted INTEGER DEFAULT 0
-      );
-    `);
+        );
 
-    // Habit Entries
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS habit_entries (
+        CREATE TABLE IF NOT EXISTS habit_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uuid TEXT UNIQUE,
         habit_uuid TEXT,
@@ -59,7 +60,6 @@ export const initDatabase = () => {
         synced INTEGER DEFAULT 0,
         deleted INTEGER DEFAULT 0,
         UNIQUE(habit_uuid, date)
-      );
+        );
     `);
-  });
 };

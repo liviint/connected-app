@@ -9,13 +9,13 @@ import {
   RefreshControl,
 } from "react-native";
 import { Link, useFocusEffect, useRouter } from "expo-router";
-import { api } from "../../../api";
 import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 import { Audio } from "expo-av";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../src/components/journal/HtmlPreview";
 import PageLoader from "../../../src/components/common/PageLoader";
+import { getJournals } from "../../../src/db/journalsDb";
 
 export default function JournalListPage() {
   const router = useRouter()
@@ -32,8 +32,8 @@ export default function JournalListPage() {
   const fetchJournals = useCallback(async () => {
     setRefreshing(true);
     try {
-      const res = await api.get(`/journal/`);
-      setJournals(res.data.results);
+      const res = await getJournals()
+      setJournals(res);
     } catch (err) {
       console.error("Journal fetch error:", err);
     } finally {
