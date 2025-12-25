@@ -33,6 +33,9 @@ export default function JournalListPage() {
     setRefreshing(true);
     try {
       const res = await getJournals()
+      for(let j of res){
+        console.log(j.uuid,j.content,"hello single")
+      }
       setJournals(res);
     } catch (err) {
       console.error("Journal fetch error:", err);

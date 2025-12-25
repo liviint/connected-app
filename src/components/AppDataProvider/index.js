@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { initDatabase } from '../../db/database';
+import { initDatabase, getDatabase } from '../../db/database';
 import { syncJournalsFromApi } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
@@ -37,6 +37,9 @@ export default function AppDataProvider({ children }) {
 
             console.log('🔄 Syncing journals from server...');
             const response = await fetchJournals();
+            for(const journal of response){
+                console.log(journal.uuid,"hello uuid")
+            }
             await syncJournalsFromApi(response);
 
             console.log('✅ Data ready');
@@ -44,9 +47,29 @@ export default function AppDataProvider({ children }) {
             console.error('❌ AppDataProvider error:', e);
         }
         };
-
+        
         bootstrap();
     }, []);
 
     return children;
 }
+
+/* 
+const clearAllData = async () => {
+            const db = await getDatabase();
+
+            await db.execAsync(`
+                BEGIN TRANSACTION;
+
+                DELETE FROM journal_entries;
+                DELETE FROM habits;
+                DELETE FROM habit_entries;
+
+                COMMIT;
+            `);
+
+            console.log('✅ All local data cleared');
+            };
+
+        clearAllData()
+*/

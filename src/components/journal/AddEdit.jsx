@@ -78,7 +78,7 @@ export default function AddEdit({ id }) {
 const handleSubmit = async () => {
   if (!validateForm()) return;
   setLoading(true);
-  const journalUuid = uuid.v4()
+  const journalUuid = form.uuid || uuid.v4();
   try {
     // 1️⃣ Save locally first
     await createJournal(journalUuid, form.title, form.content, form.mood_label);
@@ -88,6 +88,7 @@ const handleSubmit = async () => {
     formData.append("title", form.title);
     formData.append("content", form.content);
     formData.append("mood_id", form.mood_id);
+    formData.append("uuid", journalUuid);
 
     if (audioUri && !audioUri.startsWith("http")) {
       const uriParts = audioUri.split("/");
@@ -113,7 +114,7 @@ const handleSubmit = async () => {
     router.push("/journal");
     setForm(initialForm);
   } catch (err) {
-    console.error(err);
+    console.error(err.response,"hello err");
     Alert.alert(
       "Saved locally",
       "Journal saved locally. It will sync when online."

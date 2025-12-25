@@ -59,86 +59,89 @@ export const markJournalSynced = async (uuid) => {
 
 export const syncJournalsFromApi = async (journals) => {
   const db = await getDatabase()
-  await db.execAsync('BEGIN TRANSACTION');
+  await db.execAsync('BEGIN TRANSACTION')
 
   try {
     for (const journal of journals) {
-      // 1. Check if journal exists locally
+      const uuid = String(journal.uuid); 
+
+      if (!uuid) {
+        console.warn('⛔ Journal missing uuid, skipping:', journal);
+        continue;
+      }
+
+      // Check local state
       const existing = await db.getFirstAsync(
-        `SELECT synced, updated_at FROM journal_entries WHERE uuid = ?`,
-        [String(journal.uuid)]
+        `SELECT synced FROM journal_entries WHERE uuid = ?`,
+        [uuid]
       );
 
-      // 2. If local exists AND not synced → skip (protect local changes)
+      // Protect local unsynced edits
       if (existing && existing.synced === 0) {
         continue;
       }
 
-      if (existing) {
-        // 3. Update existing row
-        await db.runAsync(
-          `
-          UPDATE journal_entries SET
-            user_uuid = ?,
-            title = ?,
-            content = ?,
-            audio_uri = ?,
-            transcript = ?,
-            mood_id = ?,
-            mood_label = ?,
-            created_at = ?,
-            updated_at = ?,
-            synced = 1,
-            deleted = 0
-          WHERE uuid = ?
-          `,
-          [
-            String(journal.user),
-            journal.title || '',
-            journal.content || '',
-            journal.audio_file || null,
-            journal.transcript || null,
-            journal.mood?.id || null,
-            journal.mood?.name || null,
-            journal.created_at,
-            journal.updated_at,
-            String(journal.id),
-          ]
-        );
-      } else {
-        // 4. Insert new row
-        await db.runAsync(
-          `
-          INSERT INTO journal_entries (
-            uuid,
-            user_uuid,
-            title,
-            content,
-            audio_uri,
-            transcript,
-            mood_id,
-            mood_label,
-            created_at,
-            updated_at,
-            synced,
-            deleted
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
-          `,
-          [
-            String(journal.id),
-            String(journal.user),
-            journal.title || '',
-            journal.content || '',
-            journal.audio_file || null,
-            journal.transcript || null,
-            journal.mood?.id || null,
-            journal.mood?.name || null,
-            journal.created_at,
-            journal.updated_at,
-          ]
-        );
-      }
+      // Insert if missing
+      await db.runAsync(
+        `
+        INSERT OR IGNORE INTO journal_entries (
+          uuid,
+          user_uuid,
+          title,
+          content,
+          audio_uri,
+          transcript,
+          mood_id,
+          mood_label,
+          created_at,
+          updated_at,
+          synced,
+          deleted
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
+        `,
+        [
+          uuid,
+          String(journal.user),
+          journal.title || '',
+          journal.content || '',
+          journal.audio_file || null,
+          journal.transcript || null,
+          journal.mood?.id || null,
+          journal.mood?.name || null,
+          journal.created_at,
+          journal.updated_at,
+        ]
+      );
+
+      // Update safely
+      await db.runAsync(
+        `
+        UPDATE journal_entries
+        SET
+          title = ?,
+          content = ?,
+          audio_uri = ?,
+          transcript = ?,
+          mood_id = ?,
+          mood_label = ?,
+          updated_at = ?,
+          synced = 1,
+          deleted = 0
+        WHERE uuid = ?
+          AND synced = 1
+        `,
+        [
+          journal.title || '',
+          journal.content || '',
+          journal.audio_file || null,
+          journal.transcript || null,
+          journal.mood?.id || null,
+          journal.mood?.name || null,
+          journal.updated_at,
+          uuid,
+        ]
+      );
     }
 
     await db.execAsync('COMMIT');
@@ -147,5 +150,6 @@ export const syncJournalsFromApi = async (journals) => {
     throw e;
   }
 };
+
 
 
