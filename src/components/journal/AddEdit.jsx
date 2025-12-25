@@ -14,6 +14,8 @@ import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor"
 import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { Input, FormLabel, CustomPicker } from "../ThemeProvider/components";
+import { createJournal, markJournalSynced } from "../../db/journalsDb";
+import uuid from 'react-native-uuid';
 
 export default function AddEdit({ id }) {
   const { globalStyles, colors } = useThemeStyles();
@@ -37,7 +39,9 @@ export default function AddEdit({ id }) {
   useEffect(() => {
     api
       .get("journal/categories/")
-      .then((res) => setMoods(res.data))
+      .then((res) => {
+        setMoods(res.data)
+      })
       .catch((err) => console.error(err));
   }, []);
 
@@ -71,10 +75,15 @@ export default function AddEdit({ id }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    setLoading(true);
+const handleSubmit = async () => {
+  if (!validateForm()) return;
+  setLoading(true);
+  const journalUuid = uuid.v4()
+  try {
+    // 1️⃣ Save locally first
+    await createJournal(journalUuid, form.title, form.content, form.mood_label);
 
+    // 2️⃣ Prepare FormData for API
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("content", form.content);
@@ -86,25 +95,34 @@ export default function AddEdit({ id }) {
       formData.append("audio_file", { uri: audioUri, name, type: "audio/mpeg" });
     }
 
-    try {
-      const url = id ? `/journal/${id}/` : "/journal/";
-      const method = id ? "PUT" : "POST";
-      await api({
-        url,
-        method,
-        data: formData,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      Alert.alert("Success", "Journal entry saved!");
-      router.push("/journal");
-      setForm(initialForm)
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Failed to save entry");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 3️⃣ Send to API
+    const url = id ? `/journal/${id}/` : "/journal/";
+    const method = id ? "PUT" : "POST";
+
+    await api({
+      url,
+      method,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    // 4️⃣ Mark local journal as synced
+    await markJournalSynced(journalUuid);
+
+    Alert.alert("Success", "Journal entry saved!");
+    router.push("/journal");
+    setForm(initialForm);
+  } catch (err) {
+    console.error(err);
+    Alert.alert(
+      "Saved locally",
+      "Journal saved locally. It will sync when online."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Recording functions
   const startRecording = async () => {

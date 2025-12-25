@@ -4,9 +4,9 @@ import { getDatabase } from './database';
  * Save a journal locally
  */
 export const createJournal = async (uuid, title, content, mood) => {
+  console.log("hello processing 1")
   const db = await getDatabase();
   const now = new Date().toISOString();
-
   try {
     await db.runAsync(
       `INSERT INTO journal_entries 
