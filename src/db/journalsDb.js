@@ -3,21 +3,62 @@ import { getDatabase } from './database';
 /**
  * Save a journal locally
  */
-export const createJournal = async (uuid, title, content, mood) => {
+export const upsertJournal = async (uuid, title, content, mood) => {
   const db = await getDatabase();
   const now = new Date().toISOString();
+
   try {
     await db.runAsync(
-      `INSERT INTO journal_entries 
-        (uuid, title, content, mood_label, created_at, updated_at, synced)
-      VALUES (?, ?, ?, ?, ?, ?, 0)`,
+      `
+      INSERT INTO journal_entries (
+        uuid,
+        title,
+        content,
+        mood_label,
+        created_at,
+        updated_at,
+        synced
+      )
+      VALUES (?, ?, ?, ?, ?, ?, 0)
+      ON CONFLICT(uuid) DO UPDATE SET
+        title = excluded.title,
+        content = excluded.content,
+        mood_label = excluded.mood_label,
+        updated_at = excluded.updated_at,
+        synced = 0
+      `,
       [uuid, title, content, mood, now, now]
     );
-    console.log('✅ Journal saved locally');
+
+    console.log("✅ Journal upserted locally");
   } catch (error) {
-    console.error('❌ Failed to save journal:', error);
+    console.error("❌ Failed to upsert journal:", error);
   }
 };
+
+export const deleteJournal = async (uuid) => {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  try {
+    await db.runAsync(
+      `
+      UPDATE journal_entries
+      SET deleted = 1,
+          synced = 0,
+          updated_at = ?
+      WHERE uuid = ?
+      `,
+      [now, uuid]
+    );
+
+    console.log("🗑️ Journal marked as deleted locally");
+  } catch (error) {
+    console.error("❌ Failed to delete journal locally:", error);
+  }
+};
+
+
 
 /**
  * Fetch all journals (local)

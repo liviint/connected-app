@@ -17,7 +17,7 @@ import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../../src/components/journal/HtmlPreview";
 import { Card , BodyText} from "../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../src/components/common/PageLoader";
-import { getJournals } from "../../../../src/db/journalsDb";
+import { getJournals, deleteJournal } from "../../../../src/db/journalsDb";
 
 export default function ViewJournalPage() {
   const {globalStyles} = useThemeStyles()
@@ -56,13 +56,8 @@ export default function ViewJournalPage() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            try {
-              await api.delete(`journal/${id}/`);
-              router.push("/journal");
-            } catch (err) {
-              console.error(err);
-              Alert.alert("Error", "Failed to delete entry");
-            }
+            deleteJournal(id)
+            router.push("/journal");
           },
         },
       ]

@@ -14,7 +14,7 @@ import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor"
 import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { Input, FormLabel, CustomPicker } from "../ThemeProvider/components";
-import { createJournal, markJournalSynced, getJournals } from "../../db/journalsDb";
+import { upsertJournal, getJournals } from "../../db/journalsDb";
 import uuid from 'react-native-uuid';
 
 export default function AddEdit({ id }) {
@@ -78,36 +78,7 @@ const handleSubmit = async () => {
   setLoading(true);
   const journalUuid = form.uuid || uuid.v4();
   try {
-    // 1️⃣ Save locally first
-    await createJournal(journalUuid, form.title, form.content, form.mood_label);
-
-    // 2️⃣ Prepare FormData for API
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("content", form.content);
-    formData.append("mood_id", form.mood_id);
-    formData.append("uuid", journalUuid);
-
-    if (audioUri && !audioUri.startsWith("http")) {
-      const uriParts = audioUri.split("/");
-      const name = uriParts[uriParts.length - 1];
-      formData.append("audio_file", { uri: audioUri, name, type: "audio/mpeg" });
-    }
-
-    // 3️⃣ Send to API
-    const url = id ? `/journal/${id}/` : "/journal/";
-    const method = id ? "PUT" : "POST";
-
-    await api({
-      url,
-      method,
-      data: formData,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    // 4️⃣ Mark local journal as synced
-    await markJournalSynced(journalUuid);
-
+    await upsertJournal(journalUuid, form.title, form.content, form.mood_label);
     Alert.alert("Success", "Journal entry saved!");
     router.push("/journal");
     setForm(initialForm);
