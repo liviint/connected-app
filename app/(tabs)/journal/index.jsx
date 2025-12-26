@@ -136,7 +136,7 @@ export default function JournalListPage() {
           ) : (
             journals.map((item) => (
               <Link key={item.uuid} href={`/journal/${item.uuid}`} >
-                <Card >
+                <Card style={styles.card} >
                   {/* Header */}
                   <View style={styles.cardHeader}>
                     <BodyText style={styles.cardTitle}>
@@ -201,11 +201,11 @@ export default function JournalListPage() {
 
 const styles = StyleSheet.create({
   contentWrapper: { maxWidth: 768, alignSelf: "center", width: "100%" },
+  card:{width: "100%"},
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   newEntryButton: { backgroundColor: "#FF6B6B", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
   newEntryButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
   journalList: { gap: 16 },
-  card: {  },
   cardHeader: { marginBottom: 8, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTitle: { fontSize: 20, fontWeight: "600", flex: 1, marginRight: 8 },
   cardMoodText: { fontSize: 12, color: "#6b7280", paddingHorizontal: 6, paddingVertical: 2, backgroundColor: "#F4E1D2", borderRadius: 6, overflow: "hidden" },
