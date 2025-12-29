@@ -43,7 +43,7 @@ const ProfileView = () => {
         }).catch(error => console.log(error))
         .finally(() => {
           dispatch(clearUserDetails())
-          router.push("/")
+          router.push("/welcome")
         })
     }
 
