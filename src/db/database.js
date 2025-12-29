@@ -30,6 +30,14 @@ export const initDatabase = async () => {
         deleted INTEGER DEFAULT 0
         );
 
+        CREATE TABLE IF NOT EXISTS moods (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            icon TEXT,
+            updated_at TEXT
+        );
+
         CREATE TABLE IF NOT EXISTS habits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uuid TEXT UNIQUE,

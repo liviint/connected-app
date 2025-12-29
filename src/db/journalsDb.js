@@ -1,4 +1,5 @@
 import { getDatabase } from './database';
+import {DEFAULT_MOODS} from "../../utils/defaultMoods"
 
 /**
  * Save a journal locally
@@ -96,6 +97,12 @@ export const getJournals = async (uuid = null) => {
   }
 };
 
+export const getUnsyncedJournals = async () => {
+  const db = await getDatabase();
+  return db.getAllAsync(
+    `SELECT * FROM journal_entries WHERE synced = 0`
+  );
+};
 
 /**
  * Mark journal as synced after API success
@@ -209,6 +216,65 @@ export const syncJournalsFromApi = async (journals) => {
     throw e;
   }
 };
+
+export const seedMoodsIfNeeded = async () => {
+  const db = await getDatabase();
+
+  const existing = await db.getFirstAsync(
+    `SELECT COUNT(*) as count FROM moods`
+  );
+
+  if (existing.count > 0) return; 
+
+  console.log("🌱 Seeding default moods");
+
+  const now = new Date().toISOString();
+
+  for (const m of DEFAULT_MOODS) {
+    await db.runAsync(
+      `INSERT INTO moods (id, name, description, icon, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [m.id, m.name, m.description, m.icon, now]
+    );
+  }
+};
+
+
+export const saveMoods = async (moods) => {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  const query = `
+    INSERT INTO moods (id, name, description, icon, updated_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      description = excluded.description,
+      icon = excluded.icon,
+      updated_at = excluded.updated_at
+  `;
+
+  for (const m of moods) {
+    await db.runAsync(query, [
+      m.id,
+      m.name,
+      m.description ?? "",
+      m.icon ?? null,
+      now,
+    ]);
+  }
+
+  console.log("💾 Moods cached locally");
+};
+
+export const getLocalMoods = async () => {
+  const db = await getDatabase();
+  return await db.getAllAsync(`
+    SELECT * FROM moods ORDER BY name ASC
+  `);
+};
+
+
 
 
 

@@ -11,10 +11,9 @@ import { Picker } from "@react-native-picker/picker";
 import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
-import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { Input, FormLabel, CustomPicker } from "../ThemeProvider/components";
-import { upsertJournal, getJournals } from "../../db/journalsDb";
+import { upsertJournal, getJournals, getLocalMoods } from "../../db/journalsDb";
 import uuid from 'react-native-uuid';
 
 export default function AddEdit({ id }) {
@@ -37,12 +36,11 @@ export default function AddEdit({ id }) {
 
   // Fetch moods
   useEffect(() => {
-    api
-      .get("journal/categories/")
-      .then((res) => {
-        setMoods(res.data)
-      })
-      .catch((err) => console.error(err));
+    let getMoods = async () => {
+      let moods = await getLocalMoods()
+      setMoods(moods)
+    }
+    getMoods()
   }, []);
 
   // Fetch existing journal entry if editing
@@ -229,7 +227,7 @@ const handleSubmit = async () => {
         {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
       </View>
 
-      <View style={globalStyles.formGroup}>
+      {/* {/*<View style={globalStyles.formGroup}>
         <FormLabel >Voice Journal (Optional)</FormLabel>
 
         {!recording && !audioUri && (
@@ -276,7 +274,7 @@ const handleSubmit = async () => {
             </View>
           </View>
         )}
-      </View>
+      </View> */}
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
         <Text style={styles.submitButtonText}>

@@ -64,7 +64,7 @@ export default function Index() {
     } catch (error) {
       console.error("Login failed:", error);
       setServerError(
-        error.response?.data?.message ||
+        error.response?.data?.message || error?.response?.data?.non_field_errors ||
           "Invalid credentials. Please try again."
       );
     } finally {

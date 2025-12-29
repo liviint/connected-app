@@ -1,0 +1,15 @@
+export const DEFAULT_MOODS = [
+    { id: 2, name: "Happy", description: "", icon: null },
+    { id: 3, name: "Calm", description: "", icon: null },
+    { id: 4, name: "Sad", description: "", icon: null },
+    { id: 5, name: "Angry", description: "", icon: null },
+    { id: 6, name: "Stressed", description: "", icon: null },
+    { id: 7, name: "Excited", description: "", icon: null },
+    { id: 8, name: "Tired", description: "", icon: null },
+    { id: 9, name: "Confused", description: "", icon: null },
+    { id: 10, name: "Grateful", description: "", icon: null },
+    { id: 11, name: "Lonely", description: "", icon: null },
+    { id: 12, name: "Anxious", description: "", icon: null },
+    { id: 13, name: "Motivated", description: "", icon: null },
+    { id: 14, name: "Reflective", description: "", icon: null },
+];
