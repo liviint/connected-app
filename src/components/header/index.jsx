@@ -18,13 +18,7 @@ export default function Header() {
 
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity 
-        onPress={() => router.push("/")} 
-        style={styles.logoContainer}
-      >
-        <Text style={styles.logoText}>ZeniaHub</Text>
-      </TouchableOpacity>
-
+      <Text style={styles.logoText}>ZeniaHub</Text>
     <TouchableOpacity 
       onPress={() => setMenuOpen(!menuOpen)} 
       style={styles.menuButton}

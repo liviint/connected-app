@@ -62,7 +62,7 @@ export default function Index() {
       router.push("/profile");
       setFormData({ email: "", password: "" });
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login failed:", error?.response);
       setServerError(
         error.response?.data?.message || error?.response?.data?.non_field_errors ||
           "Invalid credentials. Please try again."

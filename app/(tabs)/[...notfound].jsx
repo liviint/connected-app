@@ -1,23 +1,18 @@
-// app/[...notfound].tsx
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeStyles } from '../../src/hooks/useThemeStyles';
+import { BodyText } from '../../src/components/ThemeProvider/components';
 
 export default function NotFound() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
-  const { globalStyles, colors } = useThemeStyles();
+  const { globalStyles } = useThemeStyles();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>404</Text>
-      <Text style={[styles.message, { color: theme.text }]}>
+    <View style={{...globalStyles.container,...styles.container}}>
+      <BodyText style={styles.title}>404</BodyText>
+      <BodyText style={styles.message}>
         Oops! Page not found.
-      </Text>
+      </BodyText>
 
       <View style={styles.buttons}>
         <TouchableOpacity

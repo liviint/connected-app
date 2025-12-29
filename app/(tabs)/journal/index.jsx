@@ -9,7 +9,6 @@ import {
   RefreshControl,
 } from "react-native";
 import { Link, useFocusEffect, useRouter } from "expo-router";
-import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
 import { Audio } from "expo-av";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
@@ -44,16 +43,12 @@ export default function JournalListPage() {
 
   useFocusEffect(
     useCallback(() => {
-      if (isUserLoggedIn) {
         setLoading(true);
         fetchJournals();
-      }
-    }, [fetchJournals, isUserLoggedIn])
+    }, [])
   );
-
-  if (!isUserLoggedIn) return <ProtectedAccessPage />
   
-  if (loading && journals.length === 0) return <PageLoader />
+  if (loading) return <PageLoader />
 
   const handlePlayAudio = async (uri, id) => {
     try {
@@ -142,8 +137,8 @@ export default function JournalListPage() {
                     <BodyText style={styles.cardTitle}>
                       {item.title || "Untitled"}
                     </BodyText>
-                    {item.mood && (
-                      <BodyText style={styles.cardMoodText}>{item.mood.name}</BodyText>
+                    {item.mood_label && (
+                      <BodyText style={styles.cardMoodText}>{item.mood_label}</BodyText>
                     )}
                   </View>
 

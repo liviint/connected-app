@@ -13,7 +13,7 @@ import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
 import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
 import * as Sentry from "@sentry/react-native";
-import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
+import AccountInfoPage from "../../../src/components/common/AccountInfoPage";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../src/components/common/PageLoader";
@@ -71,7 +71,7 @@ const ProfileView = () => {
 
   if (loading) return <PageLoader />
 
-  if (!userData) return <ProtectedAccessPage />
+  if (!userData) return <AccountInfoPage />
 
   return (
     <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>

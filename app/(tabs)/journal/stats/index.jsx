@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Dimensions
 } from "react-native";
 import {
   BarChart,
@@ -12,11 +11,11 @@ import {
 } from "react-native-chart-kit";
 import { api } from "../../../../api";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
+import PageLoader from "../../../../src/components/common/PageLoader";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
-const screenWidth = Dimensions.get("window").width;
 export default function JournalStats() {
-   const { globalStyles, colors } = useThemeStyles();
+   const { globalStyles } = useThemeStyles();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -26,13 +25,7 @@ export default function JournalStats() {
       .catch((err) => console.log(err));
   }, []);
 
-  if (!stats) {
-    return (
-      <View style={styles.center}>
-        <Text>Loading stats...</Text>
-      </View>
-    );
-  }
+  if (!stats) return <PageLoader />
 
   /** MONTH DATA */
   const monthLabels = stats.entries_per_month.map((item) =>

@@ -3,7 +3,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { api } from "../../../api";
 import AllHabits from "../../../src/components/habits/AllHabits";
-import ProtectedAccessPage from "../../../src/components/common/ProtectedAccessPage";
+import AccountInfoPage from "../../../src/components/common/AccountInfoPage";
 import PageLoader from "../../../src/components/common/PageLoader";
 
 export default function HabitsPage() {
@@ -38,7 +38,7 @@ export default function HabitsPage() {
     }, [habits]);
 
 
-    if (!isUserLoggedIn) return <ProtectedAccessPage />
+    if (!isUserLoggedIn) return <AccountInfoPage />
     
     if (loading) return <PageLoader />
 
