@@ -15,7 +15,7 @@ export const initDatabase = async () => {
         PRAGMA journal_mode = WAL;
 
         CREATE TABLE IF NOT EXISTS journal_entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER,
         uuid TEXT UNIQUE,
         user_uuid TEXT,
         title TEXT,

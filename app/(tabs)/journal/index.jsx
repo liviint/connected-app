@@ -19,7 +19,6 @@ import { getJournals } from "../../../src/db/journalsDb";
 export default function JournalListPage() {
   const router = useRouter()
   const { globalStyles } = useThemeStyles();
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,7 +27,7 @@ export default function JournalListPage() {
   const [sound, setSound] = useState(null);
   const [playingId, setPlayingId] = useState(null);
 
-  const fetchJournals = useCallback(async () => {
+  const fetchJournals = async () => {
     setRefreshing(true);
     try {
       const res = await getJournals()
@@ -39,7 +38,7 @@ export default function JournalListPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }
 
   useFocusEffect(
     useCallback(() => {

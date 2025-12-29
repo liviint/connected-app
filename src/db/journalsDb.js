@@ -4,7 +4,7 @@ import {DEFAULT_MOODS} from "../../utils/defaultMoods"
 /**
  * Save a journal locally
  */
-export const upsertJournal = async (uuid, title, content, mood) => {
+export const upsertJournal = async ({id,uuid, title, content, mood_id,mood_label}) => {
   const db = await getDatabase();
   const now = new Date().toISOString();
 
@@ -12,23 +12,26 @@ export const upsertJournal = async (uuid, title, content, mood) => {
     await db.runAsync(
       `
       INSERT INTO journal_entries (
+        id,
         uuid,
         title,
         content,
+        mood_id,
         mood_label,
         created_at,
         updated_at,
         synced
       )
-      VALUES (?, ?, ?, ?, ?, ?, 0)
+      VALUES (?,?, ?, ?, ?, ?, ?,?, 0)
       ON CONFLICT(uuid) DO UPDATE SET
         title = excluded.title,
         content = excluded.content,
+        mood_id = excluded.mood_id,
         mood_label = excluded.mood_label,
         updated_at = excluded.updated_at,
         synced = 0
       `,
-      [uuid, title, content, mood, now, now]
+      [id,uuid, title, content, mood_id, mood_label, now, now]
     );
 
     console.log("✅ Journal upserted locally");

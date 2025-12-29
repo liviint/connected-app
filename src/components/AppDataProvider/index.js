@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { initDatabase } from '../../db/database';
+import { initDatabase, getDatabase } from '../../db/database';
 import { syncJournalsFromApi, markJournalSynced, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded  } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
@@ -49,7 +49,7 @@ export default function AppDataProvider({ children }) {
             // 4️⃣ Mark local journal as synced
             await markJournalSynced(form.uuid);
         } catch (err) {
-            console.error(err?.response,"hello err");
+            console.error(err?.response?.data,"hello err debug");
         } 
     };
 

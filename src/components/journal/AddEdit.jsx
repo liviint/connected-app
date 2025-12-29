@@ -25,7 +25,8 @@ export default function AddEdit({ id }) {
   const initialForm = {
     title: "", 
     content: "", 
-    mood_id: ""
+    mood_id: "",
+    mood_label:"",
   }
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -75,13 +76,14 @@ const handleSubmit = async () => {
   if (!validateForm()) return;
   setLoading(true);
   const journalUuid = form.uuid || uuid.v4();
+  const moodLabel = moods.filter(mood => mood.id == form.mood_id)[0]?.name
   try {
-    await upsertJournal(journalUuid, form.title, form.content, form.mood_label);
+    await upsertJournal({...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
     Alert.alert("Success", "Journal entry saved!");
     router.push("/journal");
     setForm(initialForm);
   } catch (err) {
-    console.error(err.response,"hello err");
+    console.error(err?.response?.data,"hello err");
     Alert.alert(
       "Saved locally",
       "Journal saved locally. It will sync when online."
