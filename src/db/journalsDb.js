@@ -7,7 +7,7 @@ import {DEFAULT_MOODS} from "../../utils/defaultMoods"
 export const upsertJournal = async ({id,uuid, title, content, mood_id,mood_label}) => {
   const db = await getDatabase();
   const now = new Date().toISOString();
-
+  console.log(id,"hello habit id")
   try {
     await db.runAsync(
       `
@@ -127,98 +127,58 @@ export const markJournalSynced = async (uuid) => {
 
 
 export const syncJournalsFromApi = async (journals) => {
-  const db = await getDatabase()
-  await db.execAsync('BEGIN TRANSACTION')
+  const db = await getDatabase();
 
-  try {
-    for (const journal of journals) {
-      const uuid = String(journal.uuid); 
-
-      if (!uuid) {
-        console.warn('⛔ Journal missing uuid, skipping:', journal);
-        continue;
-      }
-
-      // Check local state
-      const existing = await db.getFirstAsync(
-        `SELECT synced FROM journal_entries WHERE uuid = ?`,
-        [uuid]
-      );
-
-      // Protect local unsynced edits
-      if (existing && existing.synced === 0) {
-        continue;
-      }
-
-      // Insert if missing
-      await db.runAsync(
-        `
-        INSERT OR IGNORE INTO journal_entries (
-          uuid,
-          user_uuid,
-          title,
-          content,
-          audio_uri,
-          transcript,
-          mood_id,
-          mood_label,
-          created_at,
-          updated_at,
-          synced,
-          deleted
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
-        `,
-        [
-          uuid,
-          String(journal.user),
-          journal.title || '',
-          journal.content || '',
-          journal.audio_file || null,
-          journal.transcript || null,
-          journal.mood?.id || null,
-          journal.mood?.name || null,
-          journal.created_at,
-          journal.updated_at,
-        ]
-      );
-
-      // Update safely
-      await db.runAsync(
-        `
-        UPDATE journal_entries
-        SET
-          title = ?,
-          content = ?,
-          audio_uri = ?,
-          transcript = ?,
-          mood_id = ?,
-          mood_label = ?,
-          updated_at = ?,
-          synced = 1,
-          deleted = 0
-        WHERE uuid = ?
-          AND synced = 1
-        `,
-        [
-          journal.title || '',
-          journal.content || '',
-          journal.audio_file || null,
-          journal.transcript || null,
-          journal.mood?.id || null,
-          journal.mood?.name || null,
-          journal.updated_at,
-          uuid,
-        ]
-      );
+  for (const journal of journals) {
+    const uuid = String(journal.uuid);
+    if (!uuid) {
+      console.warn('⛔ Journal missing uuid, skipping:', journal);
+      continue;
     }
 
-    await db.execAsync('COMMIT');
-  } catch (e) {
-    await db.execAsync('ROLLBACK');
-    throw e;
+    const existing = await db.getFirstAsync(
+      `SELECT synced FROM journal_entries WHERE uuid = ?`,
+      [uuid]
+    );
+
+    // Protect local unsynced edits
+    if (existing && existing.synced === 0) continue;
+
+    // Insert or replace the journal
+    await db.runAsync(
+      `
+      INSERT OR REPLACE INTO journal_entries (
+        uuid,
+        user_uuid,
+        title,
+        content,
+        audio_uri,
+        transcript,
+        mood_id,
+        mood_label,
+        created_at,
+        updated_at,
+        synced,
+        deleted
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
+      `,
+      [
+        uuid,
+        String(journal.user),
+        journal.title || '',
+        journal.content || '',
+        journal.audio_file || null,
+        journal.transcript || null,
+        journal.mood?.id || null,
+        journal.mood?.name || null,
+        journal.created_at,
+        journal.updated_at,
+      ]
+    );
   }
 };
+
 
 export const seedMoodsIfNeeded = async () => {
   const db = await getDatabase();

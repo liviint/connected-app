@@ -83,11 +83,7 @@ const handleSubmit = async () => {
     router.push("/journal");
     setForm(initialForm);
   } catch (err) {
-    console.error(err?.response?.data,"hello err");
-    Alert.alert(
-      "Saved locally",
-      "Journal saved locally. It will sync when online."
-    );
+    console.error(err,"hello err");
   } finally {
     setLoading(false);
   }

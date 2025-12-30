@@ -60,7 +60,7 @@ useEffect(() => {
     <GestureHandlerRootView style={globalStyles.container}>
       <DraggableFlatList
         data={habits}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.uuid}
         renderItem={({ item, index, drag, isActive }) => (
           <HabitRow
             habit={item}

@@ -11,12 +11,17 @@ export const getDatabase = async () => {
 
 export const initDatabase = async () => {
     const db = await getDatabase()
+    
+    // await db.execAsync(`DROP TABLE IF EXISTS habits;`);
+    // await db.execAsync(`DROP TABLE IF EXISTS journal_entries;`);
+    // await db.execAsync(`DROP TABLE IF EXISTS moods;`);
+
     await db.execAsync(`
         PRAGMA journal_mode = WAL;
 
         CREATE TABLE IF NOT EXISTS journal_entries (
         id INTEGER,
-        uuid TEXT UNIQUE,
+        uuid TEXT UNIQUE PRIMARY KEY,
         user_uuid TEXT,
         title TEXT,
         content TEXT,
@@ -40,7 +45,7 @@ export const initDatabase = async () => {
 
         CREATE TABLE IF NOT EXISTS habits (
         id INTEGER,
-        uuid TEXT UNIQUE,
+        uuid TEXT UNIQUE PRIMARY KEY,
         user_uuid TEXT,
         title TEXT,
         description TEXT,
@@ -58,7 +63,7 @@ export const initDatabase = async () => {
         );
 
         CREATE TABLE IF NOT EXISTS habit_entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER AUTOINCREAMENT PRIMARY KEY,
         uuid TEXT UNIQUE,
         habit_uuid TEXT,
         user_uuid TEXT,

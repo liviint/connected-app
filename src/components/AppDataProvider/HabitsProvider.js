@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
-import { initDatabase } from '../../db/database';
+import { initDatabase, getDatabase } from '../../db/database';
 import {
     getUnsyncedHabits,
     markHabitSynced,
@@ -29,6 +29,7 @@ export default function HabitsProvider({ children }) {
   };
 
   const upsertHabitToApi = async (habit) => {
+    console.log(habit,"hello unsynced habit")
     try {
       const payload = {
         uuid: habit.uuid,
@@ -37,14 +38,15 @@ export default function HabitsProvider({ children }) {
         updated_at: habit.updated_at,
         deleted: habit.deleted,
       };
-
+      console.log(habit.id,"hello habit id syncing")
       const url = habit.id
         ? `/habits/${habit.id}/`
         : '/habits/';
 
       const method = habit.id ? 'PUT' : 'POST';
 
-      const res = await api({ url, method, data: payload });
+      const res = await api({ url, method, data: payload })
+      console.log(res.status,"hello res status")
       if (res.status === 200 || res.status === 201) {
         await markHabitSynced(habit.uuid);
         //await upsertHabit(habit.uuid, { id: res.data.id });
@@ -110,7 +112,7 @@ export default function HabitsProvider({ children }) {
     };
 
     init();
-
+    
     return () => unsubscribe && unsubscribe();
   }, [isUserLoggedIn]);
 
@@ -121,3 +123,23 @@ export default function HabitsProvider({ children }) {
 
   return children;
 }
+
+/* 
+const clearAllData = async () => {
+            const db = await getDatabase();
+
+            await db.execAsync(`
+                BEGIN TRANSACTION;
+
+                DELETE FROM journal_entries;
+                DELETE FROM habits;
+                DELETE FROM habit_entries;
+
+                COMMIT;
+            `);
+
+            console.log('✅ All local data cleared');
+            };
+
+        clearAllData()
+*/

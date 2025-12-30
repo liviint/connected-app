@@ -65,11 +65,18 @@ export default function AddEdit() {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+    try {
       setLoading(true);
       const habitUuid = form.uuid || uuid.v4();
-      await upsertHabit({...form,uuid:habitUuid})
+      await upsertHabit({...form,id:form.id || 0,uuid:habitUuid})
+      setForm(inititialForm)
       router.push("/habits");
+    } catch (error) {
+      console.log(error,"hello error")
+    }
+    finally{
       setLoading(false);
+    }
   }
 
   useEffect(() => {

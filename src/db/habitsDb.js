@@ -12,6 +12,16 @@ export const upsertHabit = async ({
   priority = 0,
   is_active = 1,
 }) => {
+  console.log(id,
+  uuid,
+  title,
+  description,
+  frequency,
+  reminder_time,
+  color,
+  icon,
+  priority = 0,
+  is_active = 1,"hello id upsert")
   const db = await getDatabase();
   const now = new Date().toISOString();
 
@@ -125,104 +135,60 @@ export const deleteHabit = async (uuid) => {
 
 export const syncHabitsFromApi = async (habits) => {
   const db = await getDatabase();
-  await db.execAsync('BEGIN TRANSACTION');
 
-  try {
-    for (const habit of habits) {
-      if (!habit.uuid) continue;
+  for (const habit of habits) {
+    if (!habit.uuid) continue;
 
-      const existing = await db.getFirstAsync(
-        `SELECT synced FROM habits WHERE uuid = ?`,
-        [habit.uuid]
-      );
+    const existing = await db.getFirstAsync(
+      `SELECT synced FROM habits WHERE uuid = ?`,
+      [habit.uuid]
+    );
 
-      // 🛑 Protect local unsynced edits
-      if (existing && existing.synced === 0) continue;
+    // Protect local unsynced edits
+    if (existing && existing.synced === 0) continue;
 
-      // Insert if missing
-      await db.runAsync(
-        `
-        INSERT OR IGNORE INTO habits (
-          id,
-          uuid,
-          user_uuid,
-          title,
-          description,
-          frequency,
-          reminder_time,
-          color,
-          icon,
-          next_due_date,
-          priority,
-          is_active,
-          created_at,
-          updated_at,
-          synced,
-          deleted
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
-        `,
-        [
-          habit.id,
-          habit.uuid,
-          habit.user,
-          habit.title,
-          habit.description,
-          habit.frequency,
-          habit.reminder_time,
-          habit.color,
-          habit.icon,
-          habit.next_due_date,
-          habit.priority,
-          habit.is_active,
-          habit.created_at,
-          habit.updated_at,
-        ]
-      );
-
-      // Update if already synced
-      await db.runAsync(
-        `
-        UPDATE habits SET
-          title = ?,
-          description = ?,
-          frequency = ?,
-          reminder_time = ?,
-          color = ?,
-          icon = ?,
-          next_due_date = ?,
-          priority = ?,
-          is_active = ?,
-          updated_at = ?,
-          synced = 1,
-          deleted = 0
-        WHERE uuid = ?
-          AND synced = 1
-        `,
-        [
-          habit.title,
-          habit.description,
-          habit.frequency,
-          habit.reminder_time,
-          habit.color,
-          habit.icon,
-          habit.next_due_date,
-          habit.priority,
-          habit.is_active,
-          habit.updated_at,
-          habit.uuid,
-        ]
-      );
-    }
-
-    await db.execAsync('COMMIT');
-  } catch (e) {
-    await db.execAsync('ROLLBACK');
-    throw e;
+    // Insert or replace the habit
+    await db.runAsync(
+      `
+      INSERT OR REPLACE INTO habits (
+        id,
+        uuid,
+        user_uuid,
+        title,
+        description,
+        frequency,
+        reminder_time,
+        color,
+        icon,
+        next_due_date,
+        priority,
+        is_active,
+        created_at,
+        updated_at,
+        synced,
+        deleted
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
+      `,
+      [
+        habit.id,
+        habit.uuid,
+        habit.user,
+        habit.title,
+        habit.description,
+        habit.frequency,
+        habit.reminder_time,
+        habit.color,
+        habit.icon,
+        habit.next_due_date,
+        habit.priority,
+        habit.is_active,
+        habit.created_at,
+        habit.updated_at,
+      ]
+    );
   }
 };
-
-
 
 export const upsertHabitEntry = async ({
   uuid,
