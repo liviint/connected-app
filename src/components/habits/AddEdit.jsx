@@ -7,12 +7,12 @@ import {
   StyleSheet,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { api } from "../../../api";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { FormLabel, Input, Card, BodyText } from "../ThemeProvider/components";
+import { upsertHabit, getHabits } from "../../db/habitsDb";
 
 export default function AddEdit() {
-  const { globalStyles, colors } = useThemeStyles();
+  const { globalStyles } = useThemeStyles();
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
@@ -65,43 +65,19 @@ export default function AddEdit() {
   const handleSubmit = async () => {
     if (!validate()) return;
       setLoading(true);
-
-      const url = id ? `habits/${id}/` : "habits/";
-      const method = id ? "PUT" : "POST";
-
-      await api({
-        url,
-        method,
-        data: form,
-      })
-      .then(() => {
-        router.push("/habits");
-        setForm(inititialForm)
-      })
-      .catch ((err) => {
-        console.error("Error:", err);
-      })
-      .finally(() => {
-        setLoading(false);
-      })
+      await upsertHabit(form)
+      router.push("/habits");
+      setLoading(false);
   }
 
   useEffect(() => {
     if (!id) return;
-
-    let isMounted = true;
-
     const fetchHabit = async () => {
-      try {
-        const res = await api.get(`habits/${id}/`);
-        if (isMounted) setForm(res.data);
-      } catch (err) {
-        console.log("Fetch error:", err);
-      }
+      let habit = await getHabits(id)
+      console.log(habit,id,"hello habit")
+      setForm(habit)
     };
-
     fetchHabit();
-    return () => (isMounted = false);
   }, [id]);
 
   return (

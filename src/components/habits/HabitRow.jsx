@@ -47,9 +47,9 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
         <View style={styles.actions}>
           <TouchableOpacity
             style={styles.editBtn}
-            onPress={() => router.push(`/habits/${habit.id}/edit`)}
+            onPress={() => router.push(`/habits/${habit.uuid}/edit`)}
           >
-            <Text style={styles.editText}>Edit</Text>
+            <BodyText style={styles.editText}>Edit</BodyText>
           </TouchableOpacity>
 
           <DeleteButton 
@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
   },
   editText: {
     fontSize: 12,
-    color: "#444",
   },
   deleteBtn: {
     paddingVertical: 6,

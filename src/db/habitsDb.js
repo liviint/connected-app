@@ -64,17 +64,33 @@ export const upsertHabit = async ({
 };
 
 
-export const getHabits = async () => {
+export const getHabits = async (uuid = null) => {
   const db = await getDatabase();
+
+  if (uuid) {
+    return db.getFirstAsync(
+      `
+      SELECT *
+      FROM habits
+      WHERE uuid = ?
+        AND deleted = 0
+        AND is_active = 1
+      `,
+      [uuid]
+    );
+  }
 
   return db.getAllAsync(
     `
-    SELECT * FROM habits
-    WHERE deleted = 0 AND is_active = 1
+    SELECT *
+    FROM habits
+    WHERE deleted = 0
+      AND is_active = 1
     ORDER BY priority DESC, created_at DESC
     `
   );
 };
+
 
 export const getUnsyncedHabits = async () => {
   const db = await getDatabase();

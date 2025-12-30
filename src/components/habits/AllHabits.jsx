@@ -6,29 +6,24 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { router } from "expo-router";
-import { api } from "../../../api";
 import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
 import { BodyText } from "../ThemeProvider/components";
+import { getHabits } from "../../db/habitsDb";
 
-export default function HabitsScreen() {
+export default function HabitsScreen({initialHabits}) {
   const { globalStyles } = useThemeStyles();
-    const isFocused = useIsFocused()
-  const [habits, setHabits] = useState([]);
+  const isFocused = useIsFocused()
+  const [habits, setHabits] = useState(initialHabits);
   const [loading, setLoading] = useState(true);
   const [refreshData, setRefreshData] = useState(0);
 
-  const fetchHabits = (reload) => {
-    reload && setLoading(true)
-    api.get("/habits/")
-        .then((res) => {
-            setHabits(res.data.results);
-        })
-        .catch(console.error)
-        .finally(() => {
-            setLoading(false);
-        });
+  let fetchHabits = async() => {
+      if(!isFocused) return
+      let habits = await getHabits()
+      setHabits(habits)
+      setLoading(false)
   }
 
   useEffect(() => {
@@ -40,18 +35,8 @@ useEffect(() => {
     fetchHabits()
 }, [refreshData]);
 
-  const saveOrder = async (newData) => {
-    try {
-      const order = newData.map((h) => h.id);
-      await api.post("/habits/reorder/", { order });
-    } catch (error) {
-      console.log("Order save failed:", error);
-    }
-  };
-
   const onDragEnd = ({ data }) => {
     setHabits(data);
-    saveOrder(data);
   };
 
   if (loading) return <PageLoader />
