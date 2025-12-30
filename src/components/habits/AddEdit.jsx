@@ -10,6 +10,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { FormLabel, Input, Card, BodyText } from "../ThemeProvider/components";
 import { upsertHabit, getHabits } from "../../db/habitsDb";
+import uuid from 'react-native-uuid';
 
 export default function AddEdit() {
   const { globalStyles } = useThemeStyles();
@@ -65,7 +66,8 @@ export default function AddEdit() {
   const handleSubmit = async () => {
     if (!validate()) return;
       setLoading(true);
-      await upsertHabit(form)
+      const habitUuid = form.uuid || uuid.v4();
+      await upsertHabit({...form,uuid:habitUuid})
       router.push("/habits");
       setLoading(false);
   }
