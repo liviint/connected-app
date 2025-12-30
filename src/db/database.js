@@ -39,7 +39,7 @@ export const initDatabase = async () => {
         );
 
         CREATE TABLE IF NOT EXISTS habits (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER,
         uuid TEXT UNIQUE,
         user_uuid TEXT,
         title TEXT,
