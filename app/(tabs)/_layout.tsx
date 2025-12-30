@@ -28,19 +28,6 @@ export default function TabLayout() {
           },
         }}
       >
-      <Tabs.Screen
-        name="welcome/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="house.fill" color={color} />,
-        }}
-      />
 
       <Tabs.Screen
         name="journal"
@@ -61,8 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={24} name="person.crop.circle.fill" color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
