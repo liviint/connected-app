@@ -1,13 +1,13 @@
-import { getDatabase } from './database';
-import {DEFAULT_MOODS} from "../../utils/defaultMoods"
+// journalsDb.js
+import { DEFAULT_MOODS } from "../../utils/defaultMoods";
 
 /**
  * Save a journal locally
  */
-export const upsertJournal = async ({id,uuid, title, content, mood_id,mood_label}) => {
-  const db = await getDatabase();
+export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label }) => {
   const now = new Date().toISOString();
-  console.log(id,"hello habit id")
+  console.log(id, "hello journal id");
+
   try {
     await db.runAsync(
       `
@@ -22,7 +22,7 @@ export const upsertJournal = async ({id,uuid, title, content, mood_id,mood_label
         updated_at,
         synced
       )
-      VALUES (?,?, ?, ?, ?, ?, ?,?, 0)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
       ON CONFLICT(uuid) DO UPDATE SET
         title = excluded.title,
         content = excluded.content,
@@ -31,19 +31,16 @@ export const upsertJournal = async ({id,uuid, title, content, mood_id,mood_label
         updated_at = excluded.updated_at,
         synced = 0
       `,
-      [id,uuid, title, content, mood_id, mood_label, now, now]
+      [id, uuid, title, content, mood_id, mood_label, now, now]
     );
-
     console.log("✅ Journal upserted locally");
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);
   }
 };
 
-export const deleteJournal = async (uuid) => {
-  const db = await getDatabase();
+export const deleteJournal = async (db, uuid) => {
   const now = new Date().toISOString();
-
   try {
     await db.runAsync(
       `
@@ -55,24 +52,18 @@ export const deleteJournal = async (uuid) => {
       `,
       [now, uuid]
     );
-
     console.log("🗑️ Journal marked as deleted locally");
   } catch (error) {
     console.error("❌ Failed to delete journal locally:", error);
   }
 };
 
-
-
 /**
  * Fetch all journals (local)
  */
-export const getJournals = async (uuid = null) => {
-  const db = await getDatabase();
-
+export const getJournals = async (db, uuid = null) => {
   try {
     if (uuid) {
-      // 🔹 Fetch single journal by UUID
       const journal = await db.getFirstAsync(
         `
         SELECT * FROM journal_entries
@@ -84,7 +75,6 @@ export const getJournals = async (uuid = null) => {
       return journal;
     }
 
-    // 🔹 Fetch all journals
     const rows = await db.getAllAsync(
       `
       SELECT * FROM journal_entries
@@ -92,7 +82,6 @@ export const getJournals = async (uuid = null) => {
       ORDER BY created_at DESC
       `
     );
-
     return rows;
   } catch (error) {
     console.error("❌ Failed to fetch journals:", error);
@@ -100,35 +89,23 @@ export const getJournals = async (uuid = null) => {
   }
 };
 
-export const getUnsyncedJournals = async () => {
-  const db = await getDatabase();
-  return db.getAllAsync(
-    `SELECT * FROM journal_entries WHERE synced = 0`
-  );
+export const getUnsyncedJournals = async (db) => {
+  return db.getAllAsync(`SELECT * FROM journal_entries WHERE synced = 0`);
 };
 
 /**
  * Mark journal as synced after API success
  */
-export const markJournalSynced = async (uuid) => {
-  const db = await getDatabase();
+export const markJournalSynced = async (db, uuid) => {
   try {
-    await db.runAsync(
-      `UPDATE journal_entries 
-       SET synced = 1 
-       WHERE uuid = ?`,
-      [uuid]
-    );
+    await db.runAsync(`UPDATE journal_entries SET synced = 1 WHERE uuid = ?`, [uuid]);
     console.log('✅ Journal marked as synced');
   } catch (error) {
-    console.error('❌ Failed to mark synced:', error);
+    console.error('❌ Failed to mark journal as synced:', error);
   }
 };
 
-
-export const syncJournalsFromApi = async (journals) => {
-  const db = await getDatabase();
-
+export const syncJournalsFromApi = async (db, journals) => {
   for (const journal of journals) {
     const uuid = String(journal.uuid);
     if (!uuid) {
@@ -141,10 +118,8 @@ export const syncJournalsFromApi = async (journals) => {
       [uuid]
     );
 
-    // Protect local unsynced edits
-    if (existing && existing.synced === 0) continue;
+    if (existing && existing.synced === 0) continue; // Preserve unsynced local edits
 
-    // Insert or replace the journal
     await db.runAsync(
       `
       INSERT OR REPLACE INTO journal_entries (
@@ -179,18 +154,11 @@ export const syncJournalsFromApi = async (journals) => {
   }
 };
 
-
-export const seedMoodsIfNeeded = async () => {
-  const db = await getDatabase();
-
-  const existing = await db.getFirstAsync(
-    `SELECT COUNT(*) as count FROM moods`
-  );
-
-  if (existing.count > 0) return; 
+export const seedMoodsIfNeeded = async (db) => {
+  const existing = await db.getFirstAsync(`SELECT COUNT(*) as count FROM moods`);
+  if (existing.count > 0) return;
 
   console.log("🌱 Seeding default moods");
-
   const now = new Date().toISOString();
 
   for (const m of DEFAULT_MOODS) {
@@ -202,11 +170,8 @@ export const seedMoodsIfNeeded = async () => {
   }
 };
 
-
-export const saveMoods = async (moods) => {
-  const db = await getDatabase();
+export const saveMoods = async (db, moods) => {
   const now = new Date().toISOString();
-
   const query = `
     INSERT INTO moods (id, name, description, icon, updated_at)
     VALUES (?, ?, ?, ?, ?)
@@ -218,26 +183,12 @@ export const saveMoods = async (moods) => {
   `;
 
   for (const m of moods) {
-    await db.runAsync(query, [
-      m.id,
-      m.name,
-      m.description ?? "",
-      m.icon ?? null,
-      now,
-    ]);
+    await db.runAsync(query, [m.id, m.name, m.description ?? "", m.icon ?? null, now]);
   }
 
   console.log("💾 Moods cached locally");
 };
 
-export const getLocalMoods = async () => {
-  const db = await getDatabase();
-  return await db.getAllAsync(`
-    SELECT * FROM moods ORDER BY name ASC
-  `);
+export const getLocalMoods = async (db) => {
+  return db.getAllAsync(`SELECT * FROM moods ORDER BY name ASC`);
 };
-
-
-
-
-

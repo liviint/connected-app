@@ -1,6 +1,7 @@
-import {getDatabase } from './database';
+// habitsDb.js
+// All DB functions now require a `db` parameter from useSQLiteContext()
 
-export const upsertHabit = async ({
+export const upsertHabit = async (db, {
   id,
   uuid,
   title,
@@ -12,17 +13,8 @@ export const upsertHabit = async ({
   priority = 0,
   is_active = 1,
 }) => {
-  console.log(id,
-  uuid,
-  title,
-  description,
-  frequency,
-  reminder_time,
-  color,
-  icon,
-  priority = 0,
-  is_active = 1,"hello id upsert")
-  const db = await getDatabase();
+  console.log(id, uuid, title, description, frequency, reminder_time, color, icon, priority, is_active, "hello id upsert");
+
   const now = new Date().toISOString();
 
   await db.runAsync(
@@ -56,27 +48,11 @@ export const upsertHabit = async ({
       updated_at = excluded.updated_at,
       synced = 0
     `,
-    [
-      id,
-      uuid,
-      title,
-      description,
-      frequency,
-      reminder_time,
-      color,
-      icon,
-      priority,
-      is_active,
-      now,
-      now,
-    ]
+    [id, uuid, title, description, frequency, reminder_time, color, icon, priority, is_active, now, now]
   );
 };
 
-
-export const getHabits = async (uuid = null) => {
-  const db = await getDatabase();
-
+export const getHabits = async (db, uuid = null) => {
   if (uuid) {
     return db.getFirstAsync(
       `
@@ -101,26 +77,16 @@ export const getHabits = async (uuid = null) => {
   );
 };
 
-
-export const getUnsyncedHabits = async () => {
-  const db = await getDatabase();
-  return db.getAllAsync(
-    `SELECT * FROM habits WHERE synced = 0`
-  );
+export const getUnsyncedHabits = async (db) => {
+  return db.getAllAsync(`SELECT * FROM habits WHERE synced = 0`);
 };
 
-export const markHabitSynced = async (uuid) => {
-  const db = await getDatabase();
-  await db.runAsync(
-    `UPDATE habits SET synced = 1 WHERE uuid = ?`,
-    [uuid]
-  );
+export const markHabitSynced = async (db, uuid) => {
+  await db.runAsync(`UPDATE habits SET synced = 1 WHERE uuid = ?`, [uuid]);
 };
 
-export const deleteHabit = async (uuid) => {
-  const db = await getDatabase();
+export const deleteHabit = async (db, uuid) => {
   const now = new Date().toISOString();
-
   await db.runAsync(
     `
     UPDATE habits
@@ -133,9 +99,7 @@ export const deleteHabit = async (uuid) => {
   );
 };
 
-export const syncHabitsFromApi = async (habits) => {
-  const db = await getDatabase();
-
+export const syncHabitsFromApi = async (db, habits) => {
   for (const habit of habits) {
     if (!habit.uuid) continue;
 
@@ -144,10 +108,8 @@ export const syncHabitsFromApi = async (habits) => {
       [habit.uuid]
     );
 
-    // Protect local unsynced edits
-    if (existing && existing.synced === 0) continue;
+    if (existing && existing.synced === 0) continue; // Preserve unsynced local edits
 
-    // Insert or replace the habit
     await db.runAsync(
       `
       INSERT OR REPLACE INTO habits (
@@ -190,16 +152,7 @@ export const syncHabitsFromApi = async (habits) => {
   }
 };
 
-export const upsertHabitEntry = async ({
-  uuid,
-  habit_uuid,
-  date,
-  completed,
-  note = '',
-}) => {
-  const db = await getDatabase();
-  const now = new Date().toISOString();
-
+export const upsertHabitEntry = async (db, { uuid, habit_uuid, date, completed, note = '' }) => {
   await db.runAsync(
     `
     INSERT INTO habit_entries (
@@ -221,14 +174,11 @@ export const upsertHabitEntry = async ({
   );
 };
 
-
-
-export const getHabitEntries = async (habitUuid) => {
-  const db = await getDatabase();
-
+export const getHabitEntries = async (db, habitUuid) => {
   return db.getAllAsync(
     `
-    SELECT * FROM habit_entries
+    SELECT *
+    FROM habit_entries
     WHERE habit_uuid = ? AND deleted = 0
     ORDER BY date DESC
     `,
@@ -236,16 +186,6 @@ export const getHabitEntries = async (habitUuid) => {
   );
 };
 
-
-export const markHabitEntrySynced = async (uuid) => {
-  const db = await getDatabase();
-  await db.runAsync(
-    `UPDATE habit_entries SET synced = 1 WHERE uuid = ?`,
-    [uuid]
-  );
+export const markHabitEntrySynced = async (db, uuid) => {
+  await db.runAsync(`UPDATE habit_entries SET synced = 1 WHERE uuid = ?`, [uuid]);
 };
-
-
-
-
-

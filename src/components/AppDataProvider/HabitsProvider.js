@@ -2,14 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
-import { initDatabase } from '../../db/database';
+import { useSQLiteContext } from 'expo-sqlite';
 import {
     getUnsyncedHabits,
     markHabitSynced,
     syncHabitsFromApi,
 } from '../../db/habitsDb';
 
-// Helper to ensure database-safe values (Prevents NullPointerException)
+// Helper to ensure database-safe values (prevents NullPointerException)
 const sanitizeHabit = (habit) => ({
     id: habit.id ?? 0,
     uuid: habit.uuid || "",
@@ -26,6 +26,7 @@ const sanitizeHabit = (habit) => ({
 });
 
 export default function HabitsProvider({ children }) {
+    const db = useSQLiteContext(); // ✅ Use singleton DB from SQLiteProvider
     const initialized = useRef(false);
     const syncing = useRef(false);
 
@@ -44,7 +45,6 @@ export default function HabitsProvider({ children }) {
 
     const upsertHabitToApi = async (habit) => {
         try {
-            // Only send what the API expects
             const payload = {
                 uuid: habit.uuid,
                 title: habit.title,
@@ -59,8 +59,7 @@ export default function HabitsProvider({ children }) {
             const res = await api({ url, method, data: payload });
 
             if (res.status === 200 || res.status === 201) {
-                await markHabitSynced(habit.uuid);
-                // If the API returns a new ID, you might want to update local DB here
+                await markHabitSynced(db, habit.uuid); // Pass DB reference
             }
         } catch (e) {
             console.error('Habit sync error:', e?.response?.data || e.message);
@@ -72,26 +71,19 @@ export default function HabitsProvider({ children }) {
         syncing.current = true;
 
         try {
-            await initDatabase();
-
-            if (!isUserLoggedIn) {
-                syncing.current = false;
-                return;
-            }
+            if (!isUserLoggedIn) return;
 
             console.log('📤 Syncing local habits to server...');
-            const unsynced = await getUnsyncedHabits();
+            const unsynced = await getUnsyncedHabits(db); // Pass DB
             for (const habit of unsynced) {
                 await upsertHabitToApi(habit);
             }
 
             console.log('📥 Syncing habits from server to local...');
             const remote = await fetchHabits();
-            
             if (remote && Array.isArray(remote)) {
-                // Sanitize all incoming habits before saving to DB
                 const sanitizedRemote = remote.map(sanitizeHabit);
-                await syncHabitsFromApi(sanitizedRemote);
+                await syncHabitsFromApi(db, sanitizedRemote); // Pass DB
             }
 
             console.log('✅ Habits sync complete');
@@ -103,7 +95,6 @@ export default function HabitsProvider({ children }) {
     };
 
     useEffect(() => {
-        // Prevent double-initialization on mount
         if (initialized.current) return;
         initialized.current = true;
 
@@ -127,9 +118,9 @@ export default function HabitsProvider({ children }) {
 
         return () => {
             if (unsubscribe) unsubscribe();
-            initialized.current = false; // Reset on unmount
+            initialized.current = false;
         };
-    }, [isUserLoggedIn]); // Re-run bootstrap if user login status changes
+    }, [isUserLoggedIn, db]);
 
     return children;
 }

@@ -1,24 +1,26 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { initDatabase, getDatabase } from '../../db/database';
-import { syncJournalsFromApi, markJournalSynced, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded  } from '../../db/journalsDb';
+import { useSQLiteContext } from 'expo-sqlite';
+import { syncJournalsFromApi, markJournalSynced, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
 
 export default function JournalsProvider({ children }) {
+    const db = useSQLiteContext(); // ✅ Use SQLiteProvider's singleton DB
     const initialized = useRef(false);
     const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
-    const fetchJournals =  async () => {
-        let journals = []
+
+    const fetchJournals = async () => {
+        let journals = [];
         try {
             const res = await api.get(`/journal/`);
-            journals = res.data.results
+            journals = res.data.results;
         } catch (err) {
             console.error("Journal fetch error:", err);
-        } finally{
-            return journals
-        }   
-    }
+        } finally {
+            return journals;
+        }
+    };
 
     const upsertJournalsToApi = async (form) => {
         try {
@@ -35,7 +37,6 @@ export default function JournalsProvider({ children }) {
                 formData.append("audio_file", { uri: form.audioUri, name, type: "audio/mpeg" });
             }
 
-            // 3️⃣ Send to API
             const url = form.id ? `/journal/${form.id}/` : "/journal/";
             const method = form.id ? "PUT" : "POST";
 
@@ -46,29 +47,27 @@ export default function JournalsProvider({ children }) {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            // 4️⃣ Mark local journal as synced
-            await markJournalSynced(form.uuid);
+            await markJournalSynced(db, form.uuid); // Pass db to local DB functions
         } catch (err) {
-            console.error(err?.response?.data,"hello err debug");
-        } 
+            console.error(err?.response?.data, "hello err debug");
+        }
     };
 
     const syncJournalsToApi = async (journals) => {
         for (const journal of journals) {
-            await upsertJournalsToApi(journal); 
+            await upsertJournalsToApi(journal);
         }
     };
 
     const syncMoods = async () => {
         try {
             const res = await api.get("journal/categories/");
-            await saveMoods(res.data);
+            await saveMoods(db, res.data); // Pass db
             console.log("🔄 Moods synced");
         } catch {
             console.log("📴 Offline — using cached moods");
         }
     };
-
 
     useEffect(() => {
         if (initialized.current) return;
@@ -82,50 +81,44 @@ export default function JournalsProvider({ children }) {
             syncing.current = true;
 
             try {
-            console.log("📦 Initializing local database...");
-            await initDatabase();
+                console.log("📦 Initializing local database...");
+                await seedMoodsIfNeeded(db); // Pass db
 
-            // 🌱 Always available offline
-            await seedMoodsIfNeeded();
+                await syncMoods();
 
-            // 🌐 Try syncing moods if online
-            await syncMoods();
+                if (!isUserLoggedIn) return;
 
-            if (!isUserLoggedIn) return;
+                console.log("📤 Syncing local journals to server...");
+                const unsynced = await getUnsyncedJournals(db); // Pass db
+                if (unsynced.length > 0) {
+                    await syncJournalsToApi(unsynced);
+                }
 
-            console.log("📤 Syncing local journals to server...");
-            const unsynced = await getUnsyncedJournals();
-            if (unsynced.length > 0) {
-                await syncJournalsToApi(unsynced);
-            }
+                console.log("📥 Syncing journals from server...");
+                const remote = await fetchJournals();
+                await syncJournalsFromApi(db, remote); // Pass db
 
-            console.log("📥 Syncing journals from server...");
-            const remote = await fetchJournals();
-            await syncJournalsFromApi(remote);
-
-            console.log("✅ Sync complete");
+                console.log("✅ Sync complete");
             } catch (e) {
-            console.error("❌ AppDataProvider error:", e);
+                console.error("❌ JournalsProvider error:", e);
             } finally {
-            syncing.current = false;
+                syncing.current = false;
             }
         };
 
         const init = async () => {
-            // 🚀 Initial attempt
             const state = await NetInfo.fetch();
             if (state.isConnected) {
-            await bootstrap();
+                await bootstrap();
             } else {
-            console.log("📴 Offline — waiting for connection");
+                console.log("📴 Offline — waiting for connection");
             }
 
-            // 🔁 Re-sync on reconnect
             unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-            if (state.isConnected) {
-                console.log("🌐 Back online — triggering sync");
-                bootstrap();
-            }
+                if (state.isConnected) {
+                    console.log("🌐 Back online — triggering sync");
+                    bootstrap();
+                }
             });
         };
 
@@ -134,30 +127,7 @@ export default function JournalsProvider({ children }) {
         return () => {
             if (unsubscribeNetInfo) unsubscribeNetInfo();
         };
-    }, [isUserLoggedIn]);
-
-
-
+    }, [isUserLoggedIn, db]);
 
     return children;
 }
-
-/* 
-const clearAllData = async () => {
-            const db = await getDatabase();
-
-            await db.execAsync(`
-                BEGIN TRANSACTION;
-
-                DELETE FROM journal_entries;
-                DELETE FROM habits;
-                DELETE FROM habit_entries;
-
-                COMMIT;
-            `);
-
-            console.log('✅ All local data cleared');
-            };
-
-        clearAllData()
-*/

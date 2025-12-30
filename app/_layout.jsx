@@ -10,6 +10,7 @@ import * as Sentry from '@sentry/react-native';
 import ThemeProvider from "../src/components/ThemeProvider"
 import AppDataProvider from "../src/components/AppDataProvider/index"
 
+
 Sentry.init({
   dsn: 'https://48bbd82038bb8c934670f33b8148b11f@o4510547845382144.ingest.us.sentry.io/4510547919765504',
 

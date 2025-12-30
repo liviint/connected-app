@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
+
 let db
 
 export const getDatabase = async () => {
