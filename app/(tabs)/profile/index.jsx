@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Switch
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
@@ -17,13 +16,11 @@ import AccountInfoPage from "../../../src/components/common/AccountInfoPage";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../src/components/common/PageLoader";
-import {toggleTheme} from "../../../store/features/settingsSlice"
 
 
 const ProfileView = () => {
   const {globalStyles} = useThemeStyles()
   const router = useRouter();
-  const theme = useSelector((state) => state.settings.theme);
   const {refresh} = useLocalSearchParams()
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.userDetails);
@@ -99,21 +96,6 @@ const ProfileView = () => {
           >
             <Text style={styles.btnText}>Update Profile</Text>
           </TouchableOpacity>
-
-          <View style={styles.settingsSection}>
-            <BodyText style={styles.sectionTitle}>Preferences</BodyText>
-
-            <View style={styles.settingRow}>
-              <BodyText style={styles.settingLabel}>
-                Dark mode
-              </BodyText>
-
-              <Switch
-                value={theme === "dark"}
-                onValueChange={() => dispatch(toggleTheme())}
-              />
-            </View>
-          </View>
 
           <TouchableOpacity
             style={[styles.button, styles.logoutButton]}
