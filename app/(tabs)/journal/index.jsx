@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
 import {
   View,
   Text,
@@ -15,8 +14,10 @@ import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../src/components/journal/HtmlPreview";
 import PageLoader from "../../../src/components/common/PageLoader";
 import { getJournals } from "../../../src/db/journalsDb";
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function JournalListPage() {
+  const db = useSQLiteContext(); 
   const router = useRouter()
   const { globalStyles } = useThemeStyles();
   const [journals, setJournals] = useState([]);
@@ -30,7 +31,7 @@ export default function JournalListPage() {
   const fetchJournals = async () => {
     setRefreshing(true);
     try {
-      const res = await getJournals()
+      const res = await getJournals(db)
       setJournals(res);
     } catch (err) {
       console.error("Journal fetch error:", err);
@@ -124,9 +125,10 @@ export default function JournalListPage() {
         {/* Journal List */}
         <View style={styles.journalList}>
           {journals.length === 0 ? (
-            <Text style={styles.emptyText}>
-              No journal entries found. Tap &apos;+ New Entry&apos; to begin!
-            </Text>
+            <BodyText style={styles.emptyText}>
+              No journal entries yet.  
+              Tap “+ New Entry” to write your first thought.
+            </BodyText>
           ) : (
             journals.map((item) => (
               <Link key={item.uuid} href={`/journal/${item.uuid}`} >
@@ -204,7 +206,11 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 20, fontWeight: "600", flex: 1, marginRight: 8 },
   cardMoodText: { fontSize: 12, color: "#6b7280", paddingHorizontal: 6, paddingVertical: 2, backgroundColor: "#F4E1D2", borderRadius: 6, overflow: "hidden" },
   transcriptText: { marginTop: 8, color: "#6b7280", fontSize: 12 },
-  emptyText: { textAlign: "center", marginTop: 40, fontSize: 16, color: "#6b7280" },
+  emptyText: { 
+    textAlign: "center", 
+    marginTop: 40, 
+    fontSize: 16, 
+  },
   audioButton: { backgroundColor: "#eee", padding: 8, borderRadius: 8, alignItems: "center" },
   audioButtonText: { fontSize: 14, fontWeight: "600" },
 });

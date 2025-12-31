@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';

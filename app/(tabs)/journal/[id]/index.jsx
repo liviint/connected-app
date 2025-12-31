@@ -10,7 +10,6 @@ import {
 import * as ClipBoard from "expo-clipboard"
 import {useRouter, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
-import { api } from "../../../../api";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
 import { htmlToPlainText } from "../../../../src/helpers";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
@@ -18,10 +17,12 @@ import HtmlPreview from "../../../../src/components/journal/HtmlPreview";
 import { Card , BodyText} from "../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../src/components/common/PageLoader";
 import { getJournals, deleteJournal } from "../../../../src/db/journalsDb";
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function ViewJournalPage() {
+  const db = useSQLiteContext(); 
   const {globalStyles} = useThemeStyles()
-    const router = useRouter()
+  const router = useRouter()
   const { id } = useLocalSearchParams();
 
   const [entry, setEntry] = useState({});
@@ -34,7 +35,7 @@ export default function ViewJournalPage() {
   useEffect(() => {
     const fetchJournal = async () => {
       try {
-        const res = await getJournals(id)
+        const res = await getJournals(db,id)
         setEntry(res);
       } catch (err) {
         console.error(err);
@@ -56,7 +57,7 @@ export default function ViewJournalPage() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            deleteJournal(id)
+            deleteJournal(db,id)
             router.push("/journal");
           },
         },

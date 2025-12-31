@@ -15,8 +15,10 @@ import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { Input, FormLabel, CustomPicker } from "../ThemeProvider/components";
 import { upsertJournal, getJournals, getLocalMoods } from "../../db/journalsDb";
 import uuid from 'react-native-uuid';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function AddEdit({ id }) {
+  const db = useSQLiteContext(); 
   const { globalStyles, colors } = useThemeStyles();
   const router = useRouter();
   const richText = useRef();
@@ -38,7 +40,7 @@ export default function AddEdit({ id }) {
   // Fetch moods
   useEffect(() => {
     let getMoods = async () => {
-      let moods = await getLocalMoods()
+      let moods = await getLocalMoods(db)
       setMoods(moods)
     }
     getMoods()
@@ -48,7 +50,7 @@ export default function AddEdit({ id }) {
   useEffect(() => {
     if (!id) return;
     let fetchJournal = async () => {
-      let entry = await getJournals(id)
+      let entry = await getJournals(db,id)
       setForm({ ...entry,mood_id:String(entry.mood_id)});
       if (entry?.audio_uri) setAudioUri(entry.audio_uri); 
       if (richText.current) {
@@ -78,7 +80,7 @@ const handleSubmit = async () => {
   const journalUuid = form.uuid || uuid.v4();
   const moodLabel = moods.filter(mood => mood.id == form.mood_id)[0]?.name
   try {
-    await upsertJournal({...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
+    await upsertJournal(db,{...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
     Alert.alert("Success", "Journal entry saved!");
     router.push("/journal");
     setForm(initialForm);

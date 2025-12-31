@@ -11,8 +11,10 @@ import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { FormLabel, Input, Card, BodyText } from "../ThemeProvider/components";
 import { upsertHabit, getHabits } from "../../db/habitsDb";
 import uuid from 'react-native-uuid';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function AddEdit() {
+  const db = useSQLiteContext(); 
   const { globalStyles } = useThemeStyles();
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -68,7 +70,7 @@ export default function AddEdit() {
     try {
       setLoading(true);
       const habitUuid = form.uuid || uuid.v4();
-      await upsertHabit({...form,id:form.id || 0,uuid:habitUuid})
+      await upsertHabit(db,{...form,id:form.id || 0,uuid:habitUuid})
       setForm(inititialForm)
       router.push("/habits");
     } catch (error) {
@@ -82,7 +84,7 @@ export default function AddEdit() {
   useEffect(() => {
     if (!id) return;
     const fetchHabit = async () => {
-      let habit = await getHabits(id)
+      let habit = await getHabits(db,id)
       console.log(habit,id,"hello habit")
       setForm(habit)
     };

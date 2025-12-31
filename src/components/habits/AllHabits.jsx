@@ -11,8 +11,10 @@ import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
 import { BodyText } from "../ThemeProvider/components";
 import { getHabits } from "../../db/habitsDb";
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function HabitsScreen({initialHabits}) {
+  const db = useSQLiteContext(); 
   const { globalStyles } = useThemeStyles();
   const isFocused = useIsFocused()
   const [habits, setHabits] = useState(initialHabits);
@@ -21,7 +23,7 @@ export default function HabitsScreen({initialHabits}) {
 
   let fetchHabits = async() => {
       if(!isFocused) return
-      let habits = await getHabits()
+      let habits = await getHabits(db)
       setHabits(habits)
       setLoading(false)
   }
@@ -44,14 +46,15 @@ useEffect(() => {
   if (habits.length === 0) {
     return (
       <View style={globalStyles.container}>
-        <BodyText style={styles.emptyMessage}>No habits yet. Create your first one!</BodyText>
-
+        <Text style={globalStyles.title}>Your Habits</Text>
         <TouchableOpacity
           style={globalStyles.primaryBtn}
           onPress={() => router.push("/habits/add")}
         >
           <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
         </TouchableOpacity>
+        <BodyText style={styles.emptyMessage}>You haven’t added any habits yet.  
+  Start with one small habit to build consistency.</BodyText>
       </View>
     );
   }
@@ -110,6 +113,7 @@ const styles = StyleSheet.create({
   emptyMessage: {
     textAlign: "center",
     marginBottom: 16,
+    marginTop: 40, 
   },
   center: {
     flex: 1,

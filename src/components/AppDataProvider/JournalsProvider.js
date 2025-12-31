@@ -8,7 +8,8 @@ import { api } from '../../../api';
 export default function JournalsProvider({ children }) {
     const db = useSQLiteContext(); // ✅ Use SQLiteProvider's singleton DB
     const initialized = useRef(false);
-    const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+    const userDetails = useSelector((state) => state?.user?.userDetails);
+    const isUserLoggedIn = !!userDetails;
 
     const fetchJournals = async () => {
         let journals = [];

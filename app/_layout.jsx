@@ -53,26 +53,27 @@ export default Sentry.wrap(function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ReduxProvider>
         <ThemeProvider >
-          <AppDataProvider />
-          <Stack>
-            {/* Main Tabs */}
-            <Stack.Screen
-              name="(tabs)"
-              options={{
-                header: () => <Header />,
-              }}
-            />
+          <AppDataProvider>
+            <Stack>
+              {/* Main Tabs */}
+              <Stack.Screen
+                name="(tabs)"
+                options={{
+                  header: () => <Header />,
+                }}
+              />
 
-            {/* Modal screen */}
-            <Stack.Screen
-              name="modal"
-              options={{
-                presentation: 'modal',
-                title: 'Modal',
-                header: () => <Header />,
-              }}
-            />
-          </Stack>
+              {/* Modal screen */}
+              <Stack.Screen
+                name="modal"
+                options={{
+                  presentation: 'modal',
+                  title: 'Modal',
+                  header: () => <Header />,
+                }}
+              />
+            </Stack>
+          </AppDataProvider>
           <StatusBar style="auto" />
         </ThemeProvider>
       </ReduxProvider>
