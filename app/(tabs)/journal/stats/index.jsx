@@ -12,20 +12,28 @@ import {
 import { api } from "../../../../api";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import PageLoader from "../../../../src/components/common/PageLoader";
+import { useSelector } from "react-redux";
+import ComingSoon from "../../../../src/components/common/ComingSoon";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 export default function JournalStats() {
-   const { globalStyles } = useThemeStyles();
+  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+  const { globalStyles } = useThemeStyles();
   const [stats, setStats] = useState(null);
+  const [isLoading,setIsLoading] = useState(false)
 
   useEffect(() => {
+    if(!isUserLoggedIn) return
+    setIsLoading(true)
     api
       .get("/journal/stats/")
       .then((res) => setStats(res.data))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false))
   }, []);
 
-  if (!stats) return <PageLoader />
+  if (isLoading) return <PageLoader />
+  if (!isUserLoggedIn) return <ComingSoon />
 
   /** MONTH DATA */
   const monthLabels = stats.entries_per_month.map((item) =>

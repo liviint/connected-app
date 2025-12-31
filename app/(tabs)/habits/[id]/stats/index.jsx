@@ -8,22 +8,28 @@ import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
 import { BodyText } from "../../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../../src/components/common/PageLoader";
+import { useSelector } from "react-redux";
+import ComingSoon from "../../../../../src/components/common/ComingSoon";
 
 export default function HabitStatsScreen() {
   const {globalStyles}  = useThemeStyles()
   const { id } = useLocalSearchParams();
   const [stats, setStats] = useState(null);
+  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+  const [isLoading,setIsLoading] = useState(false)
 
   useEffect(() => {
-    if (!id) return;
-
+    if (!id || !isUserLoggedIn) return;
+    setIsLoading(true)
     api
       .get(`habits/habits/${id}/stats/`)
       .then((res) => setStats(res.data))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false))
   }, [id]);
 
-  if (!stats) return <PageLoader message={"Loading stats..."} />
+  if (isLoading) return <PageLoader message={"Loading stats..."} />
+  if (!isUserLoggedIn) return <ComingSoon />
 
   // ===== Formatting Helpers =====
   const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -74,7 +80,6 @@ if (total > 0) {
     });
   }
 }
-
 
   return (
     <ScrollView style={globalStyles.container}>
