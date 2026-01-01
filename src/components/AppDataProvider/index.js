@@ -5,6 +5,12 @@ import HabitsProvider from "./HabitsProvider";
 
 // Migration / initialization function
 const migrateDbIfNeeded = async (db) => {
+
+    // await db.execAsync(`DROP TABLE IF EXISTS habits;`);
+    // await db.execAsync(`DROP TABLE IF EXISTS journal_entries;`);
+    //await db.execAsync(`DROP TABLE IF EXISTS habit_entries;`);
+    // await db.execAsync(`DROP TABLE IF EXISTS moods;`);
+
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
 
@@ -55,6 +61,7 @@ const migrateDbIfNeeded = async (db) => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       uuid TEXT UNIQUE,
       habit_uuid TEXT,
+      habit_id TEXT,
       user_uuid TEXT,
       date TEXT,
       completed INTEGER DEFAULT 0,

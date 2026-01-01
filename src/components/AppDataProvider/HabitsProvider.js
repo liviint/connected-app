@@ -47,7 +47,7 @@ export default function HabitsProvider({ children }) {
 
     const fetchHabitEntries = async (date = 'today') => {
         try {
-            const res = await api.get('/habit-entries/entries', {
+            const res = await api.get('habits/entries/entries/', {
             params: { date },
             });
             return res.data || [];
@@ -58,8 +58,9 @@ export default function HabitsProvider({ children }) {
     };
 
     const toggleHabitEntryToApi = async (entry) => {
+        console.log(entry,"hello entry")
         try {
-            await api.put('/habit-entries/toggle/', {
+            await api.put('/habits/entries/toggle/', {
                 habit_id: entry.habit_id, 
                 date: entry.date,
             });
@@ -121,6 +122,7 @@ export default function HabitsProvider({ children }) {
 
             console.log('📤 Syncing local habit entries...');
             const unsyncedEntries = await getUnsyncedHabitEntries(db);
+            console.log(unsyncedEntries,"hello unsynced")
             for (const entry of unsyncedEntries) {
                 await toggleHabitEntryToApi(entry);
             }

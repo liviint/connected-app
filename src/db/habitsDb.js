@@ -1,3 +1,4 @@
+import { tryCatch } from "ramda";
 import { shouldHaveEntry , calcStreak} from "./habitEntriesCalc";
 
 export const upsertHabit = async (db, {
@@ -192,10 +193,14 @@ export async function toggleHabitEntry(
   db,
   {
     habit_uuid,
+    habit_id,
     date = null,
     uuid
   }
 ) {
+
+  try {
+    console.log(habit_id,"hello habt entry")
   const targetDate =
     date ?? new Date().toISOString().slice(0, 10);
 
@@ -208,6 +213,7 @@ export async function toggleHabitEntry(
     `,
     [habit_uuid, targetDate]
   );
+  console.log(entry,"hello entry")
 
   if (entry) {
     // 2️⃣ Toggle existing entry
@@ -228,19 +234,25 @@ export async function toggleHabitEntry(
         habit_uuid,
         date,
         completed,
+        habit_id,
         synced,
         deleted
       )
-      VALUES (?, ?, ?, ?, 0, 0)
+      VALUES (?, ?, ?, ?, ?, 0, 0)
       `,
       [
         uuid,
         habit_uuid,
         targetDate,
         1,
+        habit_id
       ]
     );
   }
+  } catch (error) {
+    console.log(error,"hello toggle issue")
+  }
+  
 }
 
 
@@ -275,9 +287,11 @@ export async function getHabitsForToday(db,uuid) {
     );
 
     const streaks = calcStreak(habit, habitEntries);
+    //console.log(habit,"hello habit")
 
     return {
       habit_uuid: habit.uuid,
+      habit_id: habit.id,
       title: habit.title,
       description: habit.description,
       frequency: habit.frequency,
@@ -305,6 +319,7 @@ export async function syncHabitEntriesFromApi(db, entries) {
         completed,
         id,
         date,
+        uuid,
       } = item;
 
       if (!habit_uuid || !date) continue;
@@ -316,26 +331,30 @@ export async function syncHabitEntriesFromApi(db, entries) {
       );
 
       if (!habit) continue;
-
+      
       await db.runAsync(
         `
         INSERT INTO habit_entries (
           uuid,
+          id,
           habit_uuid,
+          habit_id,
           date,
           completed,
           synced,
           deleted
         )
-        VALUES (?, ?, ?, ?, 1, 0)
+        VALUES (?,?, ?, ?, ?, ?, 1, 0)
         ON CONFLICT(habit_uuid, date) DO UPDATE SET
           completed = excluded.completed,
           synced = 1,
           deleted = 0
         `,
         [
-          id || 0,
+          uuid,
+          id,
           habit.uuid,
+          habit.id,
           date,
           completed ? 1 : 0,
         ]

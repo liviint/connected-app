@@ -27,6 +27,7 @@ export default function HabitEntriesPage() {
   let fetchEntries = async () => {
       if(!isFocused) return
       let entries = await getHabitsForToday(db,uuid)
+      console.log(entries,"hello entries")
       setEntries(entries)
       setLoading(false)
     }
@@ -49,6 +50,7 @@ export default function HabitEntriesPage() {
   }, [percent]);
 
   const toggleCompletion = (habit) => {
+    console.log(habit,"hello toggle")
     toggleHabitEntry(db,habit)
     fetchEntries()
   };
@@ -113,7 +115,7 @@ export default function HabitEntriesPage() {
       {/* HABIT LIST */}
       {entries.map((habit) => (
         <TouchableOpacity
-          key={habit.id + habit.title }
+          key={habit.uuid + habit.title }
           activeOpacity={0.85}
           style={{
             backgroundColor: habit.completed ? "#e8fbe8" : colors.background,

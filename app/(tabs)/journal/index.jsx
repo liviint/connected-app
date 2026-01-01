@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
-import { Link, useFocusEffect, useRouter } from "expo-router";
+import { Link,  useRouter } from "expo-router";
+import { useIsFocused } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
@@ -19,6 +20,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
   const router = useRouter()
+  const isFocused = useIsFocused()
   const { globalStyles } = useThemeStyles();
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,12 +43,11 @@ export default function JournalListPage() {
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-        setLoading(true);
-        fetchJournals();
-    }, [])
-  );
+  
+  useEffect(() => {
+    setLoading(true);
+    fetchJournals();
+  },[isFocused])
   
   if (loading) return <PageLoader />
 
