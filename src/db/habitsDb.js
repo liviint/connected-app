@@ -295,3 +295,69 @@ export async function getHabitsForToday(db,uuid) {
 }
 
 
+export async function syncHabitEntriesFromApi(db, entries) {
+  await db.execAsync('BEGIN TRANSACTION');
+
+  try {
+    for (const item of entries) {
+      const {
+        habit_uuid,
+        completed,
+        id,
+        date,
+      } = item;
+
+      if (!habit_uuid || !date) continue;
+
+      // Resolve habit_uuid from habit_id
+      const habit = await db.getFirstAsync(
+        `SELECT uuid FROM habits WHERE uuid = ?`,
+        [habit_uuid]
+      );
+
+      if (!habit) continue;
+
+      await db.runAsync(
+        `
+        INSERT INTO habit_entries (
+          uuid,
+          habit_uuid,
+          date,
+          completed,
+          synced,
+          deleted
+        )
+        VALUES (?, ?, ?, ?, 1, 0)
+        ON CONFLICT(habit_uuid, date) DO UPDATE SET
+          completed = excluded.completed,
+          synced = 1,
+          deleted = 0
+        `,
+        [
+          id || 0,
+          habit.uuid,
+          date,
+          completed ? 1 : 0,
+        ]
+      );
+    }
+
+    await db.execAsync('COMMIT');
+  } catch (e) {
+    await db.execAsync('ROLLBACK');
+    throw e;
+  }
+}
+
+export async function getUnsyncedHabitEntries(db) {
+  return db.getAllAsync(`
+    SELECT * FROM habit_entries
+    WHERE synced = 0 AND deleted = 0
+  `);
+}
+
+
+
+
+
+

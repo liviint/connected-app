@@ -7,6 +7,8 @@ import {
     getUnsyncedHabits,
     markHabitSynced,
     syncHabitsFromApi,
+    getUnsyncedHabitEntries,
+    syncHabitEntriesFromApi
 } from '../../db/habitsDb';
 
 // Helper to ensure database-safe values (prevents NullPointerException)
@@ -42,6 +44,35 @@ export default function HabitsProvider({ children }) {
             return [];
         }
     };
+
+    const fetchHabitEntries = async (date = 'today') => {
+        try {
+            const res = await api.get('/habit-entries/entries', {
+            params: { date },
+            });
+            return res.data || [];
+        } catch (e) {
+            console.error('Habit entries fetch error:', e);
+            return [];
+        }
+    };
+
+    const toggleHabitEntryToApi = async (entry) => {
+        try {
+            await api.put('/habit-entries/toggle/', {
+                habit_id: entry.habit_id, 
+                date: entry.date,
+            });
+
+            await db.runAsync(
+            `UPDATE habit_entries SET synced = 1 WHERE uuid = ?`,
+            [entry.uuid]
+            );
+        } catch (e) {
+            console.error('Habit entry sync error:', e?.response?.data || e.message);
+        }
+    };
+
 
     const upsertHabitToApi = async (habit) => {
         try {
@@ -87,6 +118,17 @@ export default function HabitsProvider({ children }) {
             }
 
             console.log('✅ Habits sync complete');
+
+            console.log('📤 Syncing local habit entries...');
+            const unsyncedEntries = await getUnsyncedHabitEntries(db);
+            for (const entry of unsyncedEntries) {
+                await toggleHabitEntryToApi(entry);
+            }
+
+            console.log('📥 Syncing habit entries from server...');
+            const todayEntries = await fetchHabitEntries('today');
+            await syncHabitEntriesFromApi(db, todayEntries);
+
         } catch (e) {
             console.error('❌ HabitsProvider bootstrap error:', e);
         } finally {
