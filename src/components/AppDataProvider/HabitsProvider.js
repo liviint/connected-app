@@ -8,7 +8,8 @@ import {
     markHabitSynced,
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
-    syncHabitEntriesFromApi
+    syncHabitEntriesFromApi,
+    getHabits
 } from '../../db/habitsDb';
 
 // Helper to ensure database-safe values (prevents NullPointerException)
@@ -58,10 +59,11 @@ export default function HabitsProvider({ children }) {
     };
 
     const toggleHabitEntryToApi = async (entry) => {
-        console.log(entry,"hello entry")
+        let habit = await getHabits(db,entry.habit_uuid)
+        console.log(entry,habit,"hello entry habit")
         try {
             await api.put('/habits/entries/toggle/', {
-                habit_id: entry.habit_id, 
+                habit_id: habit.id, 
                 date: entry.date,
             });
 
@@ -91,7 +93,8 @@ export default function HabitsProvider({ children }) {
             const res = await api({ url, method, data: payload });
 
             if (res.status === 200 || res.status === 201) {
-                await markHabitSynced(db, habit.uuid); // Pass DB reference
+                console.log(res.data,"hello res data")
+                await markHabitSynced(db, habit.uuid,res.data.id); 
             }
         } catch (e) {
             console.error('Habit sync error:', e?.response?.data || e.message);

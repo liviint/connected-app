@@ -80,9 +80,19 @@ export const getUnsyncedHabits = async (db) => {
   return db.getAllAsync(`SELECT * FROM habits WHERE synced = 0`);
 };
 
-export const markHabitSynced = async (db, uuid) => {
-  await db.runAsync(`UPDATE habits SET synced = 1 WHERE uuid = ?`, [uuid]);
+export const markHabitSynced = async (db, uuid, serverId) => {
+  await db.runAsync(
+    `
+    UPDATE habits
+    SET
+      synced = 1,
+      id = ?
+    WHERE uuid = ?
+    `,
+    [serverId, uuid]
+  );
 };
+
 
 export const deleteHabit = async (db, uuid) => {
   const now = new Date().toISOString();

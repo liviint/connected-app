@@ -6,7 +6,7 @@ import HabitsProvider from "./HabitsProvider";
 // Migration / initialization function
 const migrateDbIfNeeded = async (db) => {
 
-    // await db.execAsync(`DROP TABLE IF EXISTS habits;`);
+    //await db.execAsync(`DROP TABLE IF EXISTS habits;`);
     // await db.execAsync(`DROP TABLE IF EXISTS journal_entries;`);
     //await db.execAsync(`DROP TABLE IF EXISTS habit_entries;`);
     // await db.execAsync(`DROP TABLE IF EXISTS moods;`);
