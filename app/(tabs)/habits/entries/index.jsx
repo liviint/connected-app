@@ -8,26 +8,32 @@ import {
   Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { api } from "../../../../api";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../src/components/common/PageLoader";
+import { useSQLiteContext } from 'expo-sqlite';
+import { getHabitsForToday , toggleHabitEntry} from "../../../../src/db/habitsDb";
+import uuid from 'react-native-uuid';
 
 export default function HabitEntriesPage() {
+  const db = useSQLiteContext();
   const router = useRouter();
   const isFocused = useIsFocused()
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-   const { globalStyles, colors } = useThemeStyles();
+  const { globalStyles, colors } = useThemeStyles();
   const progressAnim = useRef(new Animated.Value(0)).current;
 
+  let fetchEntries = async () => {
+      if(!isFocused) return
+      let entries = await getHabitsForToday(db,uuid)
+      setEntries(entries)
+      setLoading(false)
+    }
+    
+
   useEffect(() => {
-    if(!isFocused) return
-    api
-      .get("habits/entries/entries/")
-      .then((res) => setEntries(res.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    fetchEntries()
   }, [isFocused]);
   const completed = entries.filter((h) => h.completed).length;
   const total = entries.length;
@@ -42,15 +48,9 @@ export default function HabitEntriesPage() {
     }).start();
   }, [percent]);
 
-  const toggleCompletion = (habitId) => {
-    api
-      .put("/habits/entries/toggle/", { habit_id: habitId })
-      .then((res) => {
-        setEntries((prev) =>
-          prev.map((h) => (h.habit_id === habitId ? res.data : h))
-        );
-      })
-      .catch(console.error);
+  const toggleCompletion = (habit) => {
+    toggleHabitEntry(db,habit)
+    fetchEntries()
   };
 
   if (loading) return  <PageLoader />
@@ -145,7 +145,7 @@ export default function HabitEntriesPage() {
 
             {/* TOGGLE BUTTON */}
             <TouchableOpacity
-              onPress={() => toggleCompletion(habit.habit_id)}
+              onPress={() => toggleCompletion(habit)}
               style={{
                 width: 34,
                 height: 34,
