@@ -9,8 +9,10 @@ import {
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
     syncHabitEntriesFromApi,
-    getHabits
+    getHabits,
+    markHabitEntrySynced
 } from '../../db/habitsDb';
+import uuid from 'react-native-uuid';
 
 // Helper to ensure database-safe values (prevents NullPointerException)
 const sanitizeHabit = (habit) => ({
@@ -60,17 +62,13 @@ export default function HabitsProvider({ children }) {
 
     const toggleHabitEntryToApi = async (entry) => {
         let habit = await getHabits(db,entry.habit_uuid)
-        console.log(entry,habit,"hello entry habit")
         try {
-            await api.put('/habits/entries/toggle/', {
+            let res = await api.put('/habits/entries/toggle/', {
                 habit_id: habit.id, 
+                uuid:entry.uuid,
                 date: entry.date,
             });
-
-            await db.runAsync(
-            `UPDATE habit_entries SET synced = 1 WHERE uuid = ?`,
-            [entry.uuid]
-            );
+            markHabitEntrySynced(db,entry.uuid,res.data.id)
         } catch (e) {
             console.error('Habit entry sync error:', e?.response?.data || e.message);
         }
@@ -110,6 +108,7 @@ export default function HabitsProvider({ children }) {
 
             console.log('📤 Syncing local habits to server...');
             const unsynced = await getUnsyncedHabits(db); // Pass DB
+            console.log(unsynced,"hello unsynced habits")
             for (const habit of unsynced) {
                 await upsertHabitToApi(habit);
             }
@@ -125,14 +124,13 @@ export default function HabitsProvider({ children }) {
 
             console.log('📤 Syncing local habit entries...');
             const unsyncedEntries = await getUnsyncedHabitEntries(db);
-            console.log(unsyncedEntries,"hello unsynced")
             for (const entry of unsyncedEntries) {
                 await toggleHabitEntryToApi(entry);
             }
 
             console.log('📥 Syncing habit entries from server...');
-            const todayEntries = await fetchHabitEntries('today');
-            await syncHabitEntriesFromApi(db, todayEntries);
+            const todayEntries = await fetchHabitEntries('today')
+            await syncHabitEntriesFromApi(db, todayEntries,uuid);
 
         } catch (e) {
             console.error('❌ HabitsProvider bootstrap error:', e);

@@ -1,4 +1,3 @@
-import { tryCatch } from "ramda";
 import { shouldHaveEntry , calcStreak} from "./habitEntriesCalc";
 
 export const upsertHabit = async (db, {
@@ -112,54 +111,98 @@ export const syncHabitsFromApi = async (db, habits) => {
   for (const habit of habits) {
     if (!habit.uuid) continue;
 
+    // 1️⃣ Check for existing habit
     const existing = await db.getFirstAsync(
       `SELECT synced FROM habits WHERE uuid = ?`,
       [habit.uuid]
     );
 
-    if (existing && existing.synced === 0) continue; // Preserve unsynced local edits
-
-    await db.runAsync(
-      `
-      INSERT OR REPLACE INTO habits (
-        id,
-        uuid,
-        user_uuid,
-        title,
-        description,
-        frequency,
-        reminder_time,
-        color,
-        icon,
-        next_due_date,
-        priority,
-        is_active,
-        created_at,
-        updated_at,
-        synced,
-        deleted
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
-      `,
-      [
-        habit.id,
-        habit.uuid,
-        habit.user,
-        habit.title,
-        habit.description,
-        habit.frequency,
-        habit.reminder_time,
-        habit.color,
-        habit.icon,
-        habit.next_due_date,
-        habit.priority,
-        habit.is_active,
-        habit.created_at,
-        habit.updated_at,
-      ]
-    );
+    if (existing) {
+      // 2️⃣ Update only if synced == 1 (local unsynced edits are preserved)
+      if (existing.synced === 1) {
+        await db.runAsync(
+          `
+          UPDATE habits
+          SET
+            id = ?,
+            user_uuid = ?,
+            title = ?,
+            description = ?,
+            frequency = ?,
+            reminder_time = ?,
+            color = ?,
+            icon = ?,
+            next_due_date = ?,
+            priority = ?,
+            is_active = ?,
+            created_at = ?,
+            updated_at = ?,
+            synced = 1,
+            deleted = 0
+          WHERE uuid = ?
+          `,
+          [
+            habit.id,
+            habit.user,
+            habit.title,
+            habit.description,
+            habit.frequency,
+            habit.reminder_time,
+            habit.color,
+            habit.icon,
+            habit.next_due_date,
+            habit.priority,
+            habit.is_active,
+            habit.created_at,
+            habit.updated_at,
+            habit.uuid,
+          ]
+        );
+      }
+    } else {
+      // 3️⃣ Insert new habit if missing locally
+      await db.runAsync(
+        `
+        INSERT INTO habits (
+          id,
+          uuid,
+          user_uuid,
+          title,
+          description,
+          frequency,
+          reminder_time,
+          color,
+          icon,
+          next_due_date,
+          priority,
+          is_active,
+          created_at,
+          updated_at,
+          synced,
+          deleted
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)
+        `,
+        [
+          habit.id,
+          habit.uuid,
+          habit.user,
+          habit.title,
+          habit.description,
+          habit.frequency,
+          habit.reminder_time,
+          habit.color,
+          habit.icon,
+          habit.next_due_date,
+          habit.priority,
+          habit.is_active,
+          habit.created_at,
+          habit.updated_at,
+        ]
+      );
+    }
   }
 };
+
 
 export const upsertHabitEntry = async (db, { uuid, habit_uuid, date, completed, note = '' }) => {
   await db.runAsync(
@@ -195,9 +238,19 @@ export const getHabitEntries = async (db, habitUuid) => {
   );
 };
 
-export const markHabitEntrySynced = async (db, uuid) => {
-  await db.runAsync(`UPDATE habit_entries SET synced = 1 WHERE uuid = ?`, [uuid]);
+export const markHabitEntrySynced = async (db, uuid, serverId) => {
+  await db.runAsync(
+    `
+    UPDATE habit_entries
+    SET
+      synced = 1,
+      id = ?
+    WHERE uuid = ?
+    `,
+    [serverId, uuid]
+  );
 };
+
 
 export async function toggleHabitEntry(
   db,
@@ -288,6 +341,7 @@ export async function getHabitsForToday(db,uuid) {
 
   // 4️⃣ Build annotated response
   return habits.map((habit) => {
+
     const entry = entriesToday.find(
       (e) => e.habit_uuid === habit.uuid
     );
@@ -306,9 +360,9 @@ export async function getHabitsForToday(db,uuid) {
       description: habit.description,
       frequency: habit.frequency,
       priority: habit.priority,
-      uuid:uuid.v4(),
+      uuid:entry?.uuid || uuid.v4(),
 
-      entry_id: entry?.uuid ?? 0,
+      id: entry?.id || 0,
       completed: entry ? entry.completed === 1 : false,
       canToggle: shouldHaveEntry(habit, today),
 
@@ -319,56 +373,83 @@ export async function getHabitsForToday(db,uuid) {
 }
 
 
-export async function syncHabitEntriesFromApi(db, entries) {
+export async function syncHabitEntriesFromApi(db, entries,uuid) {
   await db.execAsync('BEGIN TRANSACTION');
-
+  console.log(entries,"hello from API")
   try {
     for (const item of entries) {
       const {
         habit_uuid,
-        completed,
-        id,
-        date,
         uuid,
+        completed,
+        id: serverId,
+        date,
       } = item;
 
+      if(item.title === "Hello 5 offline"){
+        console.log(item,"hello local entry")
+      }
+
       if (!habit_uuid || !date) continue;
+      if(item.title === "Hello 5 offline"){
+        console.log(item,"hello local entry 123..")
+      }
 
-      // Resolve habit_uuid from habit_id
-      const habit = await db.getFirstAsync(
-        `SELECT uuid FROM habits WHERE uuid = ?`,
-        [habit_uuid]
-      );
-
-      if (!habit) continue;
-      
-      await db.runAsync(
+      // 1️⃣ Find existing local entry (by real identity)
+      const localEntry = await db.getFirstAsync(
         `
-        INSERT INTO habit_entries (
-          uuid,
-          id,
-          habit_uuid,
-          habit_id,
-          date,
-          completed,
-          synced,
-          deleted
-        )
-        VALUES (?,?, ?, ?, ?, ?, 1, 0)
-        ON CONFLICT(habit_uuid, date) DO UPDATE SET
-          completed = excluded.completed,
-          synced = 1,
-          deleted = 0
+        SELECT uuid
+        FROM habit_entries
+        WHERE uuid = ? AND date = ? AND deleted = 0
         `,
-        [
-          uuid,
-          id,
-          habit.uuid,
-          habit.id,
-          date,
-          completed ? 1 : 0,
-        ]
+        [uuid, date]
       );
+
+      
+
+      if (localEntry) {
+        // 2️⃣ Update existing row
+        await db.runAsync(
+          `
+          UPDATE habit_entries
+          SET
+            completed = ?,
+            id = ?,
+            synced = 1,
+            deleted = 0
+          WHERE uuid = ?
+          `,
+          [
+            completed ? 1 : 0,
+            serverId,
+          ]
+        );
+      } else {
+        // 3️⃣ Insert only if missing locally
+        const localUuid = uuid || uuid.v4();
+
+        await db.runAsync(
+          `
+          INSERT INTO habit_entries (
+            uuid,
+            id,
+            habit_uuid,
+            date,
+            completed,
+            synced,
+            deleted
+          )
+          VALUES (?, ?, ?, ?, ?, 1, 0)
+          `,
+          [
+          localUuid,
+            serverId,
+            habit_uuid,
+            date,
+            completed ? 1 : 0,
+          ]
+        );
+      }
     }
 
     await db.execAsync('COMMIT');
@@ -377,6 +458,7 @@ export async function syncHabitEntriesFromApi(db, entries) {
     throw e;
   }
 }
+
 
 export async function getUnsyncedHabitEntries(db) {
   return db.getAllAsync(`
