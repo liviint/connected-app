@@ -3,33 +3,39 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { api } from "../../../../../api";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
 import { BodyText } from "../../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../../src/components/common/PageLoader";
-import { useSelector } from "react-redux";
-import ComingSoon from "../../../../../src/components/common/ComingSoon";
+import { useSQLiteContext } from "expo-sqlite";
+import { generateHabitStats } from "../../../../../src/db/habitsStats";
 
 export default function HabitStatsScreen() {
+  const db = useSQLiteContext()
   const {globalStyles}  = useThemeStyles()
   const { id } = useLocalSearchParams();
   const [stats, setStats] = useState(null);
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
   const [isLoading,setIsLoading] = useState(false)
 
   useEffect(() => {
-    if (!id || !isUserLoggedIn) return;
-    setIsLoading(true)
-    api
-      .get(`habits/habits/${id}/stats/`)
-      .then((res) => setStats(res.data))
-      .catch((err) => console.log(err))
-      .finally(() => setIsLoading(false))
+    console.log(id,"hello id stats")
+    let fetchHabitStats = async() => {
+      try {
+        setIsLoading(true)
+        let stats = await generateHabitStats(db,id)
+        console.log(stats,id,"hello stats")
+        setStats(stats)
+      } catch (error) {
+        console.log(error,"hello habit stats error")
+      }
+      finally{
+        setIsLoading(false)
+      }
+    }
+    fetchHabitStats()
   }, [id]);
 
   if (isLoading) return <PageLoader message={"Loading stats..."} />
-  if (!isUserLoggedIn) return <ComingSoon />
 
   // ===== Formatting Helpers =====
   const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

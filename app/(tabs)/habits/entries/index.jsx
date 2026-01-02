@@ -134,7 +134,7 @@ export default function HabitEntriesPage() {
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <TouchableOpacity
-              onPress={() => router.push(`/habits/${habit.habit_id}/stats`)}
+              onPress={() => router.push(`/habits/${habit.habit_uuid}/stats`)}
               style={{
                 paddingVertical: 6,
                 paddingHorizontal: 14,
