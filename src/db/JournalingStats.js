@@ -91,23 +91,34 @@ function buildTrends(entries) {
 
 
 function buildMoodStats(entries) {
+    console.log(entries,"hello entr mood")
   const moodMap = {};
 
   entries.forEach(e => {
     if (!e.mood_id) return;
-    moodMap[e.mood_id] = (moodMap[e.mood_id] || 0) + 1;
+
+    if (!moodMap[e.mood_id]) {
+      moodMap[e.mood_id] = {
+        mood_id: e.mood_id,
+        mood__name: e.mood_label || null,
+        count: 0,
+      };
+    }
+
+    moodMap[e.mood_id].count += 1;
   });
 
-  const perMood = Object.entries(moodMap).map(([mood_id, count]) => ({
-    mood_id: Number(mood_id),
-    count,
-  }));
+  const perMood = Object.values(moodMap);
 
   const mostFrequentMood =
     perMood.sort((a, b) => b.count - a.count)[0] || null;
 
-  return { mood_counts: perMood, most_frequent_mood: mostFrequentMood };
+  return {
+    mood_counts: perMood,
+    most_frequent_mood: mostFrequentMood,
+  };
 }
+
 
 export const generateJournalStats = async(db) => {
     let entries = await getJournals(db)
