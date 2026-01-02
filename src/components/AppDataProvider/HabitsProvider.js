@@ -67,6 +67,7 @@ export default function HabitsProvider({ children }) {
                 habit_id: habit.id, 
                 uuid:entry.uuid,
                 date: entry.date,
+                completed:entry.completed,
             });
             markHabitEntrySynced(db,entry.uuid,res.data.id)
         } catch (e) {

@@ -375,7 +375,6 @@ export async function getHabitsForToday(db,uuid) {
 
 export async function syncHabitEntriesFromApi(db, entries,uuid) {
   await db.execAsync('BEGIN TRANSACTION');
-  console.log(entries,"hello from API")
   try {
     for (const item of entries) {
       const {
@@ -386,15 +385,10 @@ export async function syncHabitEntriesFromApi(db, entries,uuid) {
         date,
       } = item;
 
-      if(item.title === "Hello 5 offline"){
-        console.log(item,"hello local entry")
-      }
-
       if (!habit_uuid || !date) continue;
-      if(item.title === "Hello 5 offline"){
-        console.log(item,"hello local entry 123..")
+      if(item.title === "Hello 3 offline"){
+        console.log(item,"hello api item 123")
       }
-
       // 1️⃣ Find existing local entry (by real identity)
       const localEntry = await db.getFirstAsync(
         `
@@ -405,9 +399,10 @@ export async function syncHabitEntriesFromApi(db, entries,uuid) {
         [uuid, date]
       );
 
-      
-
       if (localEntry) {
+        if(item.title === "Hello 3 offline"){
+        console.log(localEntry,"hello api item 123...")
+      }
         // 2️⃣ Update existing row
         await db.runAsync(
           `
@@ -422,6 +417,7 @@ export async function syncHabitEntriesFromApi(db, entries,uuid) {
           [
             completed ? 1 : 0,
             serverId,
+            uuid,
           ]
         );
       } else {
