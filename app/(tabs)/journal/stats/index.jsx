@@ -9,33 +9,39 @@ import {
   BarChart,
   PieChart,
 } from "react-native-chart-kit";
-import { api } from "../../../../api";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import PageLoader from "../../../../src/components/common/PageLoader";
-import { useSelector } from "react-redux";
-import ComingSoon from "../../../../src/components/common/ComingSoon";
+import { useSQLiteContext } from "expo-sqlite";
+import { generateJournalStats } from "../../../../src/db/JournalingStats";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 export default function JournalStats() {
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
+  const db = useSQLiteContext()
   const { globalStyles } = useThemeStyles();
   const [stats, setStats] = useState(null);
-  const [isLoading,setIsLoading] = useState(false)
+  const [isLoading,setIsLoading] = useState(true)
 
   useEffect(() => {
-    if(!isUserLoggedIn) return
-    setIsLoading(true)
-    api
-      .get("/journal/stats/")
-      .then((res) => setStats(res.data))
-      .catch((err) => console.log(err))
-      .finally(() => setIsLoading(false))
+    const fetchStats = async () => {
+      setIsLoading(true)
+      try {
+        let stats = await generateJournalStats(db)
+        console.log(stats,"hello stats here")
+        setStats(stats)
+      } catch (error) {
+        console.log(error,"hello jornal stats error")
+      }
+      finally{
+        setIsLoading(false)
+      }
+    }
+    fetchStats()
   }, []);
 
   if (isLoading) return <PageLoader />
-  if (!isUserLoggedIn) return <ComingSoon />
 
   /** MONTH DATA */
+  console.log(stats.entries_per_month,"hello stats.per_month")
   const monthLabels = stats.entries_per_month.map((item) =>
     new Date(item.month).toLocaleString("default", { month: "short" })
   );
@@ -43,6 +49,7 @@ export default function JournalStats() {
   const monthCounts = stats.entries_per_month.map((item) => item.count);
 
   /** MOOD DATA */
+  console.log(stats.mood_counts,"hello stats.mood_counts")
   const moodData = stats.mood_counts.map((item, index) => ({
     name: item.mood__name || "No Mood",
     population: item.count,
@@ -53,7 +60,7 @@ export default function JournalStats() {
 
   /** WEEKDAY DATA */
   const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
+  console.log(stats.entries_per_weekday,"hello stats.entries_per_weekday")
   const weekdayLabels = stats.entries_per_weekday.map(
     (item) => weekdayNames[item.weekday - 1]
   );
