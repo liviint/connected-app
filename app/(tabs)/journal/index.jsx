@@ -111,7 +111,7 @@ export default function JournalListPage() {
 
         <View 
           style={{
-              marginBottom:0,
+              marginBottom:20,
               display:"flex",
               flexDirection:"row",
               justifyContent:"center",

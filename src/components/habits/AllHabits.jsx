@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonRow: {
-    marginBottom:0,
+    marginBottom:20,
     display:"flex",
     flexDirection:"row",
     justifyContent:"center",
