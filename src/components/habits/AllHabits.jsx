@@ -58,12 +58,14 @@ useEffect(() => {
     return (
       <View style={globalStyles.container}>
         <Text style={globalStyles.title}>Your Habits</Text>
-        <TouchableOpacity
-          style={globalStyles.primaryBtn}
-          onPress={() => router.push("/habits/add")}
-        >
-          <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={globalStyles.primaryBtn}
+            onPress={() => router.push("/habits/add")}
+          >
+            <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
+          </TouchableOpacity>
+        </View>
         <BodyText style={styles.emptyMessage}>You haven’t added any habits yet.  
   Start with one small habit to build consistency.</BodyText>
       </View>
@@ -91,7 +93,7 @@ useEffect(() => {
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
-                style={{flex:1,...globalStyles.primaryBtn}}
+                style={globalStyles.primaryBtn}
                 onPress={() => router.push("/habits/add")}
               >
                 <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
@@ -117,9 +119,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom:0,
+    display:"flex",
+    flexDirection:"row",
+    justifyContent:"center",
   },
   emptyMessage: {
     textAlign: "center",

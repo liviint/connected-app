@@ -111,7 +111,7 @@ export default function JournalListPage() {
 
         <View 
           style={{
-              marginBottom:20,
+              marginBottom:0,
               display:"flex",
               flexDirection:"row",
               justifyContent:"center",
@@ -126,13 +126,13 @@ export default function JournalListPage() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        {journals.length ? <TouchableOpacity 
           onPress={() => router.push("/journal/stats")}  
           style={globalStyles.secondaryBtn}>
           <Text style={globalStyles.secondaryBtnText}>
             Stats
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> : ""}
         </View>
         
         {/* Journal List */}
