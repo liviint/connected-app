@@ -12,18 +12,25 @@ import { FormLabel, Input, Card, BodyText } from "../ThemeProvider/components";
 import { upsertHabit, getHabits } from "../../db/habitsDb";
 import uuid from 'react-native-uuid';
 import { useSQLiteContext } from 'expo-sqlite';
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function AddEdit() {
   const db = useSQLiteContext(); 
   const { globalStyles } = useThemeStyles();
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toTimeString().slice(0, 5); 
+  };
 
   const inititialForm = {
     title: "",
     description: "",
     frequency: "daily",
-    reminder_time: "",
+    reminder_time: getCurrentTime(),
     color: "#FF6B6B",
     icon: "🔥",
   }
@@ -177,37 +184,32 @@ export default function AddEdit() {
 
         {/* REMINDER TIME */}
         <View style={globalStyles.formGroup}>
-          <FormLabel >Reminder Time</FormLabel>
-          <Input
-            value={form.reminder_time}
-            onChangeText={(v) => handleChange("reminder_time", v)}
-            placeholder="HH:MM"
-            style={styles.input}
-          />
+          <FormLabel>Reminder Time</FormLabel>
+
+          <TouchableOpacity
+            style={styles.timePicker}
+            onPress={() => setShowTimePicker(true)}
+          >
+            <BodyText>{form.reminder_time}</BodyText>
+          </TouchableOpacity>
+
+          {showTimePicker && (
+            <DateTimePicker
+              value={new Date(`1970-01-01T${form.reminder_time}:00`)}
+              mode="time"
+              onChange={(event, selectedDate) => {
+                setShowTimePicker(false);
+                if (!selectedDate) return;
+
+                const time = selectedDate.toTimeString().slice(0, 5);
+                handleChange("reminder_time", time);
+              }}
+            />
+          )}
+
           {errors.reminder_time ? (
             <Text style={styles.error}>{errors.reminder_time}</Text>
           ) : null}
-        </View>
-
-        {/* COLOR */}
-        <View style={globalStyles.formGroup}>
-          <FormLabel style={styles.label}>Color</FormLabel>
-          <Input
-            value={form.color}
-            onChangeText={(v) => handleChange("color", v)}
-            style={[styles.input, { height: 50 }]}
-          />
-        </View>
-
-        {/* ICON */}
-        <View style={globalStyles.formGroup}>
-          <FormLabel style={styles.label}>Icon</FormLabel>
-          <Input
-            value={form.icon}
-            onChangeText={(v) => handleChange("icon", v)}
-            style={styles.input}
-            placeholder="e.g., 🔥 💧 🌱"
-          />
         </View>
 
         {/* SUBMIT */}
@@ -247,6 +249,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     marginTop: 10,
+  },
+  timePicker: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
   },
   submitText: { color: "white", fontWeight: "700", fontSize: 16 },
 });
