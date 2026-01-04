@@ -4,6 +4,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { syncJournalsFromApi, markJournalSynced, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
+import { syncManager } from '../../../utils/syncManager'
 
 export default function JournalsProvider({ children }) {
     const db = useSQLiteContext(); // ✅ Use SQLiteProvider's singleton DB
@@ -98,7 +99,7 @@ export default function JournalsProvider({ children }) {
                 console.log("📥 Syncing journals from server...");
                 const remote = await fetchJournals();
                 await syncJournalsFromApi(db, remote); // Pass db
-
+                syncManager.emit("journals_updated");
                 console.log("✅ Sync complete");
             } catch (e) {
                 console.error("❌ JournalsProvider error:", e);

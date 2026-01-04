@@ -12,6 +12,7 @@ import PageLoader from "../common/PageLoader";
 import { BodyText } from "../ThemeProvider/components";
 import { getHabits } from "../../db/habitsDb";
 import { useSQLiteContext } from 'expo-sqlite';
+import { syncManager } from "../../../utils/syncManager";
 
 export default function HabitsScreen({initialHabits}) {
   const db = useSQLiteContext(); 
@@ -36,6 +37,16 @@ export default function HabitsScreen({initialHabits}) {
 useEffect(() => {
     fetchHabits()
 }, [refreshData]);
+
+useEffect(() => {
+  const unsub = syncManager.on("habits_updated", async () => {
+    const updated = await getHabits(db);
+    setHabits(updated);
+  });
+
+  return unsub;
+}, []);
+
 
   const onDragEnd = ({ data }) => {
     setHabits(data);

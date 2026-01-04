@@ -13,6 +13,7 @@ import {
     markHabitEntrySynced
 } from '../../db/habitsDb';
 import uuid from 'react-native-uuid';
+import { syncManager } from '../../../utils/syncManager'
 
 // Helper to ensure database-safe values (prevents NullPointerException)
 const sanitizeHabit = (habit) => ({
@@ -132,7 +133,7 @@ export default function HabitsProvider({ children }) {
             console.log('📥 Syncing habit entries from server...');
             const todayEntries = await fetchHabitEntries('today')
             await syncHabitEntriesFromApi(db, todayEntries,uuid);
-
+            syncManager.emit("habits_updated");
         } catch (e) {
             console.error('❌ HabitsProvider bootstrap error:', e);
         } finally {

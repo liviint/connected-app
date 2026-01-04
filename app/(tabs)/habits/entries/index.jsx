@@ -14,6 +14,7 @@ import PageLoader from "../../../../src/components/common/PageLoader";
 import { useSQLiteContext } from 'expo-sqlite';
 import { getHabitsForToday , toggleHabitEntry} from "../../../../src/db/habitsDb";
 import uuid from 'react-native-uuid';
+import { syncManager } from "../../../../utils/syncManager";
 
 export default function HabitEntriesPage() {
   const db = useSQLiteContext();
@@ -36,6 +37,16 @@ export default function HabitEntriesPage() {
   useEffect(() => {
     fetchEntries()
   }, [isFocused]);
+
+  useEffect(() => {
+    const unsub = syncManager.on("habits_updated", async () => {
+      const updated = await getHabitsForToday(db);
+      setEntries(updated);
+    });
+  
+    return unsub;
+  }, []);
+
   const completed = entries.filter((h) => h.completed).length;
   const total = entries.length;
   const percent = total > 0 ? (completed / total) * 100 : 0;

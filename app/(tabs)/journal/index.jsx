@@ -16,6 +16,7 @@ import HtmlPreview from "../../../src/components/journal/HtmlPreview";
 import PageLoader from "../../../src/components/common/PageLoader";
 import { getJournals } from "../../../src/db/journalsDb";
 import { useSQLiteContext } from 'expo-sqlite';
+import { syncManager } from "../../../utils/syncManager";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
@@ -48,7 +49,18 @@ export default function JournalListPage() {
     setLoading(true);
     fetchJournals();
   },[isFocused])
+
   
+  useEffect(() => {
+  const unsub = syncManager.on("journals_updated", async () => {
+    const updated = await getJournals(db);
+    setJournals(updated);
+  });
+
+  return unsub;
+}, []);
+
+
   if (loading) return <PageLoader />
 
   const handlePlayAudio = async (uri, id) => {
