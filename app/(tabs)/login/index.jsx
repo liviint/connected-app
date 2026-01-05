@@ -222,7 +222,12 @@ const styles = StyleSheet.create({
   hint: {
     textAlign: "center",
     marginTop: 16,
+    opacity: 0.7,
     fontSize: 15,
   },
-  link: { color: "#FF6B6B", fontWeight: "700" },
+
+  link: {
+    color: "#FF6B6B", 
+    fontWeight: "600",
+  },
 });

@@ -11,9 +11,11 @@ import { api } from "../../../api";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { validateEmail } from "../../../src/helpers";
 import { Card, FormLabel, Input, BodyText } from "../../../src/components/ThemeProvider/components";
+import { useRouter } from "expo-router";
 
 const Signup = () => {
-   const { globalStyles } = useThemeStyles();
+  const router = useRouter()
+  const { globalStyles } = useThemeStyles();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -118,9 +120,19 @@ const Signup = () => {
           disabled={loading}
         >
           <Text style={styles.buttonText}>
-            {loading ? "Signing up..." : "Sign Up"}
+            {loading ? "Creating account…" : "Sign Up"}
           </Text>
         </TouchableOpacity>
+        <BodyText style={styles.hint}>
+          Already have an account?{" "}
+          <Text
+            style={styles.link}
+            onPress={() => router.push("/login")}
+          >
+            Log in
+        </Text>
+</BodyText>
+
       </Card>
     </ScrollView>
   );
@@ -132,7 +144,6 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: "center",
-    padding: 20,
   },
   form: {
     padding: 20,
@@ -172,4 +183,17 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.7,
   },
+  
+  hint: {
+    textAlign: "center",
+    marginTop: 16,
+    opacity: 0.7,
+    fontSize: 15,
+  },
+
+  link: {
+    color: "#FF6B6B", 
+    fontWeight: "600",
+  },
+
 });
