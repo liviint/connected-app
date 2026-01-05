@@ -8,7 +8,6 @@ import {
   Alert
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
@@ -32,10 +31,7 @@ export default function AddEdit({ id }) {
   }
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
-  const [recording, setRecording] = useState(null);
   const [audioUri, setAudioUri] = useState("");
-  const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   // Fetch moods
   useEffect(() => {
@@ -90,58 +86,6 @@ const handleSubmit = async () => {
     setLoading(false);
   }
 };
-
-
-  // Recording functions
-  const startRecording = async () => {
-    try {
-      await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      setRecording(recording);
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Could not start recording");
-    }
-  };
-
-  const stopRecording = async () => {
-    try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      setAudioUri(uri);
-      setRecording(null);
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Could not stop recording");
-    }
-  };
-
-  const playAudio = async () => {
-    if (!audioUri) return;
-    const { sound: playbackObject } = await Audio.Sound.createAsync({ uri: audioUri });
-    setSound(playbackObject);
-    setIsPlaying(true);
-    await playbackObject.playAsync();
-    playbackObject.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
-        setIsPlaying(false);
-        setSound(null);
-      }
-    });
-  };
-
-  const pauseAudio = async () => {
-    if (sound) {
-      await sound.pauseAsync();
-      setIsPlaying(false);
-    }
-  };
 
   return (
     <ScrollView 
@@ -226,55 +170,6 @@ const handleSubmit = async () => {
         </CustomPicker>
         {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
       </View>
-
-      {/* {/*<View style={globalStyles.formGroup}>
-        <FormLabel >Voice Journal (Optional)</FormLabel>
-
-        {!recording && !audioUri && (
-          <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
-            <Text style={styles.recordButtonText}>🎤 Start Recording</Text>
-          </TouchableOpacity>
-        )}
-
-        {recording && (
-          <TouchableOpacity
-            style={[styles.recordButton, { backgroundColor: "red" }]}
-            onPress={stopRecording}
-          >
-            <Text style={styles.recordButtonText}>⏹ Stop Recording</Text>
-          </TouchableOpacity>
-        )}
-
-        {audioUri && !recording && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ marginBottom: 6 }}>Audio available ✅</Text>
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={isPlaying ? pauseAudio : playAudio}
-              >
-                <Text style={styles.recordButtonText}>
-                  {isPlaying ? "⏸ Pause" : "▶ Play"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={() => {
-                  setAudioUri("");
-                  if (sound) {
-                    sound.stopAsync();
-                    setSound(null);
-                    setIsPlaying(false);
-                  }
-                }}
-              >
-                <Text style={styles.recordButtonText}>🔁 Remove</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </View> */}
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
         <Text style={styles.submitButtonText}>
