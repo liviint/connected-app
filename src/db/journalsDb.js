@@ -190,5 +190,5 @@ export const saveMoods = async (db, moods) => {
 };
 
 export const getLocalMoods = async (db) => {
-  return db.getAllAsync(`SELECT * FROM moods ORDER BY name ASC`);
+  return db.getAllAsync(`SELECT * FROM moods ORDER BY id DESC`);
 };
