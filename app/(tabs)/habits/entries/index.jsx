@@ -60,7 +60,6 @@ export default function HabitEntriesPage() {
   }, [percent]);
 
   const toggleCompletion = (habit) => {
-    console.log(habit,"hello toggle")
     toggleHabitEntry(db,habit)
     fetchEntries()
   };

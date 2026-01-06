@@ -92,7 +92,6 @@ export default function AddEdit() {
     if (!id) return;
     const fetchHabit = async () => {
       let habit = await getHabits(db,id)
-      console.log(habit,id,"hello habit")
       setForm(habit)
     };
     fetchHabit();

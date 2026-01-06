@@ -121,7 +121,6 @@ function buildMoodStats(entries) {
 
 export const generateJournalStats = async(db) => {
     let entries = await getJournals(db)
-    console.log(entries,"hello journal")
     if (!entries.length) {
         return {
         total_entries: 0,

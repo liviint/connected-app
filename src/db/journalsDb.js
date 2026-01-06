@@ -6,7 +6,6 @@ import { DEFAULT_MOODS } from "../../utils/defaultMoods";
  */
 export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label }) => {
   const now = new Date().toISOString();
-  console.log(id, "hello journal id");
 
   try {
     await db.runAsync(

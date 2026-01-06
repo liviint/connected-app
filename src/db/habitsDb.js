@@ -264,7 +264,6 @@ export async function toggleHabitEntry(
 ) {
 
   try {
-    console.log(habit_id,"hello habt entry")
   const targetDate =
     date ?? new Date().toISOString().slice(0, 10);
 
@@ -349,10 +348,8 @@ export async function getHabitsForToday(db,uuid) {
     const habitEntries = allEntries.filter(
       (e) => e.habit_uuid === habit.uuid
     );
-    console.log(habit, allEntries,habitEntries,"hello habit entries")
 
     const streaks = calcStreak(habit, habitEntries);
-    //console.log(habit,"hello habit")
 
     return {
       habit_uuid: habit.uuid,
@@ -375,7 +372,6 @@ export async function getHabitsForToday(db,uuid) {
 
 
 export async function syncHabitEntriesFromApi(db, entries) {
-  console.log(entries,"hello entries 123")
   await db.execAsync('BEGIN TRANSACTION');
   try {
     for (const item of entries) {
@@ -401,9 +397,6 @@ export async function syncHabitEntriesFromApi(db, entries) {
       );
 
       if (localEntry) {
-        if(item.title === "Hello 3 offline"){
-        console.log(localEntry,"hello api item 123...")
-      }
         // 2️⃣ Update existing row
         await db.runAsync(
           `

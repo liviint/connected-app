@@ -108,8 +108,7 @@ export default function HabitsProvider({ children }) {
             if (!isUserLoggedIn) return;
 
             console.log('📤 Syncing local habits to server...');
-            const unsynced = await getUnsyncedHabits(db); // Pass DB
-            console.log(unsynced,"hello unsynced habits")
+            const unsynced = await getUnsyncedHabits(db); 
             for (const habit of unsynced) {
                 await upsertHabitToApi(habit);
             }

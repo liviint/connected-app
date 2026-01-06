@@ -26,7 +26,6 @@ export default function JournalStats() {
       setIsLoading(true)
       try {
         let stats = await generateJournalStats(db)
-        console.log(stats,"hello stats here")
         setStats(stats)
       } catch (error) {
         console.log(error,"hello jornal stats error")
@@ -40,8 +39,6 @@ export default function JournalStats() {
 
   if (isLoading) return <PageLoader />
 
-  /** MONTH DATA */
-  console.log(stats.entries_per_month,"hello stats.per_month")
   const monthLabels = stats.entries_per_month.map((item) =>
     new Date(item.month).toLocaleString("default", { month: "short" })
   );
@@ -49,7 +46,6 @@ export default function JournalStats() {
   const monthCounts = stats.entries_per_month.map((item) => item.count);
 
   /** MOOD DATA */
-  console.log(stats.mood_counts,"hello stats.mood_counts")
   const moodData = stats.mood_counts.map((item, index) => ({
     name: item.mood__name || "No Mood",
     population: item.count,
@@ -60,7 +56,6 @@ export default function JournalStats() {
 
   /** WEEKDAY DATA */
   const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  console.log(stats.entries_per_weekday,"hello stats.entries_per_weekday")
   const weekdayLabels = stats.entries_per_weekday.map(
     (item) => weekdayNames[item.weekday - 1]
   );

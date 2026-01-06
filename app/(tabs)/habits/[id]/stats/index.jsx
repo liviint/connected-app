@@ -18,12 +18,10 @@ export default function HabitStatsScreen() {
   const [isLoading,setIsLoading] = useState(false)
 
   useEffect(() => {
-    console.log(id,"hello id stats")
     let fetchHabitStats = async() => {
       try {
         setIsLoading(true)
         let stats = await generateHabitStats(db,id)
-        console.log(stats,id,"hello stats")
         setStats(stats)
       } catch (error) {
         console.log(error,"hello habit stats error")
