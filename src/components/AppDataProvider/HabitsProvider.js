@@ -12,7 +12,8 @@ import {
     getHabits,
     markHabitEntrySynced
 } from '../../db/habitsDb';
-import uuid from 'react-native-uuid';
+import { v4 as uuidv4 } from 'react-native-uuid';
+
 import { syncManager } from '../../../utils/syncManager'
 
 // Helper to ensure database-safe values (prevents NullPointerException)
@@ -49,12 +50,10 @@ export default function HabitsProvider({ children }) {
         }
     };
 
-    const fetchHabitEntries = async (date = 'today') => {
+    const fetchHabitEntries = async () => {
         try {
-            const res = await api.get('habits/entries/entries/', {
-            params: { date },
-            });
-            return res.data || [];
+            const res = await api.get('habits/entries/');
+            return res.data|| [];
         } catch (e) {
             console.error('Habit entries fetch error:', e);
             return [];
@@ -131,8 +130,8 @@ export default function HabitsProvider({ children }) {
             }
 
             console.log('📥 Syncing habit entries from server...');
-            const todayEntries = await fetchHabitEntries('today')
-            await syncHabitEntriesFromApi(db, todayEntries,uuid);
+            const todayEntries = await fetchHabitEntries()
+            await syncHabitEntriesFromApi(db, todayEntries,uuidv4);
             syncManager.emit("habits_updated");
         } catch (e) {
             console.error('❌ HabitsProvider bootstrap error:', e);

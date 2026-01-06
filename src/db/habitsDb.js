@@ -1,4 +1,5 @@
 import { shouldHaveEntry , calcStreak} from "./habitEntriesCalc";
+import { v4 as uuidv4 } from 'react-native-uuid';
 
 export const upsertHabit = async (db, {
   id,
@@ -276,7 +277,6 @@ export async function toggleHabitEntry(
     `,
     [habit_uuid, targetDate]
   );
-  console.log(entry,"hello entry")
 
   if (entry) {
     // 2️⃣ Toggle existing entry
@@ -349,6 +349,7 @@ export async function getHabitsForToday(db,uuid) {
     const habitEntries = allEntries.filter(
       (e) => e.habit_uuid === habit.uuid
     );
+    console.log(habit, allEntries,habitEntries,"hello habit entries")
 
     const streaks = calcStreak(habit, habitEntries);
     //console.log(habit,"hello habit")
@@ -373,10 +374,12 @@ export async function getHabitsForToday(db,uuid) {
 }
 
 
-export async function syncHabitEntriesFromApi(db, entries,uuid) {
+export async function syncHabitEntriesFromApi(db, entries) {
+  console.log(entries,"hello entries 123")
   await db.execAsync('BEGIN TRANSACTION');
   try {
     for (const item of entries) {
+      console.log(item,"entry item")
       const {
         habit_uuid,
         uuid,
@@ -386,9 +389,7 @@ export async function syncHabitEntriesFromApi(db, entries,uuid) {
       } = item;
 
       if (!habit_uuid || !date) continue;
-      if(item.title === "Hello 3 offline"){
-        console.log(item,"hello api item 123")
-      }
+      
       // 1️⃣ Find existing local entry (by real identity)
       const localEntry = await db.getFirstAsync(
         `
@@ -422,7 +423,7 @@ export async function syncHabitEntriesFromApi(db, entries,uuid) {
         );
       } else {
         // 3️⃣ Insert only if missing locally
-        const localUuid = uuid || uuid.v4();
+        const localUuid = uuid || uuidv4();
 
         await db.runAsync(
           `
@@ -451,7 +452,7 @@ export async function syncHabitEntriesFromApi(db, entries,uuid) {
     await db.execAsync('COMMIT');
   } catch (e) {
     await db.execAsync('ROLLBACK');
-    throw e;
+    console.log(e,"hello error entries sync")
   }
 }
 

@@ -28,7 +28,6 @@ export default function HabitEntriesPage() {
   let fetchEntries = async () => {
       if(!isFocused) return
       let entries = await getHabitsForToday(db,uuid)
-      console.log(entries,"hello entries")
       setEntries(entries)
       setLoading(false)
     }

@@ -91,7 +91,6 @@ function buildTrends(entries) {
 
 
 function buildMoodStats(entries) {
-    console.log(entries,"hello entr mood")
   const moodMap = {};
 
   entries.forEach(e => {
