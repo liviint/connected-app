@@ -5,16 +5,15 @@ import { api } from '../../../api';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
     getUnsyncedHabits,
-    markHabitSynced,
+    upsertHabitToApi,
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
     syncHabitEntriesFromApi,
-    getHabits,
-    markHabitEntrySynced
+    toggleHabitEntryToApi,
 } from '../../db/habitsDb';
 import { v4 as uuidv4 } from 'react-native-uuid';
-
 import { syncManager } from '../../../utils/syncManager'
+import { AppState } from 'react-native';
 
 // Helper to ensure database-safe values (prevents NullPointerException)
 const sanitizeHabit = (habit) => ({
@@ -33,12 +32,12 @@ const sanitizeHabit = (habit) => ({
 });
 
 export default function HabitsProvider({ children }) {
-    const db = useSQLiteContext(); // ✅ Use singleton DB from SQLiteProvider
-    const initialized = useRef(false);
+    const db = useSQLiteContext(); 
+    const lastSyncTime = useRef(0);
     const syncing = useRef(false);
-
     const userDetails = useSelector((state) => state?.user?.userDetails);
     const isUserLoggedIn = !!userDetails;
+    const appState = useRef(AppState.currentState)
 
     const fetchHabits = async () => {
         try {
@@ -57,46 +56,6 @@ export default function HabitsProvider({ children }) {
         } catch (e) {
             console.error('Habit entries fetch error:', e);
             return [];
-        }
-    };
-
-    const toggleHabitEntryToApi = async (entry) => {
-        let habit = await getHabits(db,entry.habit_uuid)
-        try {
-            let res = await api.put('/habits/entries/toggle/', {
-                habit_id: habit.id, 
-                uuid:entry.uuid,
-                date: entry.date,
-                completed:entry.completed,
-            });
-            markHabitEntrySynced(db,entry.uuid,res.data.id)
-        } catch (e) {
-            console.error('Habit entry sync error:', e?.response?.data || e.message);
-        }
-    };
-
-
-    const upsertHabitToApi = async (habit) => {
-        try {
-            const payload = {
-                uuid: habit.uuid,
-                title: habit.title,
-                frequency: habit.frequency,
-                updated_at: habit.updated_at,
-                deleted: habit.deleted,
-            };
-
-            const url = habit.id && habit.id !== 0 ? `/habits/${habit.id}/` : '/habits/';
-            const method = habit.id && habit.id !== 0 ? 'PUT' : 'POST';
-
-            const res = await api({ url, method, data: payload });
-
-            if (res.status === 200 || res.status === 201) {
-                console.log(res.data,"hello res data")
-                await markHabitSynced(db, habit.uuid,res.data.id); 
-            }
-        } catch (e) {
-            console.error('Habit sync error:', e?.response?.data || e.message);
         }
     };
 
@@ -125,7 +84,7 @@ export default function HabitsProvider({ children }) {
             console.log('📤 Syncing local habit entries...');
             const unsyncedEntries = await getUnsyncedHabitEntries(db);
             for (const entry of unsyncedEntries) {
-                await toggleHabitEntryToApi(entry);
+                await toggleHabitEntryToApi(db,entry);
             }
 
             console.log('📥 Syncing habit entries from server...');
@@ -140,10 +99,8 @@ export default function HabitsProvider({ children }) {
     };
 
     useEffect(() => {
-        if (initialized.current) return;
-        initialized.current = true;
 
-        let unsubscribe;
+        let unsubscribeNetInfo;
 
         const init = async () => {
             const state = await NetInfo.fetch();
@@ -151,7 +108,7 @@ export default function HabitsProvider({ children }) {
                 await bootstrap();
             }
 
-            unsubscribe = NetInfo.addEventListener((state) => {
+            unsubscribeNetInfo = NetInfo.addEventListener((state) => {
                 if (state.isConnected) {
                     console.log('🌐 Back online — syncing habits');
                     bootstrap();
@@ -161,9 +118,22 @@ export default function HabitsProvider({ children }) {
 
         init();
 
+        const handleAppStateChange = (nextAppState) => {
+            if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+                const now = Date.now();
+                if (now - lastSyncTime.current > 5000) {
+                    console.log("🔄 App came to foreground — triggering sync");
+                    bootstrap();
+                    lastSyncTime.current = now;
+                }
+            }
+            appState.current = nextAppState;
+        };
+        const appStateListener = AppState.addEventListener("change",handleAppStateChange);
+
         return () => {
-            if (unsubscribe) unsubscribe();
-            initialized.current = false;
+            if (unsubscribeNetInfo) unsubscribeNetInfo();
+            appStateListener.remove();
         };
     }, [isUserLoggedIn, db]);
 

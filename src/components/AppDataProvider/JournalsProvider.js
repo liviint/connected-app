@@ -1,16 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useSQLiteContext } from 'expo-sqlite';
-import { syncJournalsFromApi, markJournalSynced, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded } from '../../db/journalsDb';
+import { syncJournalsFromApi, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded, upsertJournalsToApi } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
 import { syncManager } from '../../../utils/syncManager'
+import { AppState } from 'react-native';
 
 export default function JournalsProvider({ children }) {
-    const db = useSQLiteContext(); // ✅ Use SQLiteProvider's singleton DB
-    const initialized = useRef(false);
+    const db = useSQLiteContext(); 
+    const lastSyncTime = useRef(0);
     const userDetails = useSelector((state) => state?.user?.userDetails);
     const isUserLoggedIn = !!userDetails;
+    const appState = useRef(AppState.currentState)
 
     const fetchJournals = async () => {
         let journals = [];
@@ -24,40 +26,10 @@ export default function JournalsProvider({ children }) {
         }
     };
 
-    const upsertJournalsToApi = async (form) => {
-        try {
-            const formData = new FormData();
-            formData.append("title", form.title);
-            formData.append("content", form.content);
-            formData.append("mood_id", form.mood_id);
-            formData.append("uuid", form.uuid);
-            formData.append("updated_at", form.updated_at);
-
-            if (form.audioUri && !form.audioUri.startsWith("http")) {
-                const uriParts = form.audioUri.split("/");
-                const name = uriParts[uriParts.length - 1];
-                formData.append("audio_file", { uri: form.audioUri, name, type: "audio/mpeg" });
-            }
-
-            const url = form.id ? `/journal/${form.id}/` : "/journal/";
-            const method = form.id ? "PUT" : "POST";
-
-            await api({
-                url,
-                method,
-                data: formData,
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
-            await markJournalSynced(db, form.uuid); // Pass db to local DB functions
-        } catch (err) {
-            console.error(err?.response?.data, "hello err debug");
-        }
-    };
 
     const syncJournalsToApi = async (journals) => {
         for (const journal of journals) {
-            await upsertJournalsToApi(journal);
+            await upsertJournalsToApi(db,journal);
         }
     };
 
@@ -72,9 +44,6 @@ export default function JournalsProvider({ children }) {
     };
 
     useEffect(() => {
-        if (initialized.current) return;
-        initialized.current = true;
-
         let unsubscribeNetInfo;
         const syncing = { current: false };
 
@@ -118,16 +87,34 @@ export default function JournalsProvider({ children }) {
 
             unsubscribeNetInfo = NetInfo.addEventListener((state) => {
                 if (state.isConnected) {
-                    console.log("🌐 Back online — triggering sync");
-                    bootstrap();
+                    const now = Date.now();
+                    if (now - lastSyncTime.current > 5000) {
+                        console.log("🌐 Back online — triggering sync");
+                        bootstrap();
+                        lastSyncTime.current = now;
+                    }
                 }
             });
-        };
+        }
 
         init();
 
+        const handleAppStateChange = (nextAppState) => {
+            if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+                const now = Date.now();
+                if (now - lastSyncTime.current > 5000) {
+                    console.log("🔄 App came to foreground — triggering sync");
+                    bootstrap();
+                    lastSyncTime.current = now;
+                }
+            }
+            appState.current = nextAppState;
+        };
+        const appStateListener = AppState.addEventListener("change",handleAppStateChange);
+
         return () => {
             if (unsubscribeNetInfo) unsubscribeNetInfo();
+            appStateListener.remove();
         };
     }, [isUserLoggedIn, db]);
 

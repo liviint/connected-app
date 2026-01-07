@@ -1,9 +1,27 @@
 // journalsDb.js
 import { DEFAULT_MOODS } from "../../utils/defaultMoods";
+import { api } from "@/api";
 
-/**
- * Save a journal locally
- */
+export const upsertJournalsToApi = async (db,form) => {
+    let data = {
+      ...form
+    }
+    try {
+        const url = form.id ? `/journal/${form.id}/` : "/journal/";
+        const method = form.id ? "PUT" : "POST";
+
+        await api({
+            url,
+            method,
+            data,
+        });
+
+        await markJournalSynced(db, form.uuid); 
+    } catch (err) {
+        console.error(err?.response?.data, "hello err syncing journal to db");
+    }
+};
+
 export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label }) => {
   const now = new Date().toISOString();
 
@@ -33,6 +51,7 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_id, moo
       [id, uuid, title, content, mood_id, mood_label, now, now]
     );
     console.log("✅ Journal upserted locally");
+    upsertJournalsToApi(db,{id, uuid, title, content, mood_id, mood_label,updated_at:now})
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);
   }
