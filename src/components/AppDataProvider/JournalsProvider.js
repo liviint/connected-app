@@ -15,8 +15,8 @@ export default function JournalsProvider({ children }) {
     const fetchJournals = async () => {
         let journals = [];
         try {
-            const res = await api.get(`/journal/`);
-            journals = res.data.results;
+            const res = await api.get(`/journal/?all=true`);
+            journals = res.data
         } catch (err) {
             console.error("Journal fetch error:", err);
         } finally {

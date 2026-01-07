@@ -88,7 +88,7 @@ if (total > 0) {
   return (
     <ScrollView style={globalStyles.container}>
       <BodyText style={globalStyles.title}>
-        {stats?.habit ?? "Habit"} — Stats
+        {stats?.habit_title ?? "Habit"} — Stats
       </BodyText>
 
       {/* Summary Cards */}

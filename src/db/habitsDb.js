@@ -375,7 +375,6 @@ export async function syncHabitEntriesFromApi(db, entries) {
   await db.execAsync('BEGIN TRANSACTION');
   try {
     for (const item of entries) {
-      console.log(item,"entry item")
       const {
         habit_uuid,
         uuid,

@@ -70,7 +70,7 @@ export default function JournalStats() {
       <View style={styles.cards}>
         <StatCard label="Total Entries" value={stats.total_entries} />
         <StatCard label="Current Streak" value={stats.current_streak} />
-        <StatCard label="Best Streak" value={stats.best_streak} />
+        <StatCard label="Best Streak" value={stats.longest_streak} />
         <StatCard label="Moods Used" value={moodData.length} />
       </View>
 
