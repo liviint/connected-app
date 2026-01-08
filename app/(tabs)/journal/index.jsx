@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { Link,  useRouter } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
-import { Audio } from "expo-av";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../src/components/journal/HtmlPreview";
@@ -26,10 +25,6 @@ export default function JournalListPage() {
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Audio playback state
-  const [sound, setSound] = useState(null);
-  const [playingId, setPlayingId] = useState(null);
 
   const fetchJournals = async () => {
     setRefreshing(true);
@@ -62,40 +57,6 @@ export default function JournalListPage() {
 
 
   if (loading) return <PageLoader />
-
-  const handlePlayAudio = async (uri, id) => {
-    try {
-      // Stop previous sound
-      if (sound) {
-        await sound.stopAsync();
-        await sound.unloadAsync();
-        setSound(null);
-        setPlayingId(null);
-      }
-
-      // Load new sound
-      const { sound: newSound } = await Audio.Sound.createAsync({ uri });
-      setSound(newSound);
-      setPlayingId(id);
-      await newSound.playAsync();
-
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          setPlayingId(null);
-          setSound(null);
-        }
-      });
-    } catch (err) {
-      console.error("Audio playback error:", err);
-    }
-  };
-
-  const handlePauseAudio = async () => {
-    if (sound) {
-      await sound.pauseAsync();
-      setPlayingId(null);
-    }
-  };
 
   return (
     <ScrollView
@@ -158,44 +119,7 @@ export default function JournalListPage() {
 
                   {/* Content */}
                   <View style={styles.cardContent}>
-                    
-
                     <HtmlPreview html={item.content} maxLength={200} />
-
-                    {/* Audio Player */}
-                    {item.audio_file && (
-                      <View style={{ marginTop: 8 }}>
-                        <BodyText
-                          style={{
-                            marginBottom: 4,
-                            fontSize: 12,
-                          }}
-                        >
-                          Audio:
-                        </BodyText>
-                        <TouchableOpacity
-                          style={styles.audioButton}
-                          onPress={() =>
-                            playingId === item.uuid
-                              ? handlePauseAudio()
-                              : handlePlayAudio(item.audio_file, item.uuid)
-                          }
-                        >
-                          <BodyText style={styles.audioButtonText}>
-                            {playingId === item.uuid ? "⏸ Pause" : "▶ Play"}
-                          </BodyText>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-
-                    {/* Transcript */}
-                    {item.transcript && (
-                      <BodyText style={styles.transcriptText} numberOfLines={3}>
-                        {item.transcript.length > 150
-                          ? `${item.transcript.slice(0, 150)}...`
-                          : item.transcript}
-                      </BodyText>
-                    )}
                   </View>
                 </Card>
               </Link>
@@ -218,12 +142,9 @@ const styles = StyleSheet.create({
   cardHeader: { marginBottom: 8, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTitle: { fontSize: 20, fontWeight: "600", flex: 1, marginRight: 8 },
   cardMoodText: { fontSize: 12, color: "#6b7280", paddingHorizontal: 6, paddingVertical: 2, backgroundColor: "#F4E1D2", borderRadius: 6, overflow: "hidden" },
-  transcriptText: { marginTop: 8, color: "#6b7280", fontSize: 12 },
   emptyText: { 
     textAlign: "center", 
     marginTop: 40, 
     fontSize: 16, 
   },
-  audioButton: { backgroundColor: "#eee", padding: 8, borderRadius: 8, alignItems: "center" },
-  audioButtonText: { fontSize: 14, fontWeight: "600" },
 });
