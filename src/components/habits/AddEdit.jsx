@@ -99,11 +99,9 @@ export default function AddEdit() {
   return (
     <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <Text style={globalStyles.title}>{id ? "Edit Habit" : "Create a Habit"}</Text>
-
       <Card >
-        {/* TITLE */}
         <View style={globalStyles.formGroup}>
-          <FormLabel style={styles.label}>Title</FormLabel>
+          <FormLabel>Title</FormLabel>
           <Input
             value={form.title}
             onChangeText={(v) => handleChange("title", v)}
@@ -221,6 +219,7 @@ export default function AddEdit() {
           </Text>
         </TouchableOpacity>
       </Card>
+
     </ScrollView>
   );
 }

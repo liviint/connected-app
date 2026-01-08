@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import * as ClipBoard from "expo-clipboard"
 import {useRouter, useLocalSearchParams } from "expo-router";
-import { Audio } from "expo-av";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
 import { htmlToPlainText } from "../../../../src/helpers";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
@@ -27,10 +26,6 @@ export default function ViewJournalPage() {
 
   const [entry, setEntry] = useState({});
   const [loading, setLoading] = useState(true);
-
-  // Audio playback state
-  const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -65,34 +60,6 @@ export default function ViewJournalPage() {
     );
   };
 
-  const handlePlayAudio = async () => {
-    if (!entry.audio_file) return;
-
-    try {
-      if (sound) {
-        await sound.stopAsync();
-        await sound.unloadAsync();
-        setSound(null);
-        setIsPlaying(false);
-        return;
-      }
-
-      const { sound: newSound } = await Audio.Sound.createAsync({ uri: entry.audio_file });
-      setSound(newSound);
-      setIsPlaying(true);
-
-      await newSound.playAsync();
-
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          setIsPlaying(false);
-          setSound(null);
-        }
-      });
-    } catch (err) {
-      console.error("Audio playback error:", err);
-    }
-  };
 
   const handleCopy = async () => {
     let content = htmlToPlainText(entry.content)
@@ -124,23 +91,6 @@ export default function ViewJournalPage() {
         <View style={styles.divider} />
 
         <HtmlPreview  html={entry.content}/>
-
-        {/* Audio Player */}
-        {entry.audio_file && (
-          <View style={{ marginTop: 16 }}>
-            <TouchableOpacity style={styles.audioButton} onPress={handlePlayAudio}>
-              <Text style={styles.audioButtonText}>{isPlaying ? "⏸ Pause" : "▶ Play Audio"}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Transcript */}
-        {entry.transcript && (
-          <View style={styles.transcriptContainer}>
-            <Text style={styles.transcriptTitle}>Transcript</Text>
-            <Text style={styles.transcriptText}>{entry.transcript}</Text>
-          </View>
-        )}
 
         {/* Actions */}
         <View style={styles.actions}>
@@ -176,8 +126,6 @@ const styles = StyleSheet.create({
   dates: { backgroundColor: "#f1f1f1", padding: 12, borderRadius: 12, marginBottom: 12 },
   dateText: { fontSize: 12, color: "#555" },
   divider: { borderBottomWidth: 1, borderBottomColor: "#ddd", marginVertical: 12 },
-  audioButton: { backgroundColor: "#2E8B8B", paddingVertical: 12, borderRadius: 12, alignItems: "center" },
-  audioButtonText: { color: "#fff", fontWeight: "600" },
   transcriptContainer: { marginTop: 16, backgroundColor: "#F4E1D2", padding: 12, borderRadius: 12 },
   transcriptTitle: { fontWeight: "bold", marginBottom: 6 },
   transcriptText: { fontSize: 14 },
