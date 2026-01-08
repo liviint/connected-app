@@ -23,39 +23,123 @@ function sortEntries(entries) {
   return entries.map(parseDate).sort((a, b) => a.date - b.date);
 }
 
+const DAY_MS = 1000 * 60 * 60 * 24;
+
+// Normalize date to local start of day
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+// Period key generator
+function getPeriodKey(date, frequency) {
+  if (frequency === "daily") {
+    return startOfDay(date).getTime();
+  }
+
+  if (frequency === "weekly") {
+    const d = new Date(date);
+    const day = d.getDay() || 7; // Sunday → 7
+    d.setDate(d.getDate() - day + 1); // Monday
+    return startOfDay(d).getTime();
+  }
+
+  if (frequency === "monthly") {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+  }
+
+  return null;
+}
+
 function calcStreakForHabit(entries, frequency = "daily") {
   if (!entries.length) return { current: 0, longest: 0 };
 
+  // 1️⃣ Collect unique completed periods
+  const completedPeriods = new Set();
+
+  for (const e of entries) {
+    if (!e.completed) continue;
+    completedPeriods.add(getPeriodKey(e.date, frequency));
+  }
+
+  if (!completedPeriods.size) return { current: 0, longest: 0 };
+
+  // 2️⃣ Sort periods chronologically
+  const periods = [...completedPeriods].sort((a, b) => a - b);
+
   let longest = 1;
-  let current = entries[entries.length - 1].completed ? 1 : 0;
+  let temp = 1;
 
-  for (let i = entries.length - 2; i >= 0; i--) {
-    const prev = entries[i].date;
-    const curr = entries[i + 1].date;
-
+  // 3️⃣ Calculate longest streak
+  for (let i = 1; i < periods.length; i++) {
     let continuous = false;
-    if (!entries[i].completed) continue;
 
     if (frequency === "daily") {
-      continuous = (curr - prev) / (1000 * 60 * 60 * 24) === 1;
+      continuous = (periods[i] - periods[i - 1]) === DAY_MS;
     } else if (frequency === "weekly") {
-      const prevWeek = getWeekStart(prev);
-      const currWeek = getWeekStart(curr);
-      continuous = (currWeek - prevWeek) / (1000 * 60 * 60 * 24 * 7) === 1;
+      continuous = (periods[i] - periods[i - 1]) === DAY_MS * 7;
     } else if (frequency === "monthly") {
+      const prev = new Date(periods[i - 1]);
+      const curr = new Date(periods[i]);
       continuous =
-        (prev.getFullYear() === curr.getFullYear() && prev.getMonth() + 1 === curr.getMonth()) ||
-        (prev.getMonth() === 11 && curr.getMonth() === 0 && curr.getFullYear() === prev.getFullYear() + 1);
+        curr.getFullYear() === prev.getFullYear() &&
+        curr.getMonth() === prev.getMonth() + 1 ||
+        (prev.getMonth() === 11 &&
+         curr.getMonth() === 0 &&
+         curr.getFullYear() === prev.getFullYear() + 1);
     }
 
-    if (continuous) current++;
-    else current = 1;
+    if (continuous) {
+      temp++;
+      longest = Math.max(longest, temp);
+    } else {
+      temp = 1;
+    }
+  }
 
-    if (current > longest) longest = current;
+  // 4️⃣ Calculate current streak
+  let current = 1;
+  const todayKey = getPeriodKey(new Date(), frequency);
+  const lastPeriod = periods[periods.length - 1];
+
+  let expectedPrev;
+
+  if (frequency === "daily") expectedPrev = todayKey - DAY_MS;
+  if (frequency === "weekly") expectedPrev = todayKey - DAY_MS * 7;
+  if (frequency === "monthly") {
+    const d = new Date(todayKey);
+    d.setMonth(d.getMonth() - 1);
+    expectedPrev = d.getTime();
+  }
+
+  if (lastPeriod !== todayKey && lastPeriod !== expectedPrev) {
+    current = 0;
+  } else {
+    for (let i = periods.length - 2; i >= 0; i--) {
+      let continuous = false;
+
+      if (frequency === "daily") {
+        continuous = periods[i + 1] - periods[i] === DAY_MS;
+      } else if (frequency === "weekly") {
+        continuous = periods[i + 1] - periods[i] === DAY_MS * 7;
+      } else if (frequency === "monthly") {
+        const prev = new Date(periods[i]);
+        const curr = new Date(periods[i + 1]);
+        continuous =
+          curr.getFullYear() === prev.getFullYear() &&
+          curr.getMonth() === prev.getMonth() + 1 ||
+          (prev.getMonth() === 11 &&
+           curr.getMonth() === 0 &&
+           curr.getFullYear() === prev.getFullYear() + 1);
+      }
+
+      if (continuous) current++;
+      else break;
+    }
   }
 
   return { current, longest };
 }
+
 
 function getWeekStart(date) {
   const d = new Date(date);

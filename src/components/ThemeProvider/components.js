@@ -6,6 +6,11 @@ export const BodyText = styled.Text`
     font-size: 16px;
     color: ${props => props.theme.colors.text};
 `;
+export const SecondaryText = styled.Text`
+    font-family: ${props => props.theme.fonts.body};
+    font-size: 16px;
+    color: ${props => props.theme.colors.secondaryText};
+`;
 
 export const Card = styled.View`
   background-color: ${({ theme }) => theme.colors.surface};

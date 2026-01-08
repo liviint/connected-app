@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Pressable } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 
 export default function Header() {
@@ -18,7 +18,9 @@ export default function Header() {
 
   return (
     <View style={styles.headerContainer}>
-      <Text style={styles.logoText}>ZeniaHub</Text>
+      <Pressable onPress={() => router.push("/journal")}>
+        <Text style={styles.logoText}>ZeniaHub</Text>
+      </Pressable>
     <TouchableOpacity 
       onPress={() => setMenuOpen(!menuOpen)} 
       style={styles.menuButton}

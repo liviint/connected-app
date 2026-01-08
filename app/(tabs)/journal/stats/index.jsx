@@ -13,11 +13,12 @@ import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import PageLoader from "../../../../src/components/common/PageLoader";
 import { useSQLiteContext } from "expo-sqlite";
 import { generateJournalStats } from "../../../../src/db/JournalingStats";
+import { ChartCard, StatCard , chartConfig} from "../../../../src/components/common/statsComponents";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 export default function JournalStats() {
   const db = useSQLiteContext()
-  const { globalStyles } = useThemeStyles();
+  const { globalStyles, colors } = useThemeStyles();
   const [stats, setStats] = useState(null);
   const [isLoading,setIsLoading] = useState(true)
 
@@ -50,7 +51,7 @@ export default function JournalStats() {
     name: item.mood__name || "No Mood",
     population: item.count,
     color: COLORS[index % COLORS.length],
-    legendFontColor: "#333",
+    legendFontColor:colors.text,
     legendFontSize: 12,
   }));
 
@@ -82,16 +83,16 @@ export default function JournalStats() {
             return (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <BarChart
-                data={{
-                  labels: monthLabels,
-                  datasets: [{ data: monthCounts }],
-                }}
-                width={minWidth}
-                height={260}
-                fromZero
-                chartConfig={chartConfig("#FF6B6B")}
-                verticalLabelRotation={0}
-                style={styles.chart}
+                  data={{
+                    labels: monthLabels,
+                    datasets: [{ data: monthCounts }],
+                  }}
+                  width={minWidth}
+                  height={260}
+                  fromZero
+                  chartConfig={chartConfig("#FF6B6B",colors)}
+                  verticalLabelRotation={0}
+                  style={styles.chart}
               />
               </ScrollView>
             )
@@ -107,14 +108,14 @@ export default function JournalStats() {
             return (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <PieChart
-                data={moodData}
-                width={minWidth}
-                height={260}
-                accessor="population"
-                backgroundColor="transparent"
-                paddingLeft="15"
-                chartConfig={chartConfig()}
-                absolute
+                  data={moodData}
+                  width={minWidth}
+                  height={260}
+                  accessor="population"
+                  backgroundColor="transparent"
+                  paddingLeft="15"
+                  chartConfig={chartConfig("#333",colors)}
+                  absolute
               />
               </ScrollView>
             )
@@ -138,7 +139,7 @@ export default function JournalStats() {
                   width={minWidth}
                   height={260}
                   fromZero
-                  chartConfig={chartConfig("#2E8B8B")}
+                  chartConfig={chartConfig("#2E8B8B",colors)}
                   style={styles.chart}
                 />
               </ScrollView>
@@ -151,51 +152,7 @@ export default function JournalStats() {
   );
 }
 
-/* SMALL COMPONENTS */
-
-function StatCard({ label, value }) {
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardLabel}>{label}</Text>
-      <Text style={styles.cardValue}>{value}</Text>
-    </View>
-  );
-}
-
-function ChartCard({ title, children }) {
-  const [width,setWidth] = useState(0)
-  return (
-    <View 
-      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-      style={styles.chartCard}
-    >
-      <Text style={styles.chartTitle}>{title}</Text>
-      {width > 0 && children(width - 16)}
-    </View>
-  );
-}
-
-/* CHART CONFIG */
-const chartConfig = (color = "#000") => ({
-  backgroundGradientFrom: "#fff",
-  backgroundGradientTo: "#fff",
-  decimalPlaces: 0,
-  color: () => color,
-  labelColor: () => "#333",
-  barPercentage: 0.6,
-});
-
-/* STYLES */
 const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   cards: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -204,7 +161,6 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "48%",
-    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 14,
     borderWidth: 1,
@@ -212,25 +168,11 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: 13,
-    color: "#666",
   },
   cardValue: {
     fontSize: 22,
     fontWeight: "700",
     marginTop: 4,
-  },
-  chartCard: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#eee",
-    marginBottom: 24,
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
   },
   chart: {
     borderRadius: 12,

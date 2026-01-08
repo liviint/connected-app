@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView , StyleSheet,} from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { useThemeStyles } from "../../../../../src/hooks/useThemeStyles";
@@ -9,10 +9,11 @@ import { BodyText } from "../../../../../src/components/ThemeProvider/components
 import PageLoader from "../../../../../src/components/common/PageLoader";
 import { useSQLiteContext } from "expo-sqlite";
 import { generateHabitStats } from "../../../../../src/db/habitsStats";
+import { ChartCard, StatCard, chartConfig } from "../../../../../src/components/common/statsComponents";
 
 export default function HabitStatsScreen() {
   const db = useSQLiteContext()
-  const {globalStyles}  = useThemeStyles()
+  const {globalStyles,colors}  = useThemeStyles()
   const { id } = useLocalSearchParams();
   const [stats, setStats] = useState(null);
   const [isLoading,setIsLoading] = useState(false)
@@ -69,7 +70,7 @@ if (total > 0) {
       name: "Completed",
       population: completed,
       color: "#2E8B8B",
-      legendFontColor: "#333",
+      legendFontColor: colors.text,
       legendFontSize: 14,
     });
   }
@@ -79,7 +80,7 @@ if (total > 0) {
       name: "Missed",
       population: missed,
       color: "#F4E1D2",
-      legendFontColor: "#333",
+      legendFontColor: colors.text,
       legendFontSize: 14,
     });
   }
@@ -92,11 +93,11 @@ if (total > 0) {
       </BodyText>
 
       {/* Summary Cards */}
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-        <StatCard title="Progress" value={`${stats?.progress_percent ?? 0}%`} />
-        <StatCard title="Completed" value={completed} />
-        <StatCard title="Total Logs" value={total} />
-        <StatCard title="Longest Streak" value={stats?.longest_streak ?? 0} />
+      <View style={styles.cards}>
+        <StatCard label="Progress" value={`${stats?.progress_percent ?? 0}%`} />
+        <StatCard label="Completed" value={completed} />
+        <StatCard label="Total Logs" value={total} />
+        <StatCard label="Longest Streak" value={stats?.longest_streak ?? 0} />
       </View>
 
         <ChartCard title="Completion Breakdown">
@@ -109,7 +110,7 @@ if (total > 0) {
                       data={completionPieData}
                       width={width + 20}
                       height={220}
-                      chartConfig={chartConfig}
+                      chartConfig={chartConfig("#FF6B6B",colors)}
                       accessor="population"
                       backgroundColor="transparent"
                       paddingLeft="20"
@@ -139,9 +140,10 @@ if (total > 0) {
                     }}
                     width={minWidth}
                     height={220}
-                    chartConfig={chartConfig}
+                    chartConfig={chartConfig("#FF6B6B",colors)}
                     fromZero
                     showValuesOnTopOfBars
+                    style={styles.chart}
                   />
                 </ScrollView>
               ) : (
@@ -164,9 +166,10 @@ if (total > 0) {
                     }}
                     width={minWidth}
                     height={220}
-                    chartConfig={chartConfig}
+                    chartConfig={chartConfig("#2E8B8B",colors)}
                     fromZero
                     showValuesOnTopOfBars
+                    style={styles.chart}
                   />
               </ScrollView>
         ) : (
@@ -189,9 +192,10 @@ if (total > 0) {
                   }}
                   width={minWidth}
                   height={240}
-                  chartConfig={chartConfig}
+                  chartConfig={chartConfig("#FF6B6B",colors)}
                   bezier
                   fromZero
+                  style={styles.chart}
                 />
               </ScrollView>
             ) : (
@@ -203,59 +207,14 @@ if (total > 0) {
   );
 }
 
-// ===== Components =====
-function StatCard({ title, value }) {
-  return (
-    <View
-      style={{
-        width: "47%",
-        backgroundColor: "#fff",
-        padding: 16,
-        borderRadius: 12,
-        elevation: 2,
-        marginBottom: 12,
-        overflow:"hidden",
-      }}
-    >
-      <Text 
-        style={{ color: "#777", fontSize: 12 }}>
-          {title}
-      </Text>
-      <Text 
-        style={{ fontSize: 24, fontWeight: "bold", marginTop: 6 }}>
-          {value}
-      </Text>
-    </View>
-  );
-}
-
-function ChartCard({ title, children }) {
-  const [width,setWidth] = useState(0)
-  return (
-    <View
-      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-      style={{
-        backgroundColor: "#fff",
-        padding: 16,
-        borderRadius: 16,
-        marginVertical: 16,
-        elevation: 2,
-      }}
-    >
-      <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 12 }}>{title}</Text>
-      {width > 0 && children(width - 16)}
-    </View>
-  );
-}
-
-// ===== Chart Config =====
-const chartConfig = {
-  backgroundGradientFrom: "#ffffff",
-  backgroundGradientTo: "#ffffff",
-  decimalPlaces: 0,
-  color: (opacity = 1) => `rgba(255, 107, 107, ${opacity})`, // matches #FF6B6B
-  labelColor: () => "#333",
-  propsForDots: {
-    r: "4",
+const styles = StyleSheet.create({
+  cards: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 24,
   },
-};
+  chart: {
+    borderRadius: 12,
+  },
+});
