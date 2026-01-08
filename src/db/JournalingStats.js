@@ -28,7 +28,7 @@ function calcJournalStreak(entries) {
   const dates = [
     ...new Set(
       entries.map(e =>
-        startOfDay(toDate(e)).toISOString()
+        startOfDay(toDate(e)).getTime()
       )
     )
   ]
@@ -41,7 +41,7 @@ function calcJournalStreak(entries) {
   for (let i = 1; i < dates.length; i++) {
     const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
 
-    if (diff === 1) {
+    if (Math.round(diff) === 1) {
       current++;
       longest = Math.max(longest, current);
     } else {
