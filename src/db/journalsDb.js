@@ -22,7 +22,7 @@ export const upsertJournalsToApi = async (db,form) => {
     }
 };
 
-export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label }) => {
+export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label, isUserLoggedIn }) => {
   const now = new Date().toISOString();
 
   try {
@@ -51,7 +51,7 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_id, moo
       [id, uuid, title, content, mood_id, mood_label, now, now]
     );
     console.log("✅ Journal upserted locally");
-    upsertJournalsToApi(db,{id, uuid, title, content, mood_id, mood_label,updated_at:now})
+    isUserLoggedIn && upsertJournalsToApi(db,{id, uuid, title, content, mood_id, mood_label,updated_at:now})
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);
   }

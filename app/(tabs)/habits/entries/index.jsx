@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import { useIsFocused } from "@react-navigation/native";
 import {
   View,
@@ -24,6 +25,7 @@ export default function HabitEntriesPage() {
   const [loading, setLoading] = useState(true);
   const { globalStyles, colors } = useThemeStyles();
   const progressAnim = useRef(new Animated.Value(0)).current;
+  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   let fetchEntries = async () => {
       if(!isFocused) return
@@ -60,7 +62,7 @@ export default function HabitEntriesPage() {
   }, [percent]);
 
   const toggleCompletion = async (habit) => {
-    await toggleHabitEntry(db,habit)
+    await toggleHabitEntry(db,{...habit, isUserLoggedIn})
     fetchEntries()
   };
 

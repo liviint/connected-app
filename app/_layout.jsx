@@ -1,5 +1,4 @@
 import { Stack, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import ReduxProvider from '@/store/ReduxProvider';
 import { useEffect } from 'react';
@@ -74,7 +73,6 @@ export default Sentry.wrap(function RootLayout() {
               />
             </Stack>
           </AppDataProvider>
-          <StatusBar style="auto" />
         </ThemeProvider>
       </ReduxProvider>
     </GestureHandlerRootView>

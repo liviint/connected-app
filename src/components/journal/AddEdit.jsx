@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import {
   View,
   Text,
@@ -32,6 +33,7 @@ export default function AddEdit({ id }) {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [audioUri, setAudioUri] = useState("");
+  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   // Fetch moods
   useEffect(() => {
@@ -76,7 +78,7 @@ const handleSubmit = async () => {
   const journalUuid = form.uuid || uuid.v4();
   const moodLabel = moods.filter(mood => mood.id == form.mood_id)[0]?.name
   try {
-    await upsertJournal(db,{...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
+    await upsertJournal(db,{...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel,isUserLoggedIn});
     Alert.alert("Success", "Journal entry saved!");
     router.push("/journal");
     setForm(initialForm);
@@ -88,7 +90,7 @@ const handleSubmit = async () => {
 };
 
   return (
-    <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={globalStyles.container} >
       <Text style={globalStyles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
       <Card>
         <View style={globalStyles.formGroup}>

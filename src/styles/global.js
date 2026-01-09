@@ -6,7 +6,7 @@ export const createGlobalStyles = (colors) =>
       backgroundColor: colors.background,
       flex: 1,
       paddingHorizontal: 16,
-      paddingVertical: 24,
+      paddingVertical: 8,
     },
 
     content: {

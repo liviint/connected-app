@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   View,
   Text,
@@ -20,6 +21,7 @@ export default function AddEdit() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -76,7 +78,7 @@ export default function AddEdit() {
     try {
       setLoading(true);
       const habitUuid = form.uuid || uuid.v4();
-      await upsertHabit(db,{...form,id:form.id || 0,uuid:habitUuid})
+      await upsertHabit(db,{...form,id:form.id || 0,uuid:habitUuid,isUserLoggedIn})
       setForm(inititialForm)
       router.push("/habits");
     } catch (error) {
