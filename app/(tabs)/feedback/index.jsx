@@ -15,8 +15,7 @@ export default function FeedbackPage() {
 
     setLoading(true);
     try {
-      const res = await blogApi.post('feedback/', { message }); 
-      console.log(res.data, 'Feedback response');
+      await blogApi.post('feedback/', { message });
       setSubmitted(true);
       setMessage('');
     } catch (error) {

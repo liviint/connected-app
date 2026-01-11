@@ -261,6 +261,17 @@ export const upsertHabitEntry = async (db, { uuid, habit_uuid, date, completed, 
 };
 
 export const getHabitEntries = async (db, habitUuid) => {
+  if (!habitUuid) {
+    return db.getAllAsync(
+      `
+      SELECT *
+      FROM habit_entries
+      WHERE deleted = 0
+      ORDER BY date DESC
+      `
+    );
+  }
+
   return db.getAllAsync(
     `
     SELECT *
@@ -271,6 +282,7 @@ export const getHabitEntries = async (db, habitUuid) => {
     [habitUuid]
   );
 };
+
 
 export const markHabitEntrySynced = async (db, uuid, serverId) => {
   await db.runAsync(
@@ -344,7 +356,8 @@ export async function toggleHabitEntry(
     habit_id,
     date = null,
     uuid,
-    isUserLoggedIn
+    isUserLoggedIn,
+    completed
   }
 ) {
 
@@ -370,7 +383,7 @@ export async function toggleHabitEntry(
       SET completed = ?, synced = 0
       WHERE uuid = ?
       `,
-      [entry.completed ? 0 : 1, entry.uuid]
+      [completed ? 1 : 0, entry.uuid]
     );
   } else {
     // 3️⃣ Create entry if missing (only when user explicitly toggles)
@@ -396,29 +409,147 @@ export async function toggleHabitEntry(
       ]
     );
   }
-  isUserLoggedIn && toggleHabitEntryToApi(db,{...entry,habit_uuid,habit_id,date,uuid})
+  isUserLoggedIn && toggleHabitEntryToApi(db,{...entry,habit_uuid,habit_id,date,uuid,completed})
   } catch (error) {
     console.log(error,"hello toggle issue")
   }
   
 }
 
-export const toggleHabitEntryToApi = async (db,entry) => {
-  let habit = await getHabits(db,entry.habit_uuid)
+export const toggleHabitEntryToApi = async (db, entry) => {
+  const habit = await getHabits(db, entry.habit_uuid);
+
   try {
-      let res = await api.put('/habits/entries/toggle/', {
-          habit_id: habit.id, 
-          uuid:entry.uuid
-      });
-      markHabitEntrySynced(db,entry.uuid,res.data.id)
+    const res = await api.put("/habits/entries/toggle/", {
+      habit_id: habit.id,
+      uuid: entry.uuid,
+      updated_at: entry.updated_at, 
+      completed:entry.completed
+    });
+
+    // ✅ Server accepted change
+    const serverEntry = res.data;  
+
+    await db.runAsync(
+      `
+      UPDATE habit_entries
+      SET
+        completed = ?,
+        synced = 1,
+        id = ?,
+        updated_at = ?
+      WHERE uuid = ?
+      `,
+      [
+        serverEntry.completed ? 1 : 0,
+        serverEntry.id,
+        serverEntry.updated_at,
+        entry.uuid,
+      ]
+    );
+
   } catch (e) {
-      console.error('Habit entry sync error:', e?.response?.data || e.message);
+    // ⚠️ Conflict detected
+    if (e?.response?.status === 409) {
+      const serverEntry = e.response.data.server_entry;
+
+      // ✅ Server is newer → overwrite local
+      await db.runAsync(
+        `
+        UPDATE habit_entries
+        SET
+          completed = ?,
+          synced = 1,
+          id = ?,
+          updated_at = ?
+        WHERE uuid = ?
+        `,
+        [
+          serverEntry.completed ? 1 : 0,
+          serverEntry.id,
+          serverEntry.updated_at,
+          entry.uuid,
+        ]
+      );
+    } else {
+      console.error(
+        "Habit entry sync error:",
+        e?.response?.data || e.message
+      );
+    }
+  }
+};
+
+export const syncHabitEntriesToApi = async (db, entry) => {
+  const habit = await getHabits(db, entry.habit_uuid);
+
+  try {
+    const res = await api.put("/habits/entries/sync/", {
+      habit_id: habit.id,
+      uuid: entry.uuid,
+      date: entry.date,              
+      completed: !!entry.completed,
+      updated_at: entry.updated_at,
+    });
+
+    // ✅ Server accepted change
+    const serverEntry = res.data;  
+
+    await db.runAsync(
+      `
+      UPDATE habit_entries
+      SET
+        completed = ?,
+        synced = 1,
+        id = ?,
+        updated_at = ?
+      WHERE uuid = ?
+      `,
+      [
+        serverEntry.completed ? 1 : 0,
+        serverEntry.id,
+        serverEntry.updated_at,
+        entry.uuid,
+      ]
+    );
+
+  } catch (e) {
+    // ⚠️ Conflict detected
+    if (e?.response?.status === 409) {
+      const serverEntry = e.response.data.server_entry;
+
+      // ✅ Server is newer → overwrite local
+      await db.runAsync(
+        `
+        UPDATE habit_entries
+        SET
+          completed = ?,
+          synced = 1,
+          id = ?,
+          updated_at = ?
+        WHERE uuid = ?
+        `,
+        [
+          serverEntry.completed ? 1 : 0,
+          serverEntry.id,
+          serverEntry.updated_at,
+          entry.uuid,
+        ]
+      );
+    } else {
+      console.error(
+        "Habit entry sync error:",
+        e?.response?.data || e.message
+      );
+    }
   }
 };
 
 
+
 export async function syncHabitEntriesFromApi(db, entries) {
   await db.execAsync('BEGIN TRANSACTION');
+  console.log(entries,"hello entries")
   try {
     for (const item of entries) {
       const {
@@ -427,42 +558,48 @@ export async function syncHabitEntriesFromApi(db, entries) {
         completed,
         id: serverId,
         date,
+        updated_at: serverUpdatedAt,
       } = item;
 
-      if (!habit_uuid || !date) continue;
-      
-      // 1️⃣ Find existing local entry (by real identity)
+      if (!habit_uuid || !date || !uuid) continue;
+      if(item.title === "Hello 2") console.log(item,"hello server entry")
+
       const localEntry = await db.getFirstAsync(
         `
-        SELECT uuid
+        SELECT uuid, updated_at
         FROM habit_entries
-        WHERE uuid = ? AND date = ? AND deleted = 0
+        WHERE uuid = ? AND deleted = 0
         `,
-        [uuid, date]
+        [uuid]
       );
 
       if (localEntry) {
-        // 2️⃣ Update existing row
-        await db.runAsync(
-          `
-          UPDATE habit_entries
-          SET
-            completed = ?,
-            id = ?,
-            synced = 1,
-            deleted = 0
-          WHERE uuid = ?
-          `,
-          [
-            completed ? 1 : 0,
-            serverId,
-            uuid,
-          ]
-        );
+        // ✅ Only update local if server is newer
+        if (
+          !localEntry.updated_at ||
+          new Date(serverUpdatedAt) > new Date(localEntry.updated_at)
+        ) {
+          await db.runAsync(
+            `
+            UPDATE habit_entries
+            SET
+              completed = ?,
+              id = ?,
+              synced = 1,
+              deleted = 0,
+              updated_at = ?
+            WHERE uuid = ?
+            `,
+            [
+              completed ? 1 : 0,
+              serverId,
+              serverUpdatedAt,
+              uuid,
+            ]
+          );
+        }
       } else {
-        // 3️⃣ Insert only if missing locally
-        const localUuid = uuid || uuidv4();
-
+        // ✅ Insert missing entry
         await db.runAsync(
           `
           INSERT INTO habit_entries (
@@ -472,27 +609,30 @@ export async function syncHabitEntriesFromApi(db, entries) {
             date,
             completed,
             synced,
-            deleted
+            deleted,
+            updated_at
           )
-          VALUES (?, ?, ?, ?, ?, 1, 0)
+          VALUES (?, ?, ?, ?, ?, 1, 0, ?)
           `,
           [
-          localUuid,
+            uuid,
             serverId,
             habit_uuid,
             date,
             completed ? 1 : 0,
+            serverUpdatedAt,
           ]
         );
       }
     }
 
-    await db.execAsync('COMMIT');
+    await db.execAsync("COMMIT");
   } catch (e) {
-    await db.execAsync('ROLLBACK');
-    console.log(e,"hello error entries sync")
+    await db.execAsync("ROLLBACK");
+    console.log(e, "hello error entries sync");
   }
 }
+
 
 
 export async function getUnsyncedHabitEntries(db) {

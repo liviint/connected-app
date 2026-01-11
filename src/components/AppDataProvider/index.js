@@ -58,17 +58,18 @@ const migrateDbIfNeeded = async (db) => {
     );
 
     CREATE TABLE IF NOT EXISTS habit_entries (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      uuid TEXT UNIQUE,
+      id INTEGER,
+      uuid TEXT UNIQUE PRIMARY KEY,
       habit_uuid TEXT,
       habit_id TEXT,
       user_uuid TEXT,
       date TEXT,
+      updated_at TEXT,
       completed INTEGER DEFAULT 0,
       note TEXT,
       synced INTEGER DEFAULT 0,
       deleted INTEGER DEFAULT 0,
-      UNIQUE(habit_uuid, date)
+      UNIQUE(uuid)
     );
   `);
 };

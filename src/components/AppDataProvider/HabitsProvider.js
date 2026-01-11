@@ -9,7 +9,8 @@ import {
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
     syncHabitEntriesFromApi,
-    toggleHabitEntryToApi,
+    syncHabitEntriesToApi,
+    getHabitEntries,
 } from '../../db/habitsDb';
 import { v4 as uuidv4 } from 'react-native-uuid';
 import { syncManager } from '../../../utils/syncManager'
@@ -82,14 +83,14 @@ export default function HabitsProvider({ children }) {
             console.log('✅ Habits sync complete');
 
             console.log('📤 Syncing local habit entries...');
-            const unsyncedEntries = await getUnsyncedHabitEntries(db);
-            for (const entry of unsyncedEntries) {
-                await toggleHabitEntryToApi(db,entry);
+            const localEntries = await getHabitEntries(db)
+            for (const entry of localEntries) {
+                await syncHabitEntriesToApi(db,entry);
             }
 
             console.log('📥 Syncing habit entries from server...');
-            const todayEntries = await fetchHabitEntries()
-            await syncHabitEntriesFromApi(db, todayEntries,uuidv4);
+            const apiEntries = await fetchHabitEntries()
+            await syncHabitEntriesFromApi(db, apiEntries,uuidv4);
             syncManager.emit("habits_updated");
         } catch (e) {
             console.error('❌ HabitsProvider bootstrap error:', e);

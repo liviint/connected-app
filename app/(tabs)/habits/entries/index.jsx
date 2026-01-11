@@ -61,8 +61,8 @@ export default function HabitEntriesPage() {
     }).start();
   }, [percent]);
 
-  const toggleCompletion = async (habit) => {
-    await toggleHabitEntry(db,{...habit, isUserLoggedIn})
+  const toggleCompletion = async (entry) => {
+    await toggleHabitEntry(db,{...entry,completed:!entry.completed, isUserLoggedIn})
     fetchEntries()
   };
 
