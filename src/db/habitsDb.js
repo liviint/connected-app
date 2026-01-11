@@ -549,7 +549,6 @@ export const syncHabitEntriesToApi = async (db, entry) => {
 
 export async function syncHabitEntriesFromApi(db, entries) {
   await db.execAsync('BEGIN TRANSACTION');
-  console.log(entries,"hello entries")
   try {
     for (const item of entries) {
       const {
