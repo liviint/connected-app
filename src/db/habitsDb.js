@@ -165,21 +165,6 @@ export const markHabitSynced = async (db, uuid, serverId) => {
   );
 };
 
-
-export const deleteHabit = async (db, uuid) => {
-  const now = new Date().toISOString();
-  await db.runAsync(
-    `
-    UPDATE habits
-    SET deleted = 1,
-        synced = 0,
-        updated_at = ?
-    WHERE uuid = ?
-    `,
-    [now, uuid]
-  );
-};
-
 export const syncHabitsFromApi = async (db, habits) => {
   for (const habit of habits) {
     if (!habit.uuid) continue;
@@ -387,6 +372,30 @@ export async function getHabitsForToday(db,uuid) {
     };
   });
 }
+
+export const deleteHabit = async (db, uuid) => {
+  console.log(uuid,"hello uuid")
+  const now = new Date().toISOString();
+
+  try {
+    await db.runAsync(
+      `
+      UPDATE habits
+      SET
+        deleted = 1,
+        synced = 0,
+        updated_at = ?
+      WHERE uuid = ?
+      `,
+      [now, uuid]
+    );
+
+    console.log("🗑️ Habit marked as deleted locally");
+  } catch (error) {
+    console.error("❌ Failed to delete habit locally:", error);
+  }
+};
+
 
 export async function toggleHabitEntry(
   db,
@@ -678,9 +687,3 @@ export async function getUnsyncedHabitEntries(db) {
     WHERE synced = 0 AND deleted = 0
   `);
 }
-
-
-
-
-
-

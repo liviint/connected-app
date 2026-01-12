@@ -10,7 +10,7 @@ import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
 import { BodyText } from "../ThemeProvider/components";
-import { getHabits } from "../../db/habitsDb";
+import { getHabits, deleteHabit } from "../../db/habitsDb";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
 

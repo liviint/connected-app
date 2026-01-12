@@ -3,13 +3,14 @@ import { router, } from "expo-router";
 import { api } from "../../../api";
 import DeleteButton from "../common/DeleteButton";
 import { Card, BodyText } from "../ThemeProvider/components";
+import { deleteHabit } from "../../db/habitsDb";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
+  const db = useSQLiteContext()
   const handleDelete = () => {
-    api
-      .delete(`/habits/${habit.id}/`)
-      .then(() => setRefreshData((prev) => prev + 1))
-      .catch((err) => console.log(err));
+    deleteHabit(db,habit.uuid)
+    setRefreshData(prev => prev + 1)
   };
 
   const handleStateToggle = () => {
