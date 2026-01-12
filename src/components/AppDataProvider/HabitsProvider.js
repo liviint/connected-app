@@ -70,7 +70,7 @@ export default function HabitsProvider({ children }) {
             console.log('📤 Syncing local habits to server...');
             const unsynced = await getUnsyncedHabits(db); 
             for (const habit of unsynced) {
-                await upsertHabitToApi(habit);
+                await upsertHabitToApi(db,habit);
             }
 
             console.log('📥 Syncing habits from server to local...');

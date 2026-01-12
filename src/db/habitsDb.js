@@ -1,5 +1,4 @@
 import { shouldHaveEntry , calcStreak} from "./habitEntriesCalc";
-import { v4 as uuidv4 } from 'react-native-uuid';
 import { api } from "@/api";
 
 
@@ -28,6 +27,46 @@ export const upsertHabitToApi = async (db,habit) => {
   }
 };
 
+export const syncHabitToApi = async (db, habit) => {
+  try {
+    const payload = {
+      uuid: habit.uuid,
+      title: habit.title,
+      description: habit.description,
+      frequency: habit.frequency,
+      updated_at: habit.updated_at,
+      deleted: habit.deleted,
+    };
+
+    const res = await api.put("/habits/sync/", payload);
+
+    const serverHabit = res.data;
+
+    // ✅ Mark synced + attach server ID
+    await markHabitSynced(
+      db,
+      habit.uuid,
+      serverHabit.id,
+      serverHabit.updated_at
+    );
+
+  } catch (e) {
+    // ⚠️ Conflict detected
+    if (e?.response?.status === 409) {
+      const serverHabit = e.response.data.server_habit;
+
+      // Server wins → overwrite local
+      await upsertHabit(db, serverHabit,false);
+    } else {
+      console.error(
+        "Habit sync error:",
+        e?.response?.data || e.message
+      );
+    }
+  }
+};
+
+
 export const upsertHabit = async (db, {
   id,
   uuid,
@@ -40,7 +79,7 @@ export const upsertHabit = async (db, {
   priority = 0,
   is_active = 1,
   isUserLoggedIn,
-}) => {
+},updateApi=true) => {
 
   try {
     const now = new Date().toISOString();
@@ -78,7 +117,7 @@ export const upsertHabit = async (db, {
     `,
     [id, uuid, title, description, frequency, reminder_time, color, icon, priority, is_active, now, now]
   );
-  isUserLoggedIn && upsertHabitToApi(db,{id,uuid, title, description, frequency, reminder_time, color, icon, priority,updated_at:now})
+  (isUserLoggedIn && updateApi) && upsertHabitToApi(db,{id,uuid, title, description, frequency, reminder_time, color, icon, priority,updated_at:now})
   } catch (error) {
     console.log(error,"hello upserting habit locally error")
   }
