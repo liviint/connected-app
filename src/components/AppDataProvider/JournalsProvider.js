@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useSQLiteContext } from 'expo-sqlite';
-import { syncJournalsFromApi, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded, upsertJournalsToApi } from '../../db/journalsDb';
+import { syncJournalsFromApi, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded, syncJournalToApi } from '../../db/journalsDb';
 import NetInfo from '@react-native-community/netinfo';
 import { api } from '../../../api';
 import { syncManager } from '../../../utils/syncManager'
@@ -23,13 +23,6 @@ export default function JournalsProvider({ children }) {
             console.error("Journal fetch error:", err);
         } finally {
             return journals;
-        }
-    };
-
-
-    const syncJournalsToApi = async (journals) => {
-        for (const journal of journals) {
-            await upsertJournalsToApi(db,journal);
         }
     };
 
@@ -62,7 +55,9 @@ export default function JournalsProvider({ children }) {
                 console.log("📤 Syncing local journals to server...");
                 const unsynced = await getUnsyncedJournals(db); 
                 if (unsynced.length > 0) {
-                    await syncJournalsToApi(unsynced);
+                    for (const journal of unsynced) {
+                        await syncJournalToApi(db,journal);
+                    }
                 }
 
                 console.log("📥 Syncing journals from server...");

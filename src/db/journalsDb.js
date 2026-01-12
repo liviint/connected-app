@@ -2,29 +2,81 @@
 import { DEFAULT_MOODS } from "../../utils/defaultMoods";
 import { api } from "@/api";
 
-export const upsertJournalsToApi = async (db,form) => {
-    let data = {
-      ...form
-    }
-    try {
-        const url = form.id ? `/journal/${form.id}/` : "/journal/";
-        const method = form.id ? "PUT" : "POST";
+export const syncJournalToApi = async (db, journal) => {
+  try {
+    const res = await api.put("/journal/sync/", {
+      uuid: journal.uuid,
+      title: journal.title,
+      content: journal.content,
+      transcript: journal.transcript,
+      mood: journal.mood_id,
+      updated_at: journal.updated_at,
+    });
 
-        await api({
-            url,
-            method,
-            data,
-        });
+    const serverEntry = res.data;
+    console.log(serverEntry,"hello server entry")
 
-        await markJournalSynced(db, form.uuid); 
-    } catch (err) {
-        console.error(err?.response?.data, "hello err syncing journal to db");
+    // ✅ Server accepted client version
+    await db.runAsync(
+      `
+      UPDATE journal_entries
+      SET
+        id = ?,
+        title = ?,
+        content = ?,
+        transcript = ?,
+        synced = 1,
+        updated_at = ?
+      WHERE uuid = ?
+      `,
+      [
+        serverEntry.id,
+        serverEntry.title,
+        serverEntry.content,
+        serverEntry.transcript,
+        serverEntry.updated_at,
+        journal.uuid,
+      ]
+    );
+  } catch (e) {
+    // ⚠️ CONFLICT
+    if (e?.response?.status === 409) {
+      const serverEntry = e.response.data.server_entry;
+
+      // ✅ Overwrite local with server version
+      await db.runAsync(
+        `
+        UPDATE journal_entries
+        SET
+          id = ?,
+          title = ?,
+          content = ?,
+          transcript = ?,
+          synced = 1,
+          updated_at = ?
+        WHERE uuid = ?
+        `,
+        [
+          serverEntry.id,
+          serverEntry.title,
+          serverEntry.content,
+          serverEntry.transcript,
+          serverEntry.updated_at,
+          journal.uuid,
+        ]
+      );
+    } else {
+      console.error(
+        "Journal sync error:",
+        e?.response?.data || e.message
+      );
     }
+  }
 };
+
 
 export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label, isUserLoggedIn }) => {
   const now = new Date().toISOString();
-
   try {
     await db.runAsync(
       `
@@ -51,7 +103,7 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_id, moo
       [id, uuid, title, content, mood_id, mood_label, now, now]
     );
     console.log("✅ Journal upserted locally");
-    isUserLoggedIn && upsertJournalsToApi(db,{id, uuid, title, content, mood_id, mood_label,updated_at:now})
+    isUserLoggedIn && syncJournalToApi(db,{id, uuid, title, content, mood_id, mood_label,updated_at:now})
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);
   }
@@ -114,14 +166,30 @@ export const getUnsyncedJournals = async (db) => {
 /**
  * Mark journal as synced after API success
  */
-export const markJournalSynced = async (db, uuid) => {
+export const markJournalSynced = async (db, uuid, serverEntry) => {
   try {
-    await db.runAsync(`UPDATE journal_entries SET synced = 1 WHERE uuid = ?`, [uuid]);
-    console.log('✅ Journal marked as synced');
+    await db.runAsync(
+      `
+      UPDATE journal_entries
+      SET
+        id = ?,
+        synced = 1,
+        updated_at = ?
+      WHERE uuid = ?
+      `,
+      [
+        serverEntry.id,
+        serverEntry.updated_at,
+        uuid,
+      ]
+    );
+
+    console.log("✅ Journal marked as synced", serverEntry.id);
   } catch (error) {
-    console.error('❌ Failed to mark journal as synced:', error);
+    console.error("❌ Failed to mark journal as synced:", error);
   }
 };
+
 
 export const syncJournalsFromApi = async (db, journals) => {
   for (const journal of journals) {
