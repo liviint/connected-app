@@ -396,6 +396,38 @@ export const deleteHabit = async (db, uuid) => {
   }
 };
 
+export const syncDeletedHabitsToApi = async (db) => {
+  const deleted = await db.getAllAsync(
+    `
+    SELECT uuid, id
+    FROM habits
+    WHERE deleted = 1 AND synced = 0
+    `
+  );
+
+  for (const habit of deleted) {
+    try {
+      const url = habit.id
+        ? `/habits/${habit.id}/`
+        : `/habits/by-uuid/${habit.uuid}/`;
+
+      await api.delete(url);
+
+      await db.runAsync(
+        `
+        UPDATE habits
+        SET synced = 1
+        WHERE uuid = ?
+        `,
+        [habit.uuid]
+      );
+    } catch (e) {
+      console.error("❌ Failed to delete habit on server", e?.response?.data);
+    }
+  }
+};
+
+
 
 export async function toggleHabitEntry(
   db,

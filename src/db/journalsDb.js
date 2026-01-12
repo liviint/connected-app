@@ -240,6 +240,54 @@ export const syncJournalsFromApi = async (db, journals) => {
   }
 };
 
+export const syncDeletedJournalsToApi = async (db) => {
+  const deleted = await db.getAllAsync(
+    `
+    SELECT uuid, id, updated_at
+    FROM journal_entries
+    WHERE deleted = 1 AND synced = 0
+    `
+  );
+
+  for (const journal of deleted) {
+    try {
+      const url = journal.id
+        ? `/journal/${journal.id}/`
+        : `/journal/by-uuid/${journal.uuid}/`;
+
+      await api.delete(url);
+
+      // ✅ Mark as synced delete
+      await db.runAsync(
+        `
+        UPDATE journal_entries
+        SET synced = 1
+        WHERE uuid = ?
+        `,
+        [journal.uuid]
+      );
+    } catch (e) {
+      console.error("❌ Failed to delete journal on server", e?.response?.data);
+    }
+  }
+};
+
+export const syncJournalDeletesFromApi = async (db, serverJournals) => {
+  for (const journal of serverJournals) {
+    if (!journal.deleted) continue;
+
+    await db.runAsync(
+      `
+      DELETE FROM journal_entries
+      WHERE uuid = ?
+      `,
+      [journal.uuid]
+    );
+  }
+};
+
+
+
 export const seedMoodsIfNeeded = async (db) => {
   const existing = await db.getFirstAsync(`SELECT COUNT(*) as count FROM moods`);
   if (existing.count > 0) return;
@@ -278,3 +326,32 @@ export const saveMoods = async (db, moods) => {
 export const getLocalMoods = async (db) => {
   return db.getAllAsync(`SELECT * FROM moods ORDER BY id DESC`);
 };
+
+export const purgeSyncedDeletes = async (db) => {
+  await db.execAsync("BEGIN TRANSACTION");
+  try {
+    await db.runAsync(`
+      DELETE FROM journal_entries
+      WHERE deleted = 1 AND synced = 1
+    `);
+
+    await db.runAsync(`
+      DELETE FROM habit_entries
+      WHERE deleted = 1 AND synced = 1
+    `);
+
+    await db.runAsync(`
+      DELETE FROM habits
+      WHERE deleted = 1 AND synced = 1
+    `);
+
+    await db.execAsync("COMMIT");
+    console.log("🧹 Purged synced deletes");
+  } catch (e) {
+    await db.execAsync("ROLLBACK");
+    console.error("❌ Purge failed", e);
+  }
+};
+
+
+
