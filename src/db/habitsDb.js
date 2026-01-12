@@ -19,7 +19,6 @@ export const upsertHabitToApi = async (db,habit) => {
       const res = await api({ url, method, data: payload });
 
       if (res.status === 200 || res.status === 201) {
-          console.log(res.data,"hello res data")
           await markHabitSynced(db, habit.uuid,res.data.id); 
       }
   } catch (e) {
@@ -374,7 +373,6 @@ export async function getHabitsForToday(db,uuid) {
 }
 
 export const deleteHabit = async (db, uuid) => {
-  console.log(uuid,"hello uuid")
   const now = new Date().toISOString();
 
   try {
@@ -640,7 +638,6 @@ export async function syncHabitEntriesFromApi(db, entries) {
         updated_at: serverUpdatedAt,
       } = item;
       if (!habit_uuid || !date || !uuid) continue;
-      console.log(item,"hello item 123")
 
       const localEntry = await db.getFirstAsync(
         `
@@ -650,7 +647,6 @@ export async function syncHabitEntriesFromApi(db, entries) {
         `,
         [uuid]
       );
-      console.log(new Date(serverUpdatedAt),new Date(localEntry.updated_at),localEntry,"hello localEntry")
       if (localEntry) {
         // ✅ Only update local if server is newer
         if (

@@ -14,7 +14,6 @@ export const syncJournalToApi = async (db, journal) => {
     });
 
     const serverEntry = res.data;
-    console.log(serverEntry,"hello server entry")
 
     // ✅ Server accepted client version
     await db.runAsync(

@@ -46,10 +46,8 @@ const ProfileView = () => {
     setLoading(true)
     api.get("accounts/profile/")
     .then(res => {
-        Sentry.captureMessage("hello test user successfu;")
         setUserData(res.data);
     }).catch(err =>  {
-      Sentry.captureMessage("hello test user eror successfu")
       console.error(err);
     })
     .finally(() =>  setLoading(false))
