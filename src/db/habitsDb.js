@@ -598,19 +598,18 @@ export async function syncHabitEntriesFromApi(db, entries) {
         date,
         updated_at: serverUpdatedAt,
       } = item;
-
       if (!habit_uuid || !date || !uuid) continue;
-      if(item.title === "Hello 2") console.log(item,"hello server entry")
+      console.log(item,"hello item 123")
 
       const localEntry = await db.getFirstAsync(
         `
         SELECT uuid, updated_at
         FROM habit_entries
-        WHERE uuid = ? AND deleted = 0
+        WHERE uuid = ? 
         `,
         [uuid]
       );
-
+      console.log(new Date(serverUpdatedAt),new Date(localEntry.updated_at),localEntry,"hello localEntry")
       if (localEntry) {
         // ✅ Only update local if server is newer
         if (

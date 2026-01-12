@@ -90,6 +90,7 @@ export default function HabitsProvider({ children }) {
 
             console.log('📥 Syncing habit entries from server...');
             const apiEntries = await fetchHabitEntries()
+            console.log(apiEntries,"hello api entries")
             await syncHabitEntriesFromApi(db, apiEntries,uuidv4);
             syncManager.emit("habits_updated");
         } catch (e) {
