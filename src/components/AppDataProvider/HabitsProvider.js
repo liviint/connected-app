@@ -83,7 +83,7 @@ export default function HabitsProvider({ children }) {
             console.log('✅ Habits sync complete');
 
             console.log('📤 Syncing local habit entries...');
-            const localEntries = await getHabitEntries(db)
+            const localEntries = await getUnsyncedHabitEntries(db)
             for (const entry of localEntries) {
                 await syncHabitEntriesToApi(db,entry);
             }

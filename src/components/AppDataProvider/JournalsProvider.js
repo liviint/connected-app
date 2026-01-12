@@ -53,21 +53,21 @@ export default function JournalsProvider({ children }) {
 
             try {
                 console.log("📦 Initializing local database...");
-                await seedMoodsIfNeeded(db); // Pass db
+                await seedMoodsIfNeeded(db); 
 
                 await syncMoods();
 
                 if (!isUserLoggedIn) return;
 
                 console.log("📤 Syncing local journals to server...");
-                const unsynced = await getUnsyncedJournals(db); // Pass db
+                const unsynced = await getUnsyncedJournals(db); 
                 if (unsynced.length > 0) {
                     await syncJournalsToApi(unsynced);
                 }
 
                 console.log("📥 Syncing journals from server...");
                 const remote = await fetchJournals();
-                await syncJournalsFromApi(db, remote); // Pass db
+                await syncJournalsFromApi(db, remote); 
                 syncManager.emit("journals_updated");
                 console.log("✅ Sync complete");
             } catch (e) {
