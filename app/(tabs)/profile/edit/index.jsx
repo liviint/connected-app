@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ScrollView,
   Alert,
@@ -11,13 +10,12 @@ import {
 import { useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import { api } from "../../../../api";
-import * as ImagePicker from "expo-image-picker";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import { Card, BodyText, Input, TextArea } from "../../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../../src/components/common/PageLoader";
 
 const ProfilePage = () => {
-  const {globalStyles,colors} = useThemeStyles()
+  const {globalStyles} = useThemeStyles()
   const router = useRouter();
   const user = useSelector((state) => state?.user?.userDetails);
 
@@ -56,27 +54,6 @@ const ProfilePage = () => {
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
     setError("");
-  };
-
-  const pickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("Permission denied", "Please allow gallery access to upload a photo.");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      const asset = result.assets[0];
-      setPreview(asset.uri);
-      setFormData((prev) => ({ ...prev, profilePic: asset }));
-    }
   };
 
   const handleSubmit = async () => {
@@ -143,17 +120,6 @@ const ProfilePage = () => {
             onChangeText={(text) => handleChange("bio", text)}
             placeholder="A little about yourself..."
           />
-        </View>
-
-        <View style={globalStyles.formGroup}>
-          <BodyText style={styles.label}>Profile Photo</BodyText>
-          <TouchableOpacity onPress={pickImage} style={styles.uploadBox}>
-            <BodyText style={styles.uploadText}>Tap to choose a photo</BodyText>
-          </TouchableOpacity>
-
-          {preview ? (
-            <Image source={{ uri: preview }} style={styles.avatarPreview} />
-          ) : null}
         </View>
 
         <TouchableOpacity

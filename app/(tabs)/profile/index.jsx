@@ -2,7 +2,6 @@ import { useCallback, useState} from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -72,14 +71,6 @@ const ProfileView = () => {
   return (
     <ScrollView contentContainerStyle={{...globalStyles.container,...styles.container}}>
       <Card style={styles.card}>
-        {userData.profilePic ? (
-          <View style={styles.avatarWrapper}>
-            <Image
-              source={{ uri: userData.profilePic }}
-              style={styles.avatar}
-            />
-          </View>
-        ) : null}
 
         <BodyText style={styles.username}>Username: {userData.username}</BodyText>
         <Text style={styles.email}>{userData.email}</Text>
