@@ -50,7 +50,7 @@ export default function VerifyEmail() {
     };
 
     verifyEmail();
-  }, [searchParams, dispatch, router]);
+  }, []);
 
   return (
     <View style={{...globalStyles.container,...styles.container}}>
