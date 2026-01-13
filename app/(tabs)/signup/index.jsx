@@ -16,11 +16,12 @@ import { useRouter } from "expo-router";
 const Signup = () => {
   const router = useRouter()
   const { globalStyles } = useThemeStyles();
-  const [formData, setFormData] = useState({
+  let initialForm = {
     email: "",
     password: "",
     source:"app",
-  });
+  }
+  const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,7 +55,7 @@ const Signup = () => {
     try {
       await api.post("/accounts/register/", {...formData,email: formData.email.trim().toLowerCase()});
       setSuccess(true);
-      setFormData({ email: "", password: "" });
+      setFormData(initialForm);
       Alert.alert("Success", "A verification link has been sent to your email.");
     } catch (error) {
       const data = error?.response?.data;

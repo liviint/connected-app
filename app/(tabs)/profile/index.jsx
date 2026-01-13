@@ -16,7 +16,6 @@ import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../src/components/common/PageLoader";
 
-
 const ProfileView = () => {
   const {globalStyles} = useThemeStyles()
   const router = useRouter();
