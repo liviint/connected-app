@@ -105,14 +105,22 @@ export default function HabitsProvider({ children }) {
 
         const init = async () => {
             const state = await NetInfo.fetch();
-            if (state.isConnected) {
+
+            if (state.isConnected && state.isInternetReachable) {
                 await bootstrap();
+            } else {
+                console.log("📴 Offline — waiting for connection");
             }
 
             unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-                if (state.isConnected) {
-                    console.log('🌐 Back online — syncing habits');
-                    bootstrap();
+                if (state.isConnected && state.isInternetReachable) {
+                    const now = Date.now();
+
+                    if (now - lastSyncTime.current > 5000) {
+                        console.log("🌐 Back online — triggering sync");
+                        bootstrap();
+                        lastSyncTime.current = now;
+                    }
                 }
             });
         };

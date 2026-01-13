@@ -74,15 +74,17 @@ export default function JournalsProvider({ children }) {
 
         const init = async () => {
             const state = await NetInfo.fetch();
-            if (state.isConnected) {
+
+            if (state.isConnected && state.isInternetReachable) {
                 await bootstrap();
             } else {
                 console.log("📴 Offline — waiting for connection");
             }
 
             unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-                if (state.isConnected) {
+                if (state.isConnected && state.isInternetReachable) {
                     const now = Date.now();
+
                     if (now - lastSyncTime.current > 5000) {
                         console.log("🌐 Back online — triggering sync");
                         bootstrap();
@@ -90,9 +92,10 @@ export default function JournalsProvider({ children }) {
                     }
                 }
             });
-        }
+        };
 
         init();
+
 
         const handleAppStateChange = (nextAppState) => {
             if (appState.current.match(/inactive|background/) && nextAppState === "active") {
