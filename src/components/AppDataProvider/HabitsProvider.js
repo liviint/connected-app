@@ -5,12 +5,11 @@ import { api } from '../../../api';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
     getUnsyncedHabits,
-    upsertHabitToApi,
+    syncHabitToApi,
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
     syncHabitEntriesFromApi,
     syncHabitEntriesToApi,
-    getHabitEntries,
 } from '../../db/habitsDb';
 import { v4 as uuidv4 } from 'react-native-uuid';
 import { syncManager } from '../../../utils/syncManager'
@@ -70,7 +69,7 @@ export default function HabitsProvider({ children }) {
             console.log('📤 Syncing local habits to server...');
             const unsynced = await getUnsyncedHabits(db); 
             for (const habit of unsynced) {
-                await upsertHabitToApi(db,habit);
+                await syncHabitToApi(db,habit);
             }
 
             console.log('📥 Syncing habits from server to local...');

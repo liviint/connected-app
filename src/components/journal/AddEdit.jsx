@@ -181,15 +181,6 @@ const handleSubmit = async () => {
 
 const styles = StyleSheet.create({
   error: { color: "red", marginTop: 4, fontSize: 12 },
-  recordButton: {
-    backgroundColor: "#2E8B8B",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  recordButtonText: { color: "#fff", fontWeight: "600" },
   submitButton: {
     backgroundColor: "#2E8B8B",
     paddingVertical: 16,
@@ -197,7 +188,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 24,
   },
-  submitButtonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  submitButtonText: { 
+    color: "#fff", 
+    fontWeight: "700", 
+    fontSize: 16 
+  },
   richEditor: {
     minHeight: 180,
     borderWidth: 1,
@@ -209,7 +204,6 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   richToolbar: {
-    backgroundColor: "#f5f5f5",
     borderRadius: 12,
     marginBottom: 6,
   },

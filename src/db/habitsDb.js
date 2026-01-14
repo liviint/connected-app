@@ -1,31 +1,6 @@
 import { shouldHaveEntry , calcStreak} from "./habitEntriesCalc";
 import { api } from "@/api";
 
-
-export const upsertHabitToApi = async (db,habit) => {
-    try {
-      const payload = {
-          uuid: habit.uuid,
-          title: habit.title,
-          frequency: habit.frequency,
-          updated_at: habit.updated_at,
-          deleted: habit.deleted,
-          description:habit.description,
-      };
-
-      const url = habit.id && habit.id !== 0 ? `/habits/${habit.id}/` : '/habits/';
-      const method = habit.id && habit.id !== 0 ? 'PUT' : 'POST';
-
-      const res = await api({ url, method, data: payload });
-
-      if (res.status === 200 || res.status === 201) {
-          await markHabitSynced(db, habit.uuid,res.data.id); 
-      }
-  } catch (e) {
-      console.error( e?.response?.data || e.message,'hello Habit sync error:');
-  }
-};
-
 export const syncHabitToApi = async (db, habit) => {
   try {
     const payload = {
@@ -35,6 +10,7 @@ export const syncHabitToApi = async (db, habit) => {
       frequency: habit.frequency,
       updated_at: habit.updated_at,
       deleted: habit.deleted,
+      reminder_time:habit.reminder_time
     };
 
     const res = await api.put("/habits/sync/", payload);
@@ -116,7 +92,7 @@ export const upsertHabit = async (db, {
     `,
     [id, uuid, title, description, frequency, reminder_time, color, icon, priority, is_active, now, now]
   );
-  (isUserLoggedIn && updateApi) && upsertHabitToApi(db,{id,uuid, title, description, frequency, reminder_time, color, icon, priority,updated_at:now})
+  (isUserLoggedIn && updateApi) && syncHabitToApi(db,{id,uuid, title, description, frequency, reminder_time, color, icon, priority,updated_at:now})
   } catch (error) {
     console.log(error,"hello upserting habit locally error")
   }

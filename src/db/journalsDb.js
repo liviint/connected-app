@@ -8,7 +8,6 @@ export const syncJournalToApi = async (db, journal) => {
       uuid: journal.uuid,
       title: journal.title,
       content: journal.content,
-      transcript: journal.transcript,
       mood: journal.mood_id,
       updated_at: journal.updated_at,
     });
