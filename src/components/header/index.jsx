@@ -42,9 +42,9 @@ export default function Header() {
             isActive={isActive("/(tabs)/profile")} 
           />
           <NavLink 
-            label="Appearance" 
-            path="/appearance" 
-            isActive={isActive("/(tabs)/appearance")} 
+            label="Settings" 
+            path="/settings" 
+            isActive={isActive("/(tabs)/settings")} 
           />
         </View>
       </View>

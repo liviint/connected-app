@@ -8,7 +8,7 @@ import { BackHandler } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import ThemeProvider from "../src/components/ThemeProvider"
 import AppDataProvider from "../src/components/AppDataProvider/index"
-
+import AppLockProvider from "../src/components/AppDataProvider/AppLockProvider"
 
 Sentry.init({
   dsn: 'https://48bbd82038bb8c934670f33b8148b11f@o4510547845382144.ingest.us.sentry.io/4510547919765504',
@@ -53,25 +53,27 @@ export default Sentry.wrap(function RootLayout() {
       <ReduxProvider>
         <ThemeProvider >
           <AppDataProvider>
-            <Stack>
-              {/* Main Tabs */}
-              <Stack.Screen
-                name="(tabs)"
-                options={{
-                  header: () => <Header />,
-                }}
-              />
+            <AppLockProvider>
+                <Stack>
+                  {/* Main Tabs */}
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{
+                      header: () => <Header />,
+                    }}
+                  />
 
-              {/* Modal screen */}
-              <Stack.Screen
-                name="modal"
-                options={{
-                  presentation: 'modal',
-                  title: 'Modal',
-                  header: () => <Header />,
-                }}
-              />
-            </Stack>
+                  {/* Modal screen */}
+                  <Stack.Screen
+                    name="modal"
+                    options={{
+                      presentation: 'modal',
+                      title: 'Modal',
+                      header: () => <Header />,
+                    }}
+                  />
+              </Stack>
+            </AppLockProvider>
           </AppDataProvider>
         </ThemeProvider>
       </ReduxProvider>

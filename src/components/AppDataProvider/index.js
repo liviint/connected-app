@@ -10,6 +10,7 @@ const migrateDbIfNeeded = async (db) => {
     // await db.execAsync(`DROP TABLE IF EXISTS journal_entries;`);
     // await db.execAsync(`DROP TABLE IF EXISTS habit_entries;`);
     // await db.execAsync(`DROP TABLE IF EXISTS moods;`);
+    // await db.execAsync(`DROP TABLE IF EXISTS app_settings;`);
 
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -71,6 +72,12 @@ const migrateDbIfNeeded = async (db) => {
       deleted INTEGER DEFAULT 0,
       UNIQUE(uuid)
     );
+
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );
+
   `);
 };
 
