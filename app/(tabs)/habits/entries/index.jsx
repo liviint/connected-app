@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
 import { useIsFocused } from "@react-navigation/native";
 import {
   View,
@@ -25,7 +24,6 @@ export default function HabitEntriesPage() {
   const [loading, setLoading] = useState(true);
   const { globalStyles, colors } = useThemeStyles();
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   let fetchEntries = async () => {
       if(!isFocused) return
@@ -62,7 +60,7 @@ export default function HabitEntriesPage() {
   }, [percent]);
 
   const toggleCompletion = async (entry) => {
-    await toggleHabitEntry(db,{...entry,completed:!entry.completed, isUserLoggedIn})
+    await toggleHabitEntry(db,{...entry,completed:!entry.completed})
     fetchEntries()
   };
 
@@ -79,7 +77,6 @@ export default function HabitEntriesPage() {
         Today’s Habits
       </Text>
 
-      {/* PROGRESS CARD */}
       <Card
         style={{
           borderRadius: 16,
@@ -123,7 +120,6 @@ export default function HabitEntriesPage() {
         </BodyText>
       </Card>
 
-      {/* HABIT LIST */}
       {entries.map((habit) => (
         <TouchableOpacity
           key={habit.uuid + habit.title }
@@ -156,7 +152,6 @@ export default function HabitEntriesPage() {
               <Text style={{ color: "white", fontWeight: "600" }}>Stats</Text>
             </TouchableOpacity>
 
-            {/* TOGGLE BUTTON */}
             <TouchableOpacity
               onPress={() => toggleCompletion(habit)}
               style={{
@@ -178,7 +173,6 @@ export default function HabitEntriesPage() {
         </TouchableOpacity>
       ))}
 
-      {/* BOTTOM BUTTONS */}
       <View
         style={{
           flexDirection: "row",
