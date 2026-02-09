@@ -27,13 +27,12 @@ export default function AddEdit({ id }) {
   const initialForm = {
     title: "", 
     content: "", 
-    mood_id: "",
+    mood_uuid: "",
     mood_label:"",
   }
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [audioUri, setAudioUri] = useState("");
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   // Fetch moods
   useEffect(() => {
@@ -67,7 +66,7 @@ export default function AddEdit({ id }) {
     let newErrors = {};
     if (!form.content.trim() && !audioUri)
       newErrors.content = "Please write something in your entry.";
-    if (!form.mood_id) newErrors.mood_id = "Please select a mood.";
+    if (!form.mood_uuid) newErrors.mood_uuid = "Please select a mood.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -76,9 +75,9 @@ const handleSubmit = async () => {
   if (!validateForm()) return;
   setLoading(true);
   const journalUuid = form.uuid || uuid.v4();
-  const moodLabel = moods.filter(mood => mood.id == form.mood_id)[0]?.name
+  const moodLabel = moods.filter(mood => mood.uuid == form.mood_uuid)[0]?.name
   try {
-    await upsertJournal(db,{...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel,isUserLoggedIn});
+    await upsertJournal(db,{...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
     Alert.alert("Success", "Journal entry saved!");
     router.push("/journal");
     setForm(initialForm);
@@ -157,12 +156,12 @@ const handleSubmit = async () => {
         <View style={globalStyles.formGroup}>
           <FormLabel >Mood</FormLabel>
           <CustomPicker
-            selectedValue={form.mood_id}
-            onValueChange={(value) => handleChange("mood_id", value)}
+            selectedValue={form.mood_uuid}
+            onValueChange={(value) => handleChange("mood_uuid", value)}
           >
             <Picker.Item label="Select a mood" value="" />
             {moods.map((m) => (
-              <Picker.Item key={m.id} label={m.name} value={String(m.id)} />
+              <Picker.Item key={m.id} label={m.name} value={String(m.uuid)} />
             ))}
           </CustomPicker>
           {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}

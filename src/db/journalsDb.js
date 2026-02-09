@@ -76,7 +76,7 @@ export const syncJournalToApi = async (db, journal) => {
 };
 
 
-export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label, }) => {
+export const upsertJournal = async (db, { id, uuid, title, content, mood_uuid, mood_label, }) => {
   const now = new Date().toISOString();
   try {
     await db.runAsync(
@@ -86,7 +86,7 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_id, moo
         uuid,
         title,
         content,
-        mood_id,
+        mood_uuid,
         mood_label,
         created_at,
         updated_at,
@@ -96,12 +96,12 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_id, moo
       ON CONFLICT(uuid) DO UPDATE SET
         title = excluded.title,
         content = excluded.content,
-        mood_id = excluded.mood_id,
+        mood_id = excluded.mood_uuid,
         mood_label = excluded.mood_label,
         updated_at = excluded.updated_at,
         synced = 0
       `,
-      [id, uuid, title, content, mood_id, mood_label, now, now]
+      [id, uuid, title, content, mood_uuid, mood_label, now, now]
     );
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);

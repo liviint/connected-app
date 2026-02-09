@@ -21,7 +21,6 @@ export default function AddEdit() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const isUserLoggedIn = useSelector((state) => state?.user?.userDetails);
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -78,7 +77,7 @@ export default function AddEdit() {
     try {
       setLoading(true);
       const habitUuid = form.uuid || uuid.v4();
-      await upsertHabit(db,{...form,id:form.id || 0,uuid:habitUuid,isUserLoggedIn})
+      await upsertHabit(db,{...form,id:form.id || 0,uuid:habitUuid})
       setForm(inititialForm)
       router.push("/habits");
     } catch (error) {

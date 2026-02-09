@@ -2,12 +2,12 @@ import React from "react";
 import { SQLiteProvider } from "expo-sqlite";
 import JournalsProvider from "./JournalsProvider";
 import HabitsProvider from "./HabitsProvider";
+import { extraMigrations } from "./migrations"
 
 // Migration / initialization function
 const migrateDbIfNeeded = async (db) => {
-
-    // await db.execAsync(`DROP TABLE IF EXISTS habits;`);
     // await db.execAsync(`DROP TABLE IF EXISTS journal_entries;`);
+    // await db.execAsync(`DROP TABLE IF EXISTS habits;`);
     // await db.execAsync(`DROP TABLE IF EXISTS habit_entries;`);
     // await db.execAsync(`DROP TABLE IF EXISTS moods;`);
     // await db.execAsync(`DROP TABLE IF EXISTS app_settings;`);
@@ -24,6 +24,7 @@ const migrateDbIfNeeded = async (db) => {
       audio_uri TEXT,
       transcript TEXT,
       mood_id INTEGER,
+      mood_uuid INTEGER,
       mood_label TEXT,
       created_at TEXT,
       updated_at TEXT,
@@ -32,11 +33,14 @@ const migrateDbIfNeeded = async (db) => {
     );
 
     CREATE TABLE IF NOT EXISTS moods (
-      id INTEGER PRIMARY KEY,
+      id INTEGER,
+      uuid TEXT UNIQUE PRIMARY KEY,
       name TEXT NOT NULL,
       description TEXT,
       icon TEXT,
-      updated_at TEXT
+      updated_at TEXT,
+      synced INTEGER DEFAULT 0,
+      deleted_at TEXT
     );
 
     CREATE TABLE IF NOT EXISTS habits (
@@ -79,14 +83,14 @@ const migrateDbIfNeeded = async (db) => {
     );
 
   `);
+   extraMigrations(db)
 };
 
 export default function AppDataProvider({ children }) {
   return (
     <SQLiteProvider databaseName="zeniahub.db" onInit={migrateDbIfNeeded}>
-      {/* Both providers now receive the db from SQLiteProvider context */}
       <JournalsProvider />
-      <HabitsProvider />
+      <HabitsProvider />  
       {children}
     </SQLiteProvider>
   );

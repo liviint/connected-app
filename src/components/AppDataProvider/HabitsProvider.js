@@ -1,149 +1,83 @@
-import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import NetInfo from '@react-native-community/netinfo';
-import { api } from '../../../api';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useSelector } from "react-redux";
+import { useSQLiteContext } from "expo-sqlite";
+import { api } from "../../../api";
+import { syncManager } from "../../../utils/syncManager";
+import { useSyncEngine } from "../../../src/hooks/useSyncEngine";
 import {
     getUnsyncedHabits,
-    syncHabitToApi,
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
     syncHabitEntriesFromApi,
-    syncHabitEntriesToApi,
-} from '../../db/habitsDb';
-import { v4 as uuidv4 } from 'react-native-uuid';
-import { syncManager } from '../../../utils/syncManager'
-import { AppState } from 'react-native';
-
-// Helper to ensure database-safe values (prevents NullPointerException)
-const sanitizeHabit = (habit) => ({
-    id: habit.id ?? 0,
-    uuid: habit.uuid || "",
-    title: habit.title || "Untitled",
-    description: habit.description ?? null,
-    frequency: habit.frequency ?? null,
-    reminder_time: habit.reminder_time ?? null,
-    color: habit.color ?? null,
-    icon: habit.icon ?? null,
-    priority: habit.priority ?? 0,
-    is_active: habit.is_active ?? 1,
-    updated_at: habit.updated_at || new Date().toISOString(),
-    deleted: habit.deleted ? 1 : 0,
-});
+} from "../../db/habitsDb";
+import { getLastSyncedAt, saveLastSyncedAt } from "../../db/common";
 
 export default function HabitsProvider({ children }) {
-    const db = useSQLiteContext(); 
-    const lastSyncTime = useRef(0);
-    const syncing = useRef(false);
+    const db = useSQLiteContext();
     const userDetails = useSelector((state) => state?.user?.userDetails);
-    const isUserLoggedIn = !!userDetails;
-    const appState = useRef(AppState.currentState)
+    const enabled = !!userDetails;
 
-    const fetchHabits = async () => {
-        try {
-            const res = await api.get('/habits/');
-            return res.data?.results || [];
-        } catch (e) {
-            console.error('Habit fetch error:', e);
-            return [];
+    const syncHabitsFromLocalToApi = async () => {
+        const unsynced = await getUnsyncedHabits(db);
+        if (unsynced.length > 0) {
+          await api.post("/habits/bulk_sync/", {
+              items: unsynced,
+          });
         }
     };
 
-    const fetchHabitEntries = async () => {
-        try {
-            const res = await api.get('habits/entries/');
-            return res.data|| [];
-        } catch (e) {
-            console.error('Habit entries fetch error:', e);
-            return [];
-        }
-    };
+  const syncHabitsFromApiToLocal = async () => {
+    const lastSyncedAt = await getLastSyncedAt(db, "habits");
 
-    const bootstrap = async () => {
-        if (syncing.current) return;
-        syncing.current = true;
+    const res = await api.post("/habits/sync/", {
+      last_synced_at: lastSyncedAt,
+    });
+    console.log(lastSyncedAt,res.data.results,"hello last synced at")
+    await syncHabitsFromApi(db, res.data.results);
+    await saveLastSyncedAt(db, "habits", res.data.server_time );
+  };
 
-        try {
-            if (!isUserLoggedIn) return;
+  // -----------------------------
+  // HABIT ENTRIES
+  // -----------------------------
+  const syncEntriesFromLocalToApi = async () => {
+    const unsynced = await getUnsyncedHabitEntries(db);
+    console.log(unsynced,"hello unsynced")
+    if (unsynced.length > 0) {
+      await api.post("/habits/entries/bulk_sync/", {
+        items: unsynced,
+      });
+    }
+  };
 
-            console.log('📤 Syncing local habits to server...');
-            const unsynced = await getUnsyncedHabits(db); 
-            for (const habit of unsynced) {
-                await syncHabitToApi(db,habit);
-            }
+  const syncEntriesFromApiToLocal = async () => {
+    const lastSyncedAt = await getLastSyncedAt(db, "habit_entries");
 
-            console.log('📥 Syncing habits from server to local...');
-            const remote = await fetchHabits();
-            if (remote && Array.isArray(remote)) {
-                const sanitizedRemote = remote.map(sanitizeHabit);
-                await syncHabitsFromApi(db, sanitizedRemote); // Pass DB
-            }
+    const res = await api.post("/habits/entries/sync/", {
+      last_synced_at: lastSyncedAt,
+    });
 
-            console.log('✅ Habits sync complete');
+    await syncHabitEntriesFromApi(db, res.data.results);
+    await saveLastSyncedAt(db, "habit_entries", res.data.server_time);
+  };
 
-            console.log('📤 Syncing local habit entries...');
-            const localEntries = await getUnsyncedHabitEntries(db)
-            for (const entry of localEntries) {
-                await syncHabitEntriesToApi(db,entry);
-            }
+  // -----------------------------
+  // BOOTSTRAP
+  // -----------------------------
+  const bootstrap = async () => {
+    await syncHabitsFromLocalToApi();
+    await syncHabitsFromApiToLocal();
+    syncManager.emit("habits_updated");
 
-            console.log('📥 Syncing habit entries from server...');
-            const apiEntries = await fetchHabitEntries()
-            await syncHabitEntriesFromApi(db, apiEntries,uuidv4);
-            syncManager.emit("habits_updated");
-        } catch (e) {
-            console.error('❌ HabitsProvider bootstrap error:', e);
-        } finally {
-            syncing.current = false;
-        }
-    };
+    await syncEntriesFromLocalToApi();
+    await syncEntriesFromApiToLocal();
+    syncManager.emit("habit_entries_updated");
+  };
 
-    useEffect(() => {
+  useSyncEngine({
+    enabled,
+    name: "habits",
+    bootstrap,
+  });
 
-        let unsubscribeNetInfo;
-
-        const init = async () => {
-            const state = await NetInfo.fetch();
-
-            if (state.isConnected && state.isInternetReachable) {
-                await bootstrap();
-            } else {
-                console.log("📴 Offline — waiting for connection");
-            }
-
-            unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-                if (state.isConnected && state.isInternetReachable) {
-                    const now = Date.now();
-
-                    if (now - lastSyncTime.current > 5000) {
-                        console.log("🌐 Back online — triggering sync");
-                        bootstrap();
-                        lastSyncTime.current = now;
-                    }
-                }
-            });
-        };
-
-        init();
-
-        const handleAppStateChange = (nextAppState) => {
-            if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-                const now = Date.now();
-                if (now - lastSyncTime.current > 5000) {
-                    console.log("🔄 App came to foreground — triggering sync");
-                    bootstrap();
-                    lastSyncTime.current = now;
-                }
-            }
-            appState.current = nextAppState;
-        };
-        const appStateListener = AppState.addEventListener("change",handleAppStateChange);
-
-        return () => {
-            if (unsubscribeNetInfo) unsubscribeNetInfo();
-            appStateListener.remove();
-        };
-    }, [isUserLoggedIn, db]);
-
-    return children;
+  return children;
 }
