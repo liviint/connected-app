@@ -16,7 +16,15 @@ export async function getLastSyncedAt(db, type) {
 export async function saveLastSyncedAt(db, type, serverTime) {
   const key = `last_synced_at:${type}`;
 
-  if(!(serverTime instanceof Date)) return
+  // Convert string to Date if necessary
+  if (!(serverTime instanceof Date)) {
+    serverTime = new Date(serverTime)
+  }
+
+  if (isNaN(serverTime.getTime())) {
+    console.warn("Invalid serverTime:", serverTime)
+    return
+  }
 
   const value = serverTime.toISOString()
 
@@ -29,4 +37,7 @@ export async function saveLastSyncedAt(db, type, serverTime) {
     `,
     [key, value]
   );
+
+  console.log("✅ [journals] Last synced at saved:", value)
 }
+

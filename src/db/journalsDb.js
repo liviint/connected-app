@@ -1,6 +1,9 @@
 // journalsDb.js
 import { DEFAULT_MOODS } from "../../utils/defaultMoods";
 import { api } from "@/api";
+import uuid from "react-native-uuid";
+
+const newUuid = () => uuid.v4();
 
 export const syncJournalToApi = async (db, journal) => {
   try {
@@ -73,7 +76,7 @@ export const syncJournalToApi = async (db, journal) => {
 };
 
 
-export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label, isUserLoggedIn }) => {
+export const upsertJournal = async (db, { id, uuid, title, content, mood_id, mood_label, }) => {
   const now = new Date().toISOString();
   try {
     await db.runAsync(
@@ -100,8 +103,6 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_id, moo
       `,
       [id, uuid, title, content, mood_id, mood_label, now, now]
     );
-    console.log("✅ Journal upserted locally");
-    isUserLoggedIn && syncJournalToApi(db,{id, uuid, title, content, mood_id, mood_label,updated_at:now})
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);
   }
@@ -238,6 +239,15 @@ export const syncJournalsFromApi = async (db, journals) => {
   }
 };
 
+export const getUnsyncedMoods = async (db) => {
+  return db.getAllAsync(`
+    SELECT *
+    FROM moods
+    WHERE synced =  0
+  `);
+};
+
+
 export const syncDeletedJournalsToApi = async (db) => {
   const deleted = await db.getAllAsync(
     `
@@ -284,42 +294,65 @@ export const syncJournalDeletesFromApi = async (db, serverJournals) => {
   }
 };
 
-
-
 export const seedMoodsIfNeeded = async (db) => {
   const existing = await db.getFirstAsync(`SELECT COUNT(*) as count FROM moods`);
   if (existing.count > 0) return;
-
-  console.log("🌱 Seeding default moods");
   const now = new Date().toISOString();
 
   for (const m of DEFAULT_MOODS) {
+    const moodUuid = newUuid(); 
     await db.runAsync(
-      `INSERT INTO moods (id, name, description, icon, updated_at)
-       VALUES (?, ?, ?, ?, ?)`,
-      [m.id, m.name, m.description, m.icon, now]
+      `INSERT INTO moods (
+        uuid, id, name, description, icon, updated_at, deleted_at, synced
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        moodUuid,
+        m.id || null,
+        m.name,
+        m.description ?? "",
+        m.icon ?? null,
+        now,
+        null, 
+        0     
+      ]
     );
   }
 };
 
+
 export const saveMoods = async (db, moods) => {
   const now = new Date().toISOString();
+
   const query = `
-    INSERT INTO moods (id, name, description, icon, updated_at)
-    VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT(id) DO UPDATE SET
+    INSERT INTO moods (
+      uuid, name, description, icon, updated_at, deleted_at, synced
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(uuid) DO UPDATE SET
       name = excluded.name,
       description = excluded.description,
       icon = excluded.icon,
-      updated_at = excluded.updated_at
+      updated_at = excluded.updated_at,
+      deleted_at = excluded.deleted_at,
+      synced = excluded.synced
   `;
 
   for (const m of moods) {
-    await db.runAsync(query, [m.id, m.name, m.description ?? "", m.icon ?? null, now]);
+    const moodUuid = m.uuid || newUuid();
+    await db.runAsync(query, [
+      moodUuid,
+      m.name,
+      m.description ?? "",
+      m.icon ?? null,
+      now,
+      m.deleted_at ?? null,
+      1 // mark as synced
+    ]);
   }
 
   console.log("💾 Moods cached locally");
 };
+
 
 export const getLocalMoods = async (db) => {
   return db.getAllAsync(`SELECT * FROM moods ORDER BY id DESC`);

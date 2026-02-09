@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -10,7 +8,7 @@ import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
 import { BodyText } from "../ThemeProvider/components";
-import { getHabits, deleteHabit } from "../../db/habitsDb";
+import { getHabits } from "../../db/habitsDb";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
 

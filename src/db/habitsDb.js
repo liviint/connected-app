@@ -53,7 +53,6 @@ export const upsertHabit = async (db, {
   icon,
   priority = 0,
   is_active = 1,
-  isUserLoggedIn,
 },updateApi=true) => {
 
   try {
@@ -92,7 +91,6 @@ export const upsertHabit = async (db, {
     `,
     [id, uuid, title, description, frequency, reminder_time, color, icon, priority, is_active, now, now]
   );
-  (isUserLoggedIn && updateApi) && syncHabitToApi(db,{id,uuid, title, description, frequency, reminder_time, color, icon, priority,updated_at:now})
   } catch (error) {
     console.log(error,"hello upserting habit locally error")
   }
@@ -410,7 +408,6 @@ export async function toggleHabitEntry(
     habit_id,
     date = null,
     uuid,
-    isUserLoggedIn,
     completed
   }
 ) {
@@ -463,7 +460,6 @@ export async function toggleHabitEntry(
       ]
     );
   }
-  isUserLoggedIn && toggleHabitEntryToApi(db,{...entry,habit_uuid,habit_id,date,uuid,completed})
   } catch (error) {
     console.log(error,"hello toggle issue")
   }

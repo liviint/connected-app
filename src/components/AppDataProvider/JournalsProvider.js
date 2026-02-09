@@ -1,120 +1,87 @@
-import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import { useSQLiteContext } from 'expo-sqlite';
-import { syncJournalsFromApi, getUnsyncedJournals, saveMoods, seedMoodsIfNeeded, syncJournalToApi } from '../../db/journalsDb';
-import NetInfo from '@react-native-community/netinfo';
-import { api } from '../../../api';
-import { syncManager } from '../../../utils/syncManager'
-import { AppState } from 'react-native';
+import { useSelector } from "react-redux";
+import { useSQLiteContext } from "expo-sqlite";
+import { api } from "../../../api";
+import { syncManager } from "../../../utils/syncManager";
+import { useSyncEngine } from "../../../src/hooks/useSyncEngine";
+
+import {
+  syncJournalsFromApi,
+  getUnsyncedJournals,
+  getUnsyncedMoods,
+  syncJournalToApi,
+  saveMoods,
+  seedMoodsIfNeeded,
+} from "../../db/journalsDb";
+
+import { getLastSyncedAt, saveLastSyncedAt } from "../../db/common";
 
 export default function JournalsProvider({ children }) {
-    const db = useSQLiteContext(); 
-    const lastSyncTime = useRef(0);
+    const db = useSQLiteContext();
     const userDetails = useSelector((state) => state?.user?.userDetails);
-    const isUserLoggedIn = !!userDetails;
-    const appState = useRef(AppState.currentState)
+    const enabled = !!userDetails;
 
-    const fetchJournals = async () => {
-        let journals = [];
-        try {
-            const res = await api.get(`/journal/?all=true`);
-            journals = res.data
-        } catch (err) {
-            console.error("Journal fetch error:", err);
-        } finally {
-            return journals;
-        }
-    };
 
     const syncMoods = async () => {
         try {
-            const res = await api.get("journal/categories/");
-            await saveMoods(db, res.data); // Pass db
-            console.log("🔄 Moods synced");
+        const res = await api.get("/journal/categories/");
+        await saveMoods(db, res.data);
         } catch {
-            console.log("📴 Offline — using cached moods");
         }
     };
 
-    useEffect(() => {
-        let unsubscribeNetInfo;
-        const syncing = { current: false };
-
-        const bootstrap = async () => {
-            if (syncing.current) return;
-            syncing.current = true;
-
-            try {
-                console.log("📦 Initializing local database...");
-                await seedMoodsIfNeeded(db); 
-
-                await syncMoods();
-
-                if (!isUserLoggedIn) return;
-
-                console.log("📤 Syncing local journals to server...");
-                const unsynced = await getUnsyncedJournals(db); 
-                if (unsynced.length > 0) {
-                    for (const journal of unsynced) {
-                        await syncJournalToApi(db,journal);
-                    }
-                }
-
-                console.log("📥 Syncing journals from server...");
-                const remote = await fetchJournals();
-                await syncJournalsFromApi(db, remote); 
-                syncManager.emit("journals_updated");
-                console.log("✅ Sync complete");
-            } catch (e) {
-                console.error("❌ JournalsProvider error:", e);
-            } finally {
-                syncing.current = false;
-            }
-        };
-
-        const init = async () => {
-            const state = await NetInfo.fetch();
-
-            if (state.isConnected && state.isInternetReachable) {
-                await bootstrap();
-            } else {
-                console.log("📴 Offline — waiting for connection");
-            }
-
-            unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-                if (state.isConnected && state.isInternetReachable) {
-                    const now = Date.now();
-
-                    if (now - lastSyncTime.current > 5000) {
-                        console.log("🌐 Back online — triggering sync");
-                        bootstrap();
-                        lastSyncTime.current = now;
-                    }
-                }
+    const syncJournalsFromLocalToApi = async () => {
+        const unsynced = await getUnsyncedJournals(db);
+        console.log(unsynced,"hello unsynced")
+        if (unsynced.length > 0) {
+            await api.post("/journal/bulk_sync/", {
+                items: unsynced,
             });
-        };
+        }
+    };
 
-        init();
+    const syncJournalsFromApiToLocal = async () => {
+        const lastSyncedAt = await getLastSyncedAt(db, "journals");
+
+        const res = await api.post("/journal/sync/", {
+            last_synced_at: lastSyncedAt,
+        });
+        console.log(lastSyncedAt,res.data.results,res.data.server_time,"hello res 1")
+
+        await syncJournalsFromApi(db, res.data.results);
+        await saveLastSyncedAt(db, "journals" ,res.data.server_time, );
+    };
 
 
-        const handleAppStateChange = (nextAppState) => {
-            if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-                const now = Date.now();
-                if (now - lastSyncTime.current > 5000) {
-                    console.log("🔄 App came to foreground — triggering sync");
-                    bootstrap();
-                    lastSyncTime.current = now;
-                }
-            }
-            appState.current = nextAppState;
-        };
-        const appStateListener = AppState.addEventListener("change",handleAppStateChange);
+    const seedMoodsToApi = async (db) => {
+        const unsynced = await getUnsyncedMoods(db)
+        console.log(unsynced,"hello unsynced")
+        if (!unsynced.length) return;
+        try {
+            await api.post("/journal/categories/bulk_sync/", {
+            items: unsynced,
+            });
+        } catch (e) {
+            
+        }
+    };
 
-        return () => {
-            if (unsubscribeNetInfo) unsubscribeNetInfo();
-            appStateListener.remove();
-        };
-    }, [isUserLoggedIn, db]);
+
+    const bootstrap = async () => {
+        await seedMoodsIfNeeded(db);
+        await syncMoods();
+        await seedMoodsToApi(db)
+
+        await syncJournalsFromLocalToApi();
+        await syncJournalsFromApiToLocal();
+
+        syncManager.emit("journals_updated");
+    };
+
+    useSyncEngine({
+        enabled,
+        name: "journals",
+        bootstrap,
+    });
 
     return children;
 }
