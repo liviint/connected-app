@@ -94,17 +94,17 @@ function buildMoodStats(entries) {
   const moodMap = {};
 
   entries.forEach(e => {
-    if (!e.mood_id) return;
+    if (!e.mood_uuid) return;
 
-    if (!moodMap[e.mood_id]) {
-      moodMap[e.mood_id] = {
-        mood_id: e.mood_id,
+    if (!moodMap[e.mood_uuid]) {
+      moodMap[e.mood_uuid] = {
+        mood_uuid: e.mood_uuid,
         mood__name: e.mood_label || null,
         count: 0,
       };
     }
 
-    moodMap[e.mood_id].count += 1;
+    moodMap[e.mood_uuid].count += 1;
   });
 
   const perMood = Object.values(moodMap);
