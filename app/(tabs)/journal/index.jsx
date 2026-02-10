@@ -4,9 +4,8 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
-import { Link,  useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
@@ -17,10 +16,10 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
 import TimeFilters from "../../../src/components/common/TimeFilters";
 import { AddButton } from "../../../src/components/common/AddButton";
+import ButtonLinks from "../../../src/components/common/ButtonLinks";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
-  const router = useRouter()
   const isFocused = useIsFocused()
   const { globalStyles } = useThemeStyles();
   const [journals, setJournals] = useState([]);
@@ -77,25 +76,14 @@ export default function JournalListPage() {
           onPeriodChange={onPeriodChange} 
         />
 
-        <View 
-          style={{
-              marginBottom:20,
-              display:"flex",
-              flexDirection:"row",
-              justifyContent:"center",
-            }}
-        >
+        {journals.length ? 
+            <ButtonLinks 
+              links={[
+                {name:"Stats", route:"/journal/stats"}
+              ]}
+          /> : ""
+        }
 
-        {journals.length ? <TouchableOpacity 
-          onPress={() => router.push("/journal/stats")}  
-          style={{ marginLeft: "auto" }}>
-          <BodyText >
-            Stats
-          </BodyText>
-        </TouchableOpacity> : ""}
-        </View>
-        
-        {/* Journal List */}
         <View style={styles.journalList}>
           {journals.length === 0 ? (
             <BodyText style={styles.emptyText}>

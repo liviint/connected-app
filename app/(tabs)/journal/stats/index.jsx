@@ -15,6 +15,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { generateJournalStats } from "../../../../src/db/JournalingStats";
 import { ChartCard, StatCard , chartConfig} from "../../../../src/components/common/statsComponents";
 import TimeFilters from "../../../../src/components/common/TimeFilters";
+import ButtonLinks from "../../../../src/components/common/ButtonLinks";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 export default function JournalStats() {
@@ -76,6 +77,12 @@ export default function JournalStats() {
       <TimeFilters 
           selectedPeriod={period}
           onPeriodChange={onPeriodChange} 
+        />
+
+        <ButtonLinks 
+          links={[
+            {name:"Journals",route:"/journal"}
+          ]}
         />
 
       <View style={styles.cards}>

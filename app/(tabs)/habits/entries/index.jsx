@@ -15,6 +15,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { getHabitsForToday , toggleHabitEntry} from "../../../../src/db/habitsDb";
 import uuid from 'react-native-uuid';
 import { syncManager } from "../../../../utils/syncManager";
+import { AddButton } from "../../../../src/components/common/AddButton";
+import ButtonLinks from "../../../../src/components/common/ButtonLinks";
 
 export default function HabitEntriesPage() {
   const db = useSQLiteContext();
@@ -67,139 +69,124 @@ export default function HabitEntriesPage() {
   if (loading) return  <PageLoader />
   
   return (
-    <ScrollView
-      style={globalStyles.container}
-      contentContainerStyle={{ paddingBottom: 80 }}
-    >
-      <Text
-        style={globalStyles.title}
+    <>
+      <ScrollView
+        style={globalStyles.container}
+        contentContainerStyle={{ paddingBottom: 80 }}
       >
-        Today’s Habits
-      </Text>
+        <Text
+          style={globalStyles.title}
+        >
+          Today’s Habits
+        </Text>
 
-      <Card
-        style={{
-          borderRadius: 16,
-          padding: 16,
-          marginBottom: 20,
-          shadowColor: "#000",
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
-        }}
-      >
-        <View>
-          <BodyText style={{ fontSize: 18, fontWeight: "600",}}>
-            Today’s progress
-          </BodyText> 
-        </View>
-
-        <View
+        <Card
           style={{
-            width: "100%",
-            height: 10,
-            backgroundColor: "#e5e7eb",
-            borderRadius: 10,
-            marginTop: 8,
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 20,
+            shadowColor: "#000",
+            shadowOpacity: 0.05,
+            shadowRadius: 4,
           }}
         >
-          <Animated.View
+          <View>
+            <BodyText style={{ fontSize: 18, fontWeight: "600",}}>
+              Today’s progress
+            </BodyText> 
+          </View>
+
+          <View
             style={{
+              width: "100%",
               height: 10,
+              backgroundColor: "#e5e7eb",
               borderRadius: 10,
-              backgroundColor: "#FF6B6B",
-              width: progressAnim.interpolate({
-                inputRange: [0, 100],
-                outputRange: ["0%", "100%"],
-              }),
+              marginTop: 8,
             }}
-          />
-        </View>
-
-        <BodyText style={{ marginTop: 6, color: "#666", fontSize: 14 }}>
-          {completed}/{total}
-        </BodyText>
-      </Card>
-
-      {entries.map((habit) => (
-        <TouchableOpacity
-          key={habit.uuid + habit.title }
-          activeOpacity={0.85}
-          style={{
-            backgroundColor: habit.completed ? "#e8fbe8" : colors.background,
-            ...styles.rowContainer
-          }}
-        >
-          <View style={styles.titleContainer}>
-            <BodyText style={{...styles.title,color:habit.completed ? "#000" : colors.text}}>
-              {habit.title}
-            </BodyText>
-            <BodyText style={{ fontSize: 14, marginTop: 4, color:habit.completed ? "#666" : colors.text}}>
-              Streak: {habit.current_streak}{" "}
-              {habit.current_streak > 1 ? "days" : "day"}
-            </BodyText>
+          >
+            <Animated.View
+              style={{
+                height: 10,
+                borderRadius: 10,
+                backgroundColor: "#FF6B6B",
+                width: progressAnim.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: ["0%", "100%"],
+                }),
+              }}
+            />
           </View>
 
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <TouchableOpacity
-              onPress={() => router.push(`/habits/${habit.habit_uuid}/stats`)}
-              style={{
-                paddingVertical: 6,
-                paddingHorizontal: 14,
-                backgroundColor: "#2E8B8B",
-                borderRadius: 10,
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "600" }}>Stats</Text>
-            </TouchableOpacity>
+          <BodyText style={{ marginTop: 6, color: "#666", fontSize: 14 }}>
+            {completed}/{total}
+          </BodyText>
+        </Card>
 
-            <TouchableOpacity
-              onPress={() => toggleCompletion(habit)}
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: habit.completed ? "#FF6B6B" : "#ccc",
-                backgroundColor: habit.completed ? "#FF6B6B" : "white",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: habit.completed ? "white" : "#666", fontWeight: "800" }}>
-                {habit.completed ? "✓" : ""}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      ))}
+        <ButtonLinks 
+          links={[
+            {name:"All Habits",route:"/habits"}
+          ]}
+        />
 
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 24,
-          gap: 16,
-          marginBottom: 16,
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.push("/habits/add")}
-          style={{flex:1,...globalStyles.primaryBtn}}
-        >
-          <Text style={globalStyles.primaryBtnText}>
-            + Add habit
-          </Text>
-        </TouchableOpacity>
+        {entries.map((habit) => (
+          <TouchableOpacity
+            key={habit.uuid + habit.title }
+            activeOpacity={0.85}
+            style={{
+              backgroundColor: habit.completed ? "#e8fbe8" : colors.background,
+              ...styles.rowContainer
+            }}
+          >
+            <View style={styles.titleContainer}>
+              <BodyText style={{...styles.title,color:habit.completed ? "#000" : colors.text}}>
+                {habit.title}
+              </BodyText>
+              <BodyText style={{ fontSize: 14, marginTop: 4, color:habit.completed ? "#666" : colors.text}}>
+                Streak: {habit.current_streak}{" "}
+                {habit.current_streak > 1 ? "days" : "day"}
+              </BodyText>
+            </View>
 
-        <TouchableOpacity
-          onPress={() => router.push("/habits")}
-          style={{flex:1,...globalStyles.secondaryBtn}}
-        >
-          <Text style={globalStyles.secondaryBtnText}>
-            All Habits
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <TouchableOpacity
+                onPress={() => router.push(`/habits/${habit.habit_uuid}/stats`)}
+                style={{
+                  paddingVertical: 6,
+                  paddingHorizontal: 14,
+                  backgroundColor: "#2E8B8B",
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "600" }}>Stats</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => toggleCompletion(habit)}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: habit.completed ? "#FF6B6B" : "#ccc",
+                  backgroundColor: habit.completed ? "#FF6B6B" : "white",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: habit.completed ? "white" : "#666", fontWeight: "800" }}>
+                  {habit.completed ? "✓" : ""}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        ))}
+
+      </ScrollView>
+      <AddButton
+        primaryAction={{route:"/habits/add", label:"Add habit"}}
+      />
+    </>
   );
 }
 

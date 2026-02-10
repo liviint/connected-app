@@ -12,6 +12,7 @@ import { getHabits } from "../../db/habitsDb";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
 import { AddButton } from "../common/AddButton";
+import ButtonLinks from "../common/ButtonLinks";
 
 export default function HabitsScreen({initialHabits}) {
   const db = useSQLiteContext(); 
@@ -72,24 +73,13 @@ useEffect(() => {
           )}
           onDragEnd={onDragEnd}
           ListHeaderComponent={() => (
-            <View style={styles.header}>
+            <View >
               <Text style={globalStyles.title}>Your Habits</Text>
-
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={globalStyles.primaryBtn}
-                  onPress={() => router.push("/habits/add")}
-                >
-                  <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={{flex:1,...globalStyles.secondaryBtn}}
-                  onPress={() => router.push("/habits/entries")}
-                >
-                  <Text style={globalStyles.secondaryBtnText}>Track progress</Text>
-                </TouchableOpacity>
-              </View>
+              <ButtonLinks 
+                links={[
+                  {name:"Track progresss",route:"/habits/entries"}
+                ]}
+              />
             </View>
           )}
           contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}
@@ -110,9 +100,6 @@ useEffect(() => {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    marginBottom: 20,
-  },
   emptyMessage: {
     textAlign: "center",
     marginBottom: 16,
