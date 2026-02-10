@@ -71,9 +71,15 @@ export default function JournalsProvider({ children }) {
         syncManager.emit("journals_updated");
     };
 
+    const bootstrapLocalNoInternet = async () => {
+        await seedMoodsIfNeeded(db);
+    };
+
+
     useSyncEngine({
         name: "journals",
         bootstrap,
+        bootstrapLocalNoInternet,
     });
 
     return children;

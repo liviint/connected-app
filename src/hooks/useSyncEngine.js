@@ -5,6 +5,7 @@ import { AppState } from "react-native";
 export function useSyncEngine({
   name,
   bootstrap,
+  bootstrapLocalNoInternet,
   debounceMs = 5000,
 }) {
   const syncing = useRef(false);
@@ -29,6 +30,17 @@ export function useSyncEngine({
     }
   };
 
+  const runLocalBootstrap = async (reason) => {
+    if (!bootstrapLocalNoInternet) return;
+
+    try {
+      console.log(`📦 [${name}] Local bootstrap (${reason})`);
+      await bootstrapLocalNoInternet();
+    } catch (e) {
+      console.error(`❌ [${name}] Local bootstrap error`, e);
+    }
+  };
+
   useEffect(() => {
     let unsubscribeNetInfo;
 
@@ -36,6 +48,8 @@ export function useSyncEngine({
       const state = await NetInfo.fetch();
       if (state.isConnected && state.isInternetReachable) {
         safeBootstrap("initial");
+      } else {
+        runLocalBootstrap("initial_no_internet");
       }
 
       unsubscribeNetInfo = NetInfo.addEventListener((state) => {
