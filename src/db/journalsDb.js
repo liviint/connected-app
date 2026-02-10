@@ -96,7 +96,7 @@ export const upsertJournal = async (db, { id, uuid, title, content, mood_uuid, m
       ON CONFLICT(uuid) DO UPDATE SET
         title = excluded.title,
         content = excluded.content,
-        mood_id = excluded.mood_uuid,
+        mood_uuid = excluded.mood_uuid,
         mood_label = excluded.mood_label,
         updated_at = excluded.updated_at,
         synced = 0

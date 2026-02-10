@@ -31,17 +31,12 @@ export default function HabitsProvider({ children }) {
     const res = await api.post("/habits/sync/", {
       last_synced_at: lastSyncedAt,
     });
-    console.log(lastSyncedAt,res.data.results,"hello last synced at")
     await syncHabitsFromApi(db, res.data.results);
     await saveLastSyncedAt(db, "habits", res.data.server_time );
   };
 
-  // -----------------------------
-  // HABIT ENTRIES
-  // -----------------------------
   const syncEntriesFromLocalToApi = async () => {
     const unsynced = await getUnsyncedHabitEntries(db);
-    console.log(unsynced,"hello unsynced")
     if (unsynced.length > 0) {
       await api.post("/habits/entries/bulk_sync/", {
         items: unsynced,
@@ -60,9 +55,6 @@ export default function HabitsProvider({ children }) {
     await saveLastSyncedAt(db, "habit_entries", res.data.server_time);
   };
 
-  // -----------------------------
-  // BOOTSTRAP
-  // -----------------------------
   const bootstrap = async () => {
     await syncHabitsFromLocalToApi();
     await syncHabitsFromApiToLocal();

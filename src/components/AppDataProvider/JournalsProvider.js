@@ -31,7 +31,6 @@ export default function JournalsProvider({ children }) {
 
     const syncJournalsFromLocalToApi = async () => {
         const unsynced = await getUnsyncedJournals(db);
-        console.log(unsynced,"hello unsynced")
         if (unsynced.length > 0) {
             await api.post("/journal/bulk_sync/", {
                 items: unsynced,
@@ -53,7 +52,6 @@ export default function JournalsProvider({ children }) {
 
     const seedMoodsToApi = async (db) => {
         const unsynced = await getUnsyncedMoods(db)
-        console.log(unsynced,"hello unsynced")
         if (!unsynced.length) return;
         try {
             await api.post("/journal/categories/bulk_sync/", {

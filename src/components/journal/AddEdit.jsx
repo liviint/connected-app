@@ -48,7 +48,7 @@ export default function AddEdit({ id }) {
     if (!id) return;
     let fetchJournal = async () => {
       let entry = await getJournals(db,id)
-      setForm({ ...entry,mood_id:String(entry.mood_id)});
+      setForm({ ...entry,mood_uuid:entry.mood_uuid});
       if (entry?.audio_uri) setAudioUri(entry.audio_uri); 
       if (richText.current) {
         richText.current.setContentHTML(entry.content || "");
@@ -161,10 +161,10 @@ const handleSubmit = async () => {
           >
             <Picker.Item label="Select a mood" value="" />
             {moods.map((m) => (
-              <Picker.Item key={m.id} label={m.name} value={String(m.uuid)} />
+              <Picker.Item key={m.uuid} label={m.name} value={String(m.uuid)} />
             ))}
           </CustomPicker>
-          {errors.mood_id && <Text style={styles.error}>{errors.mood_id}</Text>}
+          {errors.mood_uuid && <Text style={styles.error}>{errors.mood_uuid}</Text>}
         </View>
 
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
