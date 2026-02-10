@@ -24,7 +24,7 @@ export default function JournalsProvider({ children }) {
     const syncMoods = async () => {
         try {
         const res = await api.get("/journal/categories/");
-        await saveMoods(db, res.data);
+            await saveMoods(db, res.data);
         } catch {
         }
     };
@@ -66,8 +66,8 @@ export default function JournalsProvider({ children }) {
 
 
     const bootstrap = async () => {
-        await seedMoodsIfNeeded(db);
         await syncMoods();
+        await seedMoodsIfNeeded(db);
         await seedMoodsToApi(db)
 
         await syncJournalsFromLocalToApi();
