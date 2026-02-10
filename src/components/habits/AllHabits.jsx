@@ -11,6 +11,7 @@ import { BodyText } from "../ThemeProvider/components";
 import { getHabits } from "../../db/habitsDb";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
+import { AddButton } from "../common/AddButton";
 
 export default function HabitsScreen({initialHabits}) {
   const db = useSQLiteContext(); 
@@ -52,75 +53,65 @@ useEffect(() => {
 
   if (loading) return <PageLoader />
 
-  if (habits.length === 0) {
-    return (
-      <View style={globalStyles.container}>
-        <Text style={globalStyles.title}>Your Habits</Text>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={globalStyles.primaryBtn}
-            onPress={() => router.push("/habits/add")}
-          >
-            <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
-          </TouchableOpacity>
-        </View>
-        <BodyText style={styles.emptyMessage}>You haven’t added any habits yet.  
-  Start with one small habit to build consistency.</BodyText>
-      </View>
-    );
-  }
-
+  
   return (
-    <GestureHandlerRootView style={globalStyles.container}>
-      <DraggableFlatList
-        data={habits}
-        keyExtractor={(item) => item.uuid}
-        renderItem={({ item, index, drag, isActive }) => (
-          <HabitRow
-            habit={item}
-            index={index}
-            drag={drag}
-            isActive={isActive}
-            setRefreshData={setRefreshData}
-          />
-        )}
-        onDragEnd={onDragEnd}
-        ListHeaderComponent={() => (
-          <View style={styles.header}>
-            <Text style={globalStyles.title}>Your Habits</Text>
+    <>
+      {habits.length > 0 ? 
+      <GestureHandlerRootView style={globalStyles.container}>
+        <DraggableFlatList
+          data={habits}
+          keyExtractor={(item) => item.uuid}
+          renderItem={({ item, index, drag, isActive }) => (
+            <HabitRow
+              habit={item}
+              index={index}
+              drag={drag}
+              isActive={isActive}
+              setRefreshData={setRefreshData}
+            />
+          )}
+          onDragEnd={onDragEnd}
+          ListHeaderComponent={() => (
+            <View style={styles.header}>
+              <Text style={globalStyles.title}>Your Habits</Text>
 
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={globalStyles.primaryBtn}
-                onPress={() => router.push("/habits/add")}
-              >
-                <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={globalStyles.primaryBtn}
+                  onPress={() => router.push("/habits/add")}
+                >
+                  <Text style={globalStyles.primaryBtnText}>+ Add habit</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={{flex:1,...globalStyles.secondaryBtn}}
-                onPress={() => router.push("/habits/entries")}
-              >
-                <Text style={globalStyles.secondaryBtnText}>Track progress</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={{flex:1,...globalStyles.secondaryBtn}}
+                  onPress={() => router.push("/habits/entries")}
+                >
+                  <Text style={globalStyles.secondaryBtnText}>Track progress</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-        contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}
+          )}
+          contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}
+        />
+      </GestureHandlerRootView>
+    : 
+    <View style={globalStyles.container}>
+          <Text style={globalStyles.title}>Your Habits</Text>
+          <BodyText style={styles.emptyMessage}>You haven’t added any habits yet.  
+            Start with one small habit to build consistency.</BodyText>
+        </View>
+      }
+      <AddButton 
+        primaryAction={{route:"/habits/add",label:"Add Habit"}}
       />
-    </GestureHandlerRootView>
-  );
+  </>
+  )
 }
 
 const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
-  },
-  buttonRow: {
-    marginBottom:20,
-    display:"flex",
-    flexDirection:"row",
-    justifyContent:"center",
   },
   emptyMessage: {
     textAlign: "center",
