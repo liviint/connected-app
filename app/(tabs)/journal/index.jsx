@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  RefreshControl,
 } from "react-native";
 import { Link,  useRouter } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
@@ -17,6 +16,7 @@ import { getJournals } from "../../../src/db/journalsDb";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
 import TimeFilters from "../../../src/components/common/TimeFilters";
+import { AddButton } from "../../../src/components/common/AddButton";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
@@ -62,7 +62,8 @@ export default function JournalListPage() {
   if (loading) return <PageLoader />
 
   return (
-    <ScrollView
+    <>
+     <ScrollView
       style={globalStyles.container}
     >
 
@@ -84,21 +85,13 @@ export default function JournalListPage() {
               justifyContent:"center",
             }}
         >
-          <TouchableOpacity 
-            onPress={() => router.push("/journal/create")}  
-            style={globalStyles.primaryBtn}
-          >
-          <Text style={globalStyles.primaryBtnText}>
-            + New Entry
-          </Text>
-        </TouchableOpacity>
 
         {journals.length ? <TouchableOpacity 
           onPress={() => router.push("/journal/stats")}  
-          style={globalStyles.secondaryBtn}>
-          <Text style={globalStyles.secondaryBtnText}>
+          style={{ marginLeft: "auto" }}>
+          <BodyText >
             Stats
-          </Text>
+          </BodyText>
         </TouchableOpacity> : ""}
         </View>
         
@@ -106,8 +99,8 @@ export default function JournalListPage() {
         <View style={styles.journalList}>
           {journals.length === 0 ? (
             <BodyText style={styles.emptyText}>
-              No journal entries yet.  
-              Tap “+ New Entry” to write your first thought.
+              No entries yet.
+              Take a moment and write what’s on your mind.
             </BodyText>
           ) : (
             journals.map((item) => (
@@ -123,7 +116,6 @@ export default function JournalListPage() {
                     )}
                   </View>
 
-                  {/* Content */}
                   <View style={styles.cardContent}>
                     <HtmlPreview html={item.content} maxLength={200} />
                   </View>
@@ -134,6 +126,11 @@ export default function JournalListPage() {
         </View>
       </View>
     </ScrollView>
+    <AddButton 
+        primaryAction={{route:"/journal/create",label:"Add Journal"}}
+      />
+    </>
+    
   );
 }
 

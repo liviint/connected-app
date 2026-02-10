@@ -14,7 +14,7 @@ import { getLastSyncedAt, saveLastSyncedAt } from "../../db/common";
 export default function HabitsProvider({ children }) {
     const db = useSQLiteContext();
     const userDetails = useSelector((state) => state?.user?.userDetails);
-    const enabled = !!userDetails;
+    const isSyncEnabled = !!userDetails;
 
     const syncHabitsFromLocalToApi = async () => {
         const unsynced = await getUnsyncedHabits(db);
@@ -56,6 +56,7 @@ export default function HabitsProvider({ children }) {
   };
 
   const bootstrap = async () => {
+    if(!isSyncEnabled) return
     await syncHabitsFromLocalToApi();
     await syncHabitsFromApiToLocal();
     syncManager.emit("habits_updated");
@@ -66,7 +67,6 @@ export default function HabitsProvider({ children }) {
   };
 
   useSyncEngine({
-    enabled,
     name: "habits",
     bootstrap,
   });

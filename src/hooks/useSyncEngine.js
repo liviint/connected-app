@@ -3,7 +3,6 @@ import NetInfo from "@react-native-community/netinfo";
 import { AppState } from "react-native";
 
 export function useSyncEngine({
-  enabled,
   name,
   bootstrap,
   debounceMs = 5000,
@@ -13,8 +12,6 @@ export function useSyncEngine({
   const appState = useRef(AppState.currentState);
 
   const safeBootstrap = async (reason) => {
-    if (!enabled || syncing.current) return;
-
     const now = Date.now();
     if (now - lastSyncTime.current < debounceMs) return;
 
@@ -69,5 +66,5 @@ export function useSyncEngine({
       if (unsubscribeNetInfo) unsubscribeNetInfo();
       appStateListener.remove();
     };
-  }, [enabled]);
+  }, []);
 }

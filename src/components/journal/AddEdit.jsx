@@ -90,7 +90,7 @@ const handleSubmit = async () => {
 
   return (
     <ScrollView style={globalStyles.container} >
-      <Text style={globalStyles.title}>{id ? "Edit Entry" : "Add Entry"}</Text>
+      <Text style={globalStyles.title}>{id ? "Edit Journal" : "Add Journal"}</Text>
       <Card>
         <View style={globalStyles.formGroup}>
           <FormLabel>Title (Optional)</FormLabel>

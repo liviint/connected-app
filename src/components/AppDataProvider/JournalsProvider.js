@@ -3,14 +3,12 @@ import { useSQLiteContext } from "expo-sqlite";
 import { api } from "../../../api";
 import { syncManager } from "../../../utils/syncManager";
 import { useSyncEngine } from "../../../src/hooks/useSyncEngine";
-
 import {
-  syncJournalsFromApi,
-  getUnsyncedJournals,
-  getUnsyncedMoods,
-  syncJournalToApi,
-  saveMoods,
-  seedMoodsIfNeeded,
+    syncJournalsFromApi,
+    getUnsyncedJournals,
+    getUnsyncedMoods,
+    saveMoods,
+    seedMoodsIfNeeded,
 } from "../../db/journalsDb";
 
 import { getLastSyncedAt, saveLastSyncedAt } from "../../db/common";
@@ -18,8 +16,7 @@ import { getLastSyncedAt, saveLastSyncedAt } from "../../db/common";
 export default function JournalsProvider({ children }) {
     const db = useSQLiteContext();
     const userDetails = useSelector((state) => state?.user?.userDetails);
-    const enabled = !!userDetails;
-
+    const isSyncEnabled = !!userDetails;
 
     const syncMoods = async () => {
         try {
@@ -64,18 +61,17 @@ export default function JournalsProvider({ children }) {
 
 
     const bootstrap = async () => {
-        await syncMoods();
+        isSyncEnabled && await syncMoods();
         await seedMoodsIfNeeded(db);
-        await seedMoodsToApi(db)
+        isSyncEnabled && await seedMoodsToApi(db)
 
-        await syncJournalsFromLocalToApi();
-        await syncJournalsFromApiToLocal();
+        isSyncEnabled && await syncJournalsFromLocalToApi();
+        isSyncEnabled && await syncJournalsFromApiToLocal();
 
         syncManager.emit("journals_updated");
     };
 
     useSyncEngine({
-        enabled,
         name: "journals",
         bootstrap,
     });
