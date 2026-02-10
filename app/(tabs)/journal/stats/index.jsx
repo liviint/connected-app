@@ -62,10 +62,9 @@ export default function JournalStats() {
     legendFontSize: 12,
   }));
 
-  /** WEEKDAY DATA */
-  const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekdayNames = ["Sun","Mon", "Tue", "Wed", "Thu", "Fri", "Sat", ];
   const weekdayLabels = stats.entries_per_weekday.map(
-    (item) => weekdayNames[item.weekday - 1]
+    (item) => weekdayNames[item.weekday]
   );
 
   const weekdayCounts = stats.entries_per_weekday.map((item) => item.count);

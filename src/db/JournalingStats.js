@@ -66,15 +66,15 @@ function buildTrends(entries) {
   const perWeekday = {};
 
   entries.forEach(e => {
-    const date = toDate(e);
+    const date = new Date(e.created_at);
 
-    const dayKey = date.toISOString().split("T")[0];
+    const dayKey = date.toISOString().slice(0, 10);
     perDay[dayKey] = (perDay[dayKey] || 0) + 1;
 
-    const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+    const monthKey = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}`;
     perMonth[monthKey] = (perMonth[monthKey] || 0) + 1;
 
-    const weekday = date.getDay() || 7;
+    const weekday = date.getUTCDay(); 
     perWeekday[weekday] = (perWeekday[weekday] || 0) + 1;
   });
 
