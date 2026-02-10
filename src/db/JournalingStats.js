@@ -49,7 +49,6 @@ function calcJournalStreak(entries) {
     }
   }
 
-  // Check if streak is still active today
   const today = startOfDay(new Date());
   const lastDate = dates[dates.length - 1];
   const diffFromToday =
@@ -118,9 +117,8 @@ function buildMoodStats(entries) {
   };
 }
 
-
-export const generateJournalStats = async(db) => {
-    let entries = await getJournals(db)
+export const generateJournalStats = async(db, period) => {
+    let entries = await getJournals(db,null, period)
     if (!entries.length) {
         return {
         total_entries: 0,

@@ -16,6 +16,7 @@ import PageLoader from "../../../src/components/common/PageLoader";
 import { getJournals } from "../../../src/db/journalsDb";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
+import TimeFilters from "../../../src/components/common/TimeFilters";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
@@ -24,26 +25,28 @@ export default function JournalListPage() {
   const { globalStyles } = useThemeStyles();
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [period,setPeriod] = useState("30 days")
 
+
+  const onPeriodChange = (value) => {
+    setPeriod(value)
+  }
   const fetchJournals = async () => {
-    setRefreshing(true);
     try {
-      const res = await getJournals(db)
+      const res = await getJournals(db,null, period)
       setJournals(res);
     } catch (err) {
       console.error("Journal fetch error:", err);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }
 
   
   useEffect(() => {
-    setLoading(true);
+    journals.length === 0 && setLoading(true);
     fetchJournals();
-  },[isFocused])
+  },[isFocused,period])
 
   
   useEffect(() => {
@@ -61,14 +64,17 @@ export default function JournalListPage() {
   return (
     <ScrollView
       style={globalStyles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={fetchJournals} />
-      }
     >
+
       <View style={styles.contentWrapper}>
         <View style={styles.headerBar}>
           <Text style={globalStyles.title}>My Journal</Text>
         </View>
+
+        <TimeFilters 
+          selectedPeriod={period}
+          onPeriodChange={onPeriodChange} 
+        />
 
         <View 
           style={{

@@ -1,7 +1,7 @@
-// journalsDb.js
 import { DEFAULT_MOODS } from "../../utils/defaultMoods";
 import { api } from "@/api";
 import uuid from "react-native-uuid";
+import { getPeriodDateFilter } from "./periodFilter";
 
 const newUuid = () => uuid.v4();
 
@@ -127,10 +127,8 @@ export const deleteJournal = async (db, uuid) => {
   }
 };
 
-/**
- * Fetch all journals (local)
- */
-export const getJournals = async (db, uuid = null) => {
+
+export const getJournals = async (db, uuid = null, period = "30 days") => {
   try {
     if (uuid) {
       const journal = await db.getFirstAsync(
@@ -144,10 +142,14 @@ export const getJournals = async (db, uuid = null) => {
       return journal;
     }
 
+
+    const dateFilter = getPeriodDateFilter(period);
+
     const rows = await db.getAllAsync(
       `
       SELECT * FROM journal_entries
       WHERE deleted = 0
+      ${dateFilter}
       ORDER BY created_at DESC
       `
     );
@@ -157,6 +159,7 @@ export const getJournals = async (db, uuid = null) => {
     return uuid ? null : [];
   }
 };
+
 
 export const getUnsyncedJournals = async (db) => {
   return db.getAllAsync(`SELECT * FROM journal_entries WHERE synced = 0`);

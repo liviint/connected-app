@@ -45,7 +45,6 @@ export default function JournalsProvider({ children }) {
         const res = await api.post("/journal/sync/", {
             last_synced_at: lastSyncedAt,
         });
-        console.log(lastSyncedAt,res.data.results,res.data.server_time,"hello res 1")
 
         await syncJournalsFromApi(db, res.data.results);
         await saveLastSyncedAt(db, "journals" ,res.data.server_time, );

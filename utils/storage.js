@@ -14,7 +14,6 @@ getItem: async (key) => {
 setItem: async (key, value) => {
     try {
         await AsyncStorage.setItem(key, JSON.stringify(value));
-        console.log(key,value,"setting user store")
     } catch (error) {
         console.error('Error setting item:', error);
     }

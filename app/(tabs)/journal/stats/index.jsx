@@ -14,6 +14,7 @@ import PageLoader from "../../../../src/components/common/PageLoader";
 import { useSQLiteContext } from "expo-sqlite";
 import { generateJournalStats } from "../../../../src/db/JournalingStats";
 import { ChartCard, StatCard , chartConfig} from "../../../../src/components/common/statsComponents";
+import TimeFilters from "../../../../src/components/common/TimeFilters";
 
 const COLORS = ["#FF6B6B", "#2E8B8B", "#F4E1D2", "#333333", "#8884d8"];
 export default function JournalStats() {
@@ -21,12 +22,17 @@ export default function JournalStats() {
   const { globalStyles, colors } = useThemeStyles();
   const [stats, setStats] = useState(null);
   const [isLoading,setIsLoading] = useState(true)
+  const [period,setPeriod] = useState("30 days")
+
+  const onPeriodChange = (value) => {
+    setPeriod(value)
+  }
 
   useEffect(() => {
     const fetchStats = async () => {
-      setIsLoading(true)
+      !stats && setIsLoading(true)
       try {
-        let stats = await generateJournalStats(db)
+        let stats = await generateJournalStats(db, period)
         setStats(stats)
       } catch (error) {
         console.log(error,"hello jornal stats error")
@@ -36,7 +42,7 @@ export default function JournalStats() {
       }
     }
     fetchStats()
-  }, []);
+  }, [period]);
 
   if (isLoading) return <PageLoader />
 
@@ -67,7 +73,11 @@ export default function JournalStats() {
     <ScrollView style={globalStyles.container} >
       <Text style={globalStyles.title}>Journaling Summary</Text>
 
-      {/* STATS CARDS */}
+      <TimeFilters 
+          selectedPeriod={period}
+          onPeriodChange={onPeriodChange} 
+        />
+
       <View style={styles.cards}>
         <StatCard label="Total Entries" value={stats.total_entries} />
         <StatCard label="Current Streak" value={stats.current_streak} />
@@ -75,7 +85,6 @@ export default function JournalStats() {
         <StatCard label="Moods Used" value={moodData.length} />
       </View>
 
-      {/* ENTRIES PER MONTH */}
       <ChartCard title="Entries Per Month">
         {
           width => {
