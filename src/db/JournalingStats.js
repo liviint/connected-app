@@ -117,6 +117,66 @@ function buildMoodStats(entries) {
   };
 }
 
+export const generateHomeJournalStats = async(db, period) => {
+    let entries = await getJournals(db,null, period)
+    if (!entries.length) {
+        return {
+        total_entries: 0,
+        current_streak: 0,
+        longest_streak: 0,
+        };
+    }
+
+    const sorted = [...entries].sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+    );
+
+    const totalEntries = sorted.length;
+
+    const totalWords = sorted.reduce(
+        (sum, e) =>
+        sum +
+        countWords(e.content || "") +
+        countWords(e.transcript || ""),
+        0
+    );
+
+    const avgWords = totalEntries
+        ? Math.round(totalWords / totalEntries)
+        : 0;
+
+    const today = startOfDay(new Date());
+    const thisWeek = getWeekStart(today);
+    const thisMonth = getMonthStart(today);
+
+    const todayCount = sorted.filter(
+        e => startOfDay(toDate(e)).getTime() === today.getTime()
+    ).length;
+
+    const weekCount = sorted.filter(
+        e => toDate(e) >= thisWeek
+    ).length;
+
+    const monthCount = sorted.filter(
+        e => toDate(e) >= thisMonth
+    ).length;
+
+    const streaks = calcJournalStreak(sorted);
+    const moods = buildMoodStats(sorted);
+
+    return {
+        total_entries: totalEntries,
+        entries_today: todayCount,
+        entries_this_week: weekCount,
+        entries_this_month: monthCount,
+        total_words: totalWords,
+        avg_words_per_entry: avgWords,
+        current_streak: streaks.current,
+        longest_streak: streaks.longest,
+        ...moods
+    };
+}
+
 export const generateJournalStats = async(db, period) => {
     let entries = await getJournals(db,null, period)
     if (!entries.length) {

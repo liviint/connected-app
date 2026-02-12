@@ -12,11 +12,13 @@ import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../src/components/journal/HtmlPreview";
 import PageLoader from "../../../src/components/common/PageLoader";
 import { getJournals } from "../../../src/db/journalsDb";
+import { generateHomeJournalStats} from "../../../src/db/JournalingStats";
 import { useSQLiteContext } from 'expo-sqlite';
 import { syncManager } from "../../../utils/syncManager";
 import TimeFilters from "../../../src/components/common/TimeFilters";
 import { AddButton } from "../../../src/components/common/AddButton";
 import ButtonLinks from "../../../src/components/common/ButtonLinks";
+import { StatCard } from "../../../src/components/common/statsComponents";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
@@ -25,6 +27,8 @@ export default function JournalListPage() {
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [period,setPeriod] = useState("30 days")
+  const [stats, setStats] = useState({});
+  const [moodData,setMoodData] = useState([])
 
 
   const onPeriodChange = (value) => {
@@ -41,9 +45,23 @@ export default function JournalListPage() {
     }
   }
 
+  const fetchStats = async () => {
+      try {
+        let stats = await generateHomeJournalStats(db, period)
+        setStats(stats)
+        const moodData = stats.mood_counts.map(item => ({
+          name: item.mood__name || "No Mood",
+        }));
+        setMoodData(moodData)
+      } catch (error) {
+        console.log(error,"hello jornal stats error")
+      }
+    }
+
   
   useEffect(() => {
     journals.length === 0 && setLoading(true);
+    fetchStats()
     fetchJournals();
   },[isFocused,period])
 
@@ -57,12 +75,11 @@ export default function JournalListPage() {
   return unsub;
 }, []);
 
-
   if (loading) return <PageLoader />
 
   return (
     <>
-     <ScrollView
+    <ScrollView
       style={globalStyles.container}
     >
 
@@ -75,6 +92,13 @@ export default function JournalListPage() {
           selectedPeriod={period}
           onPeriodChange={onPeriodChange} 
         />
+
+        <View style={styles.cards}>
+          <StatCard label="Total Entries" value={stats.total_entries} />
+          <StatCard label="Current Streak" value={stats.current_streak} />
+          <StatCard label="Best Streak" value={stats.longest_streak} />
+          <StatCard label="Moods Used" value={moodData.length} />
+        </View>
 
         {journals.length ? 
             <ButtonLinks 
@@ -122,12 +146,17 @@ export default function JournalListPage() {
   );
 }
 
-
 const styles = StyleSheet.create({
   contentWrapper: { 
     maxWidth: 768, 
     alignSelf: "center", 
     width: "100%" 
+  },
+  cards: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 24,
   },
   card:{
     width: "100%"
