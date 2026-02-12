@@ -93,12 +93,12 @@ export default function JournalListPage() {
           onPeriodChange={onPeriodChange} 
         />
 
-        <View style={styles.cards}>
+        {journals.length ? <View style={styles.cards}>
           <StatCard label="Total Entries" value={stats.total_entries} />
           <StatCard label="Current Streak" value={stats.current_streak} />
           <StatCard label="Best Streak" value={stats.longest_streak} />
           <StatCard label="Moods Used" value={moodData.length} />
-        </View>
+        </View> :  ""}
 
         {journals.length ? 
             <ButtonLinks 
