@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { useRouter} from "expo-router";
-import { BodyText, Card } from "../../../../src/components/ThemeProvider/components";
+import { BodyText, Card, SecondaryText } from "../../../../src/components/ThemeProvider/components";
 import { AddButton } from "../../../../src/components/common/AddButton";
 import DeleteButton from "../../../../src/components/common/DeleteButton";
 import { deleteMood, getLocalMoods } from "../../../../src/db/journalsDb";
@@ -51,16 +51,16 @@ const MoodsList = () => {
   const renderMoodItem = ({ item }) => (
     <Card style={styles.card}>
       <View style={styles.moodInfo}>
-        <Text style={styles.moodName}>{item.name}</Text>
+        <BodyText style={styles.moodName}>{item.name}</BodyText>
 
         {item.description ? (
-          <Text 
+          <SecondaryText
             numberOfLines={2} 
             style={styles.moodDescription}
             ellipsizeMode="tail"
         >
             {item.description}
-          </Text>
+          </SecondaryText>
         ) : null}
       </View>
 
@@ -74,7 +74,7 @@ const MoodsList = () => {
             router.push(`/journal/moods/${item.uuid}/edit`)
           }
         >
-          <Text style={globalStyles.editBtnText}>Edit</Text>
+          <BodyText style={globalStyles.editBtnText}>Edit</BodyText>
         </Pressable>
 
         <DeleteButton
@@ -127,13 +127,11 @@ const styles = StyleSheet.create({
   moodName: {
     fontSize: 17,
     fontWeight: "700",
-    color: COLORS.text,
     marginBottom: 4,
   },
 
   moodDescription: {
     fontSize: 14,
-    color: COLORS.muted,
     lineHeight: 20,
   },
 

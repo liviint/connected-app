@@ -56,12 +56,13 @@ const AddMood = () => {
         try {
             setLoading(true);
             await saveMoods(db,[form])
+            setForm(initialForm)
             router.back();
         } catch (error) {
         console.error(error);
         Alert.alert("Error", "Something went wrong.");
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
     };
 
