@@ -74,7 +74,7 @@ useEffect(() => {
           onDragEnd={onDragEnd}
           ListHeaderComponent={() => (
             <View >
-              <Text style={globalStyles.title}>Your Habits</Text>
+              <Text style={globalStyles.title}>My Habits</Text>
               <ButtonLinks 
                 links={[
                   {name:"Track progresss",route:"/habits/entries"}
@@ -87,7 +87,7 @@ useEffect(() => {
       </GestureHandlerRootView>
     : 
     <View style={globalStyles.container}>
-          <Text style={globalStyles.title}>Your Habits</Text>
+          <Text style={globalStyles.title}>My Habits</Text>
           <BodyText style={styles.emptyMessage}>You haven’t added any habits yet.  
             Start with one small habit to build consistency.</BodyText>
         </View>

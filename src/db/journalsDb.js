@@ -358,8 +358,42 @@ export const saveMoods = async (db, moods) => {
 
 
 export const getLocalMoods = async (db) => {
-  return db.getAllAsync(`SELECT * FROM moods ORDER BY id DESC`);
+  return db.getAllAsync(
+    `SELECT * 
+      FROM moods
+      WHERE deleted_at IS NULL
+      ORDER BY updated_at DESC`
+  );
 };
+
+
+export const getMoodByUuid = async (db, uuid) => {
+  return db.getFirstAsync(
+    `SELECT * 
+     FROM moods 
+     WHERE uuid = ? 
+     AND deleted_at IS NULL`,
+    [uuid]
+  );
+};
+
+export const deleteMood = async (db, uuid) => {
+  try {
+    return await db.runAsync(
+      `UPDATE moods
+       SET deleted_at = CURRENT_TIMESTAMP,
+           synced = 0
+       WHERE uuid = ?`,
+      [uuid]
+    );
+  } catch (error) {
+    console.error("Failed to delete mood:", error);
+    throw error;
+  }
+};
+
+
+
 
 export const purgeSyncedDeletes = async (db) => {
   await db.execAsync("BEGIN TRANSACTION");

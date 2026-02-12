@@ -76,6 +76,30 @@ export const createGlobalStyles = (colors) =>
       fontWeight: "bold",
       fontSize: 16,
     },
+    editBtn: {
+      backgroundColor: colors.secondary + "20", 
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 8,
+      borderColor: "#ccc",
+      borderWidth: 1,
+    },
+    editBtnText: {
+      fontSize: 12,
+    },
+
+
+    deleteButton: {
+      paddingVertical: 6,
+      paddingHorizontal: 14,
+      borderRadius: 20,
+      backgroundColor: colors.primary + "20", 
+    },
+
+    deleteText: {
+      color: colors.primary,
+      fontWeight: "600",
+    },
 
     trackButton: {
       flex: 1,
@@ -114,4 +138,16 @@ export const createGlobalStyles = (colors) =>
     formGroup: {
       marginBottom: 14,
     },
+    formBorder:{
+      borderWidth: 1,
+      borderColor:colors.border,
+      borderRadius: 10,
+    },
+    switchRow: {
+      flexDirection: "row",
+      justifyContent: "left",
+      alignItems: "center",
+      gap:10,
+    },
+
   });

@@ -1,16 +1,18 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { router, } from "expo-router";
-import { api } from "../../../api";
-import DeleteButton from "../common/DeleteButton";
-import { Card, BodyText } from "../ThemeProvider/components";
-import { deleteHabit } from "../../db/habitsDb";
+import { router } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { api } from "../../../api";
+import { deleteHabit } from "../../db/habitsDb";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
+import DeleteButton from "../common/DeleteButton";
+import { BodyText, Card } from "../ThemeProvider/components";
 
 export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
-  const db = useSQLiteContext()
+  const { globalStyles } = useThemeStyles();
+  const db = useSQLiteContext();
   const handleDelete = () => {
-    deleteHabit(db,habit.uuid)
-    setRefreshData(prev => prev + 1)
+    deleteHabit(db, habit.uuid);
+    setRefreshData((prev) => prev + 1);
   };
 
   const handleStateToggle = () => {
@@ -26,14 +28,10 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
   return (
     <TouchableOpacity onPress={() => router.push(`/habits/${habit.id}/stats`)}>
       <Card
-        style={[
-          styles.row,
-          { opacity: isActive ? 0.6 : 1 },
-        ]}
+        style={[styles.row, { opacity: isActive ? 0.6 : 1 }]}
         activeOpacity={0.9}
       >
-      
-           {/* DRAG HANDLE */}
+        {/* DRAG HANDLE */}
         <TouchableOpacity onLongPress={drag} style={styles.dragHandle}>
           <Text style={styles.dragIcon}>≡</Text>
         </TouchableOpacity>
@@ -47,16 +45,16 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
         {/* ACTION BUTTONS */}
         <View style={styles.actions}>
           <TouchableOpacity
-            style={styles.editBtn}
+            style={globalStyles.editBtn}
             onPress={() => router.push(`/habits/${habit.uuid}/edit`)}
           >
-            <BodyText style={styles.editText}>Edit</BodyText>
+            <BodyText style={globalStyles.editBtnText}>Edit</BodyText>
           </TouchableOpacity>
 
-          <DeleteButton 
-              handleOk={handleDelete}
-              item={"habit"}
-              contentAuthor={habit.user}
+          <DeleteButton
+            handleOk={handleDelete}
+            item={"habit"}
+            contentAuthor={habit.user}
           />
 
           <TouchableOpacity
@@ -71,7 +69,6 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
             </Text>
           </TouchableOpacity>
         </View>
-        
       </Card>
     </TouchableOpacity>
   );
@@ -113,16 +110,7 @@ const styles = StyleSheet.create({
     gap: 8,
     justifyContent: "flex-end",
   },
-  editBtn: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderColor: "#ccc",
-    borderWidth: 1,
-  },
-  editText: {
-    fontSize: 12,
-  },
+
   deleteBtn: {
     paddingVertical: 6,
     paddingHorizontal: 12,
