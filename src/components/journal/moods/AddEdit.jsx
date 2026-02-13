@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import {
     saveMoods,
     getMoodByUuid,
+    getLocalMoods,
 } from "../../../../src/db/journalsDb";
 import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
 import { BodyText, Card, FormLabel, Input, TextArea } from "../../../../src/components/ThemeProvider/components";
@@ -26,6 +27,7 @@ const AddMood = () => {
         description:"",
     }
     const [form,setForm] = useState(initialForm)
+    const [moods, setMoods] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const handleChange = (key, value) => {
@@ -35,7 +37,6 @@ const AddMood = () => {
     const loadMood = async () => {
         try {
             const mood = await getMoodByUuid(db, uuid);
-            console.log(mood,"hello mood")
             setForm(mood)
         } catch (error) {
             console.log(error)
@@ -43,28 +44,55 @@ const AddMood = () => {
         
     };
 
+    const fetchMoods = async () => {
+        try {
+          const moods = await getLocalMoods(db);
+          setMoods(moods);
+        } catch (error) {
+          console.error("Failed to fetch moods:", error);
+        }
+        
+      };
+
     useEffect(() => {
-        uuid && loadMood()
+        if(uuid){
+            loadMood()
+        }
+        fetchMoods()
     }, []);
 
     const handleSave = async () => {
-        if (!form.name.trim()) {
+        const name = form.name.trim();
+
+        if (!name) {
             Alert.alert("Validation", "Mood name is required.");
+            return;
+        }
+
+        const exists = moods.some(
+            m =>
+            m.uuid !== uuid &&
+            m.name.trim().toLowerCase() === name.toLowerCase()
+        );
+
+        if (exists) {
+            Alert.alert("Duplicate", "A mood with this name already exists.");
             return;
         }
 
         try {
             setLoading(true);
-            await saveMoods(db,[form])
-            setForm(initialForm)
+            await saveMoods(db, [form]);
+            setForm(initialForm);
             router.back();
         } catch (error) {
-        console.error(error);
-        Alert.alert("Error", "Something went wrong.");
+            console.error(error);
+            Alert.alert("Error", "Something went wrong.");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <View
