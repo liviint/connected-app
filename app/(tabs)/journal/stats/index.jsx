@@ -34,6 +34,9 @@ export default function JournalStats() {
       !stats && setIsLoading(true)
       try {
         let stats = await generateJournalStats(db, period)
+        if(!stats.entries_per_month) stats.entries_per_month = []
+        if(!stats.entries_per_weekday) stats.entries_per_weekday = []
+        if(!stats.mood_counts) stats.mood_counts = []
         setStats(stats)
       } catch (error) {
         console.log(error,"hello jornal stats error")
