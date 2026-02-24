@@ -103,8 +103,8 @@ export default function JournalListPage() {
         {journals.length ? 
             <ButtonLinks 
               links={[
-                {name:"Moods", route:"/journal/moods"},
-                {name:"Stats", route:"/journal/stats"},
+                {name:"View Moods", route:"/journal/moods"},
+                {name:"View Statistics", route:"/journal/stats"},
               ]}
           /> : ""
         }

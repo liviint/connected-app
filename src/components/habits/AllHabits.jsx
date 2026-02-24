@@ -14,11 +14,11 @@ import { syncManager } from "../../../utils/syncManager";
 import { AddButton } from "../common/AddButton";
 import ButtonLinks from "../common/ButtonLinks";
 
-export default function HabitsScreen({initialHabits}) {
+export default function HabitsScreen() {
   const db = useSQLiteContext(); 
   const { globalStyles } = useThemeStyles();
   const isFocused = useIsFocused()
-  const [habits, setHabits] = useState(initialHabits);
+  const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshData, setRefreshData] = useState(0);
 
@@ -77,7 +77,7 @@ useEffect(() => {
               <Text style={globalStyles.title}>My Habits</Text>
               <ButtonLinks 
                 links={[
-                  {name:"Track progresss",route:"/habits/entries"}
+                  {name:"Track progresss",route:"/habits"}
                 ]}
               />
             </View>
@@ -86,12 +86,12 @@ useEffect(() => {
         />
       </GestureHandlerRootView>
     : 
-    <View style={globalStyles.container}>
+      <View style={globalStyles.container}>
           <Text style={globalStyles.title}>My Habits</Text>
           <BodyText style={styles.emptyMessage}>You haven’t added any habits yet.  
             Start with one small habit to build consistency.</BodyText>
-        </View>
-      }
+      </View>
+    }
       <AddButton 
         primaryAction={{route:"/habits/add",label:"Add Habit"}}
       />

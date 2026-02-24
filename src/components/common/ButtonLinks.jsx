@@ -1,46 +1,66 @@
 import {
     View,
     Pressable,
-    StyleSheet
+    StyleSheet,
 } from "react-native";
-import {  useRouter } from "expo-router";
-import { SecondaryText } from "../../../src/components/ThemeProvider/components"
+import { useRouter } from "expo-router";
+import { SecondaryText } from "../../../src/components/ThemeProvider/components";
 
-const ButtonLinks = ({links,align="right"}) => {
-    const router = useRouter()
+const ButtonLinks = ({ links, align = "right" }) => {
+    const router = useRouter();
+
     return (
-        <View style={{...styles.buttonLinkes,justifyContent: align === "right" ? "flex-end" : "flex-start",}}>
-            {
-                links.map(link => {
-                    return (
-                        <Pressable key={link.name} onPress={() => router.push(link.route)}>
-                            <SecondaryText style={styles.linksText}>
-                                {link.name}
-                            </SecondaryText>
-                        </Pressable>
-                    )
-                })
-            }
+        <View
+        style={{
+            ...styles.container,
+            justifyContent:
+            align === "right" ? "flex-end" : "flex-start",
+        }}
+        >
+        {links.map((link) => (
+            <Pressable
+            key={link.name}
+            onPress={() => router.push(link.route)}
+            style={({ pressed }) => [
+                styles.button,
+                pressed && styles.pressed,
+            ]}
+            >
+            <SecondaryText style={styles.text}>
+                {link.name} →
+            </SecondaryText>
+            </Pressable>
+        ))}
         </View>
-    )
-} 
+    );
+};
 
-export default ButtonLinks
+export default ButtonLinks;
 
 const styles = StyleSheet.create({
-    buttonLinkes: {
-        display:"flex",
-        alignItems: "middle",
-        marginBottom: 15,
+    container: {
         flexDirection: "row",
-        justifyContent: "flex-end",
-        gap:12,
-        marginTop: 12,
+        gap: 10,
+        marginTop: 8, 
+        marginBottom: 12,
     },
 
-    linksText: {
-        fontSize: 13,
-        fontWeight: "600",
+    button: {
+        borderWidth: 1,
+        borderColor: "#2E8B8B33", 
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 18,
+        backgroundColor: "transparent",
+    },
+
+    pressed: {
+        backgroundColor: "#2E8B8B10",
+    },
+
+    text: {
+        fontSize: 12,
+        fontWeight: "500", 
         color: "#2E8B8B",
     },
 });
