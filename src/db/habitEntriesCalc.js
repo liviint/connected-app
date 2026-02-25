@@ -31,7 +31,6 @@ export function hasCompletedThisPeriodButNotToday(habit, entries, today) {
   const todayStr = today.toISOString().slice(0, 10);
 
   if (habit.frequency === "daily") {
-    // Daily should always show today
     return false;
   }
 
