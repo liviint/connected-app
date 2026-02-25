@@ -26,7 +26,7 @@ export default function JournalListPage() {
   const { globalStyles } = useThemeStyles();
   const [journals, setJournals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [period,setPeriod] = useState("30 days")
+  const [period,setPeriod] = useState("7 days")
   const [stats, setStats] = useState({});
   const [moodData,setMoodData] = useState([])
 
