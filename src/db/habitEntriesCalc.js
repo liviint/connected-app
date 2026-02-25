@@ -27,6 +27,49 @@ export function shouldHaveEntry(habit, targetDate = new Date()) {
     return false;
 }
 
+export function hasCompletedThisPeriodButNotToday(habit, entries, today) {
+  const todayStr = today.toISOString().slice(0, 10);
+
+  if (habit.frequency === "daily") {
+    // Daily should always show today
+    return false;
+  }
+
+  if (habit.frequency === "weekly") {
+    const weekStart = startOfWeek(today);
+
+    return entries.some(e => {
+      const entryDate = new Date(e.date);
+      const entryStr = e.date;
+
+      const inThisWeek =
+        entryDate >= weekStart && entryDate <= today;
+
+      const notToday = entryStr !== todayStr;
+
+      return inThisWeek && notToday;
+    });
+  }
+
+  if (habit.frequency === "monthly") {
+    const monthStart = startOfMonth(today);
+
+    return entries.some(e => {
+      const entryDate = new Date(e.date);
+      const entryStr = e.date;
+
+      const inThisMonth =
+        entryDate >= monthStart && entryDate <= today;
+
+      const notToday = entryStr !== todayStr;
+
+      return inThisMonth && notToday;
+    });
+  }
+
+  return false;
+}
+
 export function getHabitViewForDate({
     habit,
     entries,

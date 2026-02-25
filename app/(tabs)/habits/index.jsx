@@ -66,6 +66,19 @@ export default function HabitEntriesPage() {
     fetchEntries()
   };
 
+  const getFrequencyLabel = (frequency, streak) => {
+
+    const map = {
+      daily: "day",
+      weekly: "week",
+      monthly: "month",
+    };
+
+    const base = map[frequency] || "day";
+
+    return streak === 1 ? base : `${base}s`;
+  };
+
   if (loading) return  <PageLoader />
   
   return (
@@ -144,7 +157,7 @@ export default function HabitEntriesPage() {
               </BodyText>
               <BodyText style={{ fontSize: 14, marginTop: 4, color:habit.completed ? "#666" : colors.text}}>
                 Streak: {habit.current_streak}{" "}
-                {habit.current_streak > 1 ? "days" : "day"}
+                {getFrequencyLabel(habit.frequency,habit.current_streak)}
               </BodyText>
             </View>
 

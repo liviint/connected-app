@@ -1,4 +1,4 @@
-import { shouldHaveEntry , calcStreak} from "./habitEntriesCalc";
+import {calcStreak, hasCompletedThisPeriodButNotToday} from "./habitEntriesCalc";
 import { api } from "@/api";
 
 export const syncHabitToApi = async (db, habit) => {
@@ -294,56 +294,65 @@ export const markHabitEntrySynced = async (db, uuid, serverId) => {
   );
 };
 
-export async function getHabitsForToday(db,uuid) {
+export async function getHabitsForToday(db, uuidLib) {
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
 
-  // 1️⃣ Get active habits
   const habits = await db.getAllAsync(
     `SELECT * FROM habits WHERE is_active = 1 ORDER BY priority ASC`
   );
 
-  // 2️⃣ Get today's entries
   const entriesToday = await db.getAllAsync(
     `SELECT * FROM habit_entries WHERE date = ? AND deleted = 0`,
     [todayStr]
   );
 
-  // 3️⃣ Get all completed entries (for streaks)
   const allEntries = await db.getAllAsync(
     `SELECT * FROM habit_entries WHERE completed = 1 AND deleted = 0`
   );
 
-  // 4️⃣ Build annotated response
-  return habits.map((habit) => {
+  return habits
+    .filter((habit) => {
+      const habitEntries = allEntries.filter(
+        (e) => e.habit_uuid === habit.uuid
+      );
 
-    const entry = entriesToday.find(
-      (e) => e.habit_uuid === habit.uuid
-    );
+      const shouldHide = hasCompletedThisPeriodButNotToday(
+        habit,
+        habitEntries,
+        today
+      );
 
-    const habitEntries = allEntries.filter(
-      (e) => e.habit_uuid === habit.uuid
-    );
+      return !shouldHide;
+          })
+          .map((habit) => {
+            const entry = entriesToday.find(
+              (e) => e.habit_uuid === habit.uuid
+            );
 
-    const streaks = calcStreak(habit, habitEntries);
+            const habitEntries = allEntries.filter(
+              (e) => e.habit_uuid === habit.uuid
+            );
 
-    return {
-      habit_uuid: habit.uuid,
-      habit_id: habit.id,
-      title: habit.title,
-      description: habit.description,
-      frequency: habit.frequency,
-      priority: habit.priority,
-      uuid:entry?.uuid || uuid.v4(),
+            const streaks = calcStreak(habit, habitEntries);
 
-      id: entry?.id || 0,
-      completed: entry ? entry.completed === 1 : false,
-      canToggle: shouldHaveEntry(habit, today),
+            return {
+              habit_uuid: habit.uuid,
+              habit_id: habit.id,
+              title: habit.title,
+              description: habit.description,
+              frequency: habit.frequency,
+              priority: habit.priority,
+              uuid: entry?.uuid || uuidLib.v4(),
 
-      current_streak: streaks.current,
-      longest_streak: streaks.longest,
-    };
-  });
+              id: entry?.id || 0,
+              completed: entry ? entry.completed === 1 : false,
+              canToggle: true,
+
+              current_streak: streaks.current,
+              longest_streak: streaks.longest,
+            };
+          });
 }
 
 export const deleteHabit = async (db, uuid) => {
