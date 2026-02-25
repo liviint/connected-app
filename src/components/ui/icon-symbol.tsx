@@ -17,6 +17,7 @@ const MAPPING = {
     'text.bubble.fill': 'forum' as MaterialIconName,
     'book.fill': 'book' as MaterialIconName,
     'checkmark.seal.fill': 'check-circle' as MaterialIconName, 
+    'arrow-right': 'arrow-right' as MaterialIconName,
 };
 
 // 2. Define IconSymbolName using the *inferred* keys of MAPPING.
