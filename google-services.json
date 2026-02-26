@@ -1,65 +1,26 @@
 {
   "project_info": {
-    "project_number": "971359215487",
-    "project_id": "zeniahub-56146",
-    "storage_bucket": "zeniahub-56146.firebasestorage.app"
+    "project_number": "789760169321",
+    "project_id": "zeniamoney",
+    "storage_bucket": "zeniamoney.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:971359215487:android:95ab1b2f9d485c4424444a",
+        "mobilesdk_app_id": "1:789760169321:android:922c39d09a097e66b259f8",
         "android_client_info": {
           "package_name": "com.zeniahub.app"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "971359215487-dsgopvqrec8abc4muk47b27cifqqb207.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDrtVbJ-p1cxnl9u-bMirgNz41Zl99qvoM"
+          "current_key": "AIzaSyDki87UHk18m4Ii232SiocarGJbkgBMDBg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "971359215487-dsgopvqrec8abc4muk47b27cifqqb207.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:971359215487:android:0df4ec82f678ac5624444a",
-        "android_client_info": {
-          "package_name": "com.zeniahub.zeniamoney"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "971359215487-dsgopvqrec8abc4muk47b27cifqqb207.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDrtVbJ-p1cxnl9u-bMirgNz41Zl99qvoM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "971359215487-dsgopvqrec8abc4muk47b27cifqqb207.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
