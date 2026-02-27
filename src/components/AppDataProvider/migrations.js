@@ -27,6 +27,37 @@ export const addMoodsSyncColumnsIfNeeded = async (db) => {
   }
 };
 
-export const extraMigrations = (db) => {
-    addMoodsSyncColumnsIfNeeded(db)
+
+export const addHabitsDeletedAtColumnsIfNeeded = async (db) => {
+  const columns = await db.getAllAsync(`PRAGMA table_info(habits);`);
+
+  const hasDeletedAt = columns.some(col => col.name === "deleted_at");
+
+  if (!hasDeletedAt) {
+    await db.runAsync(`
+      ALTER TABLE habits
+      ADD COLUMN deleted_at TEXT
+    `);
+  }
+};
+
+export const addHabitEntriesDeletedAtColumnIfNeeded = async (db) => {
+  const columns = await db.getAllAsync(`PRAGMA table_info(habit_entries);`);
+
+  const hasDeletedAt = columns.some(col => col.name === "deleted_at");
+
+  if (!hasDeletedAt) {
+    await db.runAsync(`
+      ALTER TABLE habit_entries
+      ADD COLUMN deleted_at TEXT
+    `);
+  }
+};
+
+
+
+export const extraMigrations = async (db) => {
+    await addMoodsSyncColumnsIfNeeded(db)
+    await addHabitsDeletedAtColumnsIfNeeded(db)
+    await addHabitEntriesDeletedAtColumnIfNeeded(db)
 }

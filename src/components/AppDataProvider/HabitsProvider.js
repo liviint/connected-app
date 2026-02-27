@@ -8,6 +8,7 @@ import {
     syncHabitsFromApi,
     getUnsyncedHabitEntries,
     syncHabitEntriesFromApi,
+    deleteSyncedHabits,
 } from "../../db/habitsDb";
 import { getLastSyncedAt, saveLastSyncedAt } from "../../db/common";
 
@@ -35,6 +36,14 @@ export default function HabitsProvider({ children }) {
     await saveLastSyncedAt(db, "habits", res.data.server_time );
   };
 
+  const deletedHabits = async() => {
+    try {
+      await deleteSyncedHabits(db)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const syncEntriesFromLocalToApi = async () => {
     const unsynced = await getUnsyncedHabitEntries(db);
     if (unsynced.length > 0) {
@@ -59,6 +68,7 @@ export default function HabitsProvider({ children }) {
     if(!isSyncEnabled) return
     await syncHabitsFromLocalToApi();
     await syncHabitsFromApiToLocal();
+    await deletedHabits()
     syncManager.emit("habits_updated");
 
     await syncEntriesFromLocalToApi();

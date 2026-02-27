@@ -58,8 +58,8 @@ const migrateDbIfNeeded = async (db) => {
       is_active INTEGER DEFAULT 1,
       created_at TEXT,
       updated_at TEXT,
-      synced INTEGER DEFAULT 0,
-      deleted INTEGER DEFAULT 0
+      deleted_at TEXT,
+      synced INTEGER DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS habit_entries (
@@ -70,10 +70,10 @@ const migrateDbIfNeeded = async (db) => {
       user_uuid TEXT,
       date TEXT,
       updated_at TEXT,
+      deleted_at TEXT,
       completed INTEGER DEFAULT 0,
       note TEXT,
       synced INTEGER DEFAULT 0,
-      deleted INTEGER DEFAULT 0,
       UNIQUE(uuid)
     );
 
@@ -83,7 +83,7 @@ const migrateDbIfNeeded = async (db) => {
     );
 
   `);
-   extraMigrations(db)
+  await extraMigrations(db)
 };
 
 export default function AppDataProvider({ children }) {

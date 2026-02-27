@@ -10,8 +10,8 @@ import { BodyText, Card } from "../ThemeProvider/components";
 export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
   const { globalStyles } = useThemeStyles();
   const db = useSQLiteContext();
-  const handleDelete = () => {
-    deleteHabit(db, habit.uuid);
+  const handleDelete = async () => {
+    await deleteHabit(db, habit.uuid);
     setRefreshData((prev) => prev + 1);
   };
 

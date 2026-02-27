@@ -103,8 +103,7 @@ export const getHabits = async (db, uuid = null) => {
       SELECT *
       FROM habits
       WHERE uuid = ?
-        AND deleted = 0
-        AND is_active = 1
+        AND deleted_at IS NULL
       `,
       [uuid]
     );
@@ -114,7 +113,7 @@ export const getHabits = async (db, uuid = null) => {
     `
     SELECT *
     FROM habits
-    WHERE deleted = 0
+    WHERE deleted_at IS NULL
       AND is_active = 1
     ORDER BY priority DESC, created_at DESC
     `
@@ -299,16 +298,16 @@ export async function getHabitsForToday(db, uuidLib) {
   const todayStr = today.toISOString().slice(0, 10);
 
   const habits = await db.getAllAsync(
-    `SELECT * FROM habits WHERE is_active = 1 ORDER BY priority ASC`
+    `SELECT * FROM habits WHERE is_active = 1 AND deleted_at IS  NULL ORDER BY priority ASC`
   );
 
   const entriesToday = await db.getAllAsync(
-    `SELECT * FROM habit_entries WHERE date = ? AND deleted = 0`,
+    `SELECT * FROM habit_entries WHERE date = ? AND deleted_at IS  NULL`,
     [todayStr]
   );
 
   const allEntries = await db.getAllAsync(
-    `SELECT * FROM habit_entries WHERE completed = 1 AND deleted = 0`
+    `SELECT * FROM habit_entries WHERE completed = 1 AND deleted_at IS  NULL`
   );
 
   return habits
@@ -359,23 +358,79 @@ export const deleteHabit = async (db, uuid) => {
   const now = new Date().toISOString();
 
   try {
+    await db.execAsync("BEGIN");
+
     await db.runAsync(
       `
       UPDATE habits
-      SET
-        deleted = 1,
-        synced = 0,
-        updated_at = ?
-      WHERE uuid = ?
+      SET deleted_at = ?,
+          synced = 0
+      WHERE uuid = ?;
       `,
       [now, uuid]
     );
 
-    console.log("🗑️ Habit marked as deleted locally");
+    await db.runAsync(
+      `
+      UPDATE habit_entries
+      SET deleted_at = ?,
+          synced = 0
+      WHERE habit_uuid = ?;
+      `,
+      [now, uuid]
+    );
+
+    await db.execAsync("COMMIT");
+
+    console.log("🗑️ Habit and its entries deleted atomically");
   } catch (error) {
+    await db.execAsync("ROLLBACK");
     console.error("❌ Failed to delete habit locally:", error);
   }
 };
+
+export async function deleteSyncedHabits(db) {
+  try {
+    await db.execAsync("BEGIN");
+
+    const habitsToDelete = await db.getAllAsync(`
+      SELECT uuid
+      FROM habits
+      WHERE deleted_at IS NOT NULL
+        AND synced = 1
+    `);
+
+    const uuids = habitsToDelete.map(h => h.uuid);
+
+    if (uuids.length > 0) {
+      const placeholders = uuids.map(() => "?").join(",");
+
+      await db.runAsync(
+        `
+        DELETE FROM habit_entries
+        WHERE habit_uuid IN (${placeholders})
+        `,
+        uuids
+      );
+
+      await db.runAsync(
+        `
+        DELETE FROM habits
+        WHERE uuid IN (${placeholders})
+        `,
+        uuids
+      );
+    }
+
+    await db.execAsync("COMMIT");
+
+    return uuids.length;
+  } catch (error) {
+    await db.execAsync("ROLLBACK");
+    console.error("❌ Failed to permanently delete synced habits:", error);
+    return 0;
+  }
+}
 
 export const syncDeletedHabitsToApi = async (db) => {
   const deleted = await db.getAllAsync(
@@ -407,8 +462,6 @@ export const syncDeletedHabitsToApi = async (db) => {
     }
   }
 };
-
-
 
 export async function toggleHabitEntry(
   db,
