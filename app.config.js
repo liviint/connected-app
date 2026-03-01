@@ -69,6 +69,7 @@ export default {
       "expo-sqlite",
       "@react-native-community/datetimepicker",
       "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics",
       [
         "expo-splash-screen",
         {

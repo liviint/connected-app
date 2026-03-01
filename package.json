@@ -17,6 +17,7 @@
     "@react-native-community/netinfo": "11.4.1",
     "@react-native-firebase/analytics": "^23.8.6",
     "@react-native-firebase/app": "^23.8.6",
+    "@react-native-firebase/crashlytics": "^23.8.6",
     "@react-native-picker/picker": "^2.11.4",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
