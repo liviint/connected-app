@@ -3,7 +3,6 @@ import 'react-native-reanimated';
 import ReduxProvider from '@/store/ReduxProvider';
 import { useEffect } from 'react';
 import Header from '@/src/components/header';
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BackHandler } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import ThemeProvider from "../src/components/ThemeProvider"
@@ -49,34 +48,32 @@ export default Sentry.wrap(function RootLayout() {
   }, [router]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ReduxProvider>
-        <ThemeProvider >
-          <AppDataProvider>
-            <AppLockProvider>
-                <Stack>
-                  {/* Main Tabs */}
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{
-                      header: () => <Header />,
-                    }}
-                  />
+    <ReduxProvider>
+      <ThemeProvider >
+        <AppDataProvider>
+          <AppLockProvider>
+              <Stack>
+                {/* Main Tabs */}
+                <Stack.Screen
+                  name="(tabs)"
+                  options={{
+                    header: () => <Header />,
+                  }}
+                />
 
-                  {/* Modal screen */}
-                  <Stack.Screen
-                    name="modal"
-                    options={{
-                      presentation: 'modal',
-                      title: 'Modal',
-                      header: () => <Header />,
-                    }}
-                  />
-              </Stack>
-            </AppLockProvider>
-          </AppDataProvider>
-        </ThemeProvider>
-      </ReduxProvider>
-    </GestureHandlerRootView>
+                {/* Modal screen */}
+                <Stack.Screen
+                  name="modal"
+                  options={{
+                    presentation: 'modal',
+                    title: 'Modal',
+                    header: () => <Header />,
+                  }}
+                />
+            </Stack>
+          </AppLockProvider>
+        </AppDataProvider>
+      </ThemeProvider>
+    </ReduxProvider>
   );
 });
