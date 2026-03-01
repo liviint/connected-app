@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import DraggableFlatList from "react-native-draggable-flatlist";
-import { router } from "expo-router";
 import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
@@ -56,10 +53,9 @@ useEffect(() => {
 
   
   return (
-    <>
+    <View style={globalStyles.container}>
       {habits.length > 0 ? 
-      <GestureHandlerRootView style={globalStyles.container}>
-        <DraggableFlatList
+        <FlatList
           data={habits}
           keyExtractor={(item) => item.uuid}
           renderItem={({ item, index, drag, isActive }) => (
@@ -84,7 +80,6 @@ useEffect(() => {
           )}
           contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}
         />
-      </GestureHandlerRootView>
     : 
       <View style={globalStyles.container}>
           <Text style={globalStyles.title}>My Habits</Text>
@@ -95,7 +90,7 @@ useEffect(() => {
       <AddButton 
         primaryAction={{route:"/habits/add",label:"Add Habit"}}
       />
-  </>
+  </View>
   )
 }
 
