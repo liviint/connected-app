@@ -1,4 +1,4 @@
-export function getPeriodDateFilter(period = "30 days") {
+export function getPeriodDateFilter(period = "7 days") {
     switch (period) {
         case "7 days":
         return "AND created_at >= date('now', '-7 days')";

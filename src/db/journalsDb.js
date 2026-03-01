@@ -128,7 +128,7 @@ export const deleteJournal = async (db, uuid) => {
 };
 
 
-export const getJournals = async (db, uuid = null, period = "30 days") => {
+export const getJournals = async (db, uuid = null, period) => {
   try {
     if (uuid) {
       const journal = await db.getFirstAsync(
