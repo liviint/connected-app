@@ -5,7 +5,6 @@ import { useDispatch } from "react-redux";
 import { setUserDetails } from "../../../store/features/userSlice";
 import { api } from "../../../api";
 import { safeLocalStorage } from "../../../utils/storage";
-import * as Sentry from "@sentry/react-native";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 export default function VerifyEmail() {
@@ -29,7 +28,6 @@ export default function VerifyEmail() {
     const verifyEmail = () => {
       api.get(`/accounts/verify-email/?uid=${uid}&token=${token}`)
       .then((res) => {
-        Sentry.captureMessage("verify email successful")
         dispatch(setUserDetails(res.data));
         api.defaults.headers.common.Authorization = `Bearer ${res.data.access}`;
         return safeLocalStorage.setItem("token", res.data.access);
@@ -37,13 +35,9 @@ export default function VerifyEmail() {
       .then(() => {
         setStatus("success");
         setMessage("Email verified and logged in! Redirecting...");
-        Sentry.captureMessage("verify email successful 22")
         router.push("/profile");
       })
       .catch((err) => {
-        Sentry.captureException(err, {
-          tags: { flow: "verify-email" },
-        });
         setStatus("error");
         setMessage(err.response?.data?.detail || "Verification failed.");
       })

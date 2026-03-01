@@ -10,7 +10,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouter , useFocusEffect, useLocalSearchParams} from "expo-router";
 import { clearUserDetails } from "@/store/features/userSlice";
 import { api } from "../../../api";
-import * as Sentry from "@sentry/react-native";
 import AccountInfoPage from "../../../src/components/common/AccountInfoPage";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
@@ -77,7 +76,6 @@ const ProfileView = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              Sentry.captureException(new Error('Test sentry'))
               router.push("/profile/edit")
             }}
           >

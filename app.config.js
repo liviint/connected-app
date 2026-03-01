@@ -78,14 +78,6 @@ export default {
           backgroundColor: "#ffffff",
           dark: { backgroundColor: "#000000" },
         },
-      ],
-      [
-      "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "zeniahub",
-          "organization": "zeniahub"
-        }
       ]
     ],
 
