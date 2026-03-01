@@ -206,3 +206,114 @@ export let generateHabitStats = async (db, habit_uuid) => {
     };
 }
 
+export const generateAllHabitsStatsWithBestWorst = async (db, user_uuid) => {
+  const habits = await getHabits(db, null, user_uuid); // get all user habits
+
+  let totalEntries = 0;
+  let completedEntries = 0;
+  let totalMissed = 0;
+
+  let allTrendMap = {};
+  let weekdayMap = {};
+  let monthMap = {};
+
+  let currentStreaks = [];
+  let longestStreaks = [];
+
+  // Track best/worst habits
+  let bestHabit = null;
+  let worstHabit = null;
+  let longestStreakHabit = null;
+  let currentStreakHabit = null;
+
+  for (const habit of habits) {
+    const entriesData = await getHabitEntries(db, habit.uuid);
+    const entries = sortEntries(entriesData);
+
+    const completedCount = entries.filter(e => e.completed).length;
+    const missedCount = entries.length - completedCount;
+
+    totalEntries += entries.length;
+    completedEntries += completedCount;
+    totalMissed += missedCount;
+
+    // Calculate streaks
+    const streak = calcStreakForHabit(entries, habit.frequency);
+    currentStreaks.push(streak.current);
+    longestStreaks.push(streak.longest);
+
+    // Track best/worst by progress %
+    const progressPercent = entries.length ? (completedCount / entries.length) * 100 : 0;
+
+    if (!bestHabit || progressPercent > bestHabit.progress_percent) {
+      bestHabit = {
+        habit_id: habit.id,
+        habit_title: habit.title,
+        progress_percent: Math.round(progressPercent),
+      };
+    }
+
+    if (!worstHabit || progressPercent < worstHabit.progress_percent) {
+      worstHabit = {
+        habit_id: habit.id,
+        habit_title: habit.title,
+        progress_percent: Math.round(progressPercent),
+      };
+    }
+
+    // Track longest streak habit
+    if (!longestStreakHabit || streak.longest > longestStreakHabit.longest_streak) {
+      longestStreakHabit = {
+        habit_id: habit.id,
+        habit_title: habit.title,
+        longest_streak: streak.longest,
+      };
+    }
+
+    // Track current streak habit
+    if (!currentStreakHabit || streak.current > currentStreakHabit.current_streak) {
+      currentStreakHabit = {
+        habit_id: habit.id,
+        habit_title: habit.title,
+        current_streak: streak.current,
+      };
+    }
+
+    // Aggregate trend, weekday, month
+    entries.forEach(e => {
+      const dayKey = e.date.toISOString().split("T")[0];
+      allTrendMap[dayKey] = (allTrendMap[dayKey] || 0) + (e.completed ? 1 : 0);
+
+      const wd = getWeekday(e.date);
+      weekdayMap[wd] = (weekdayMap[wd] || 0) + 1;
+
+      const monthKey = `${e.date.getFullYear()}-${(e.date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}`;
+      monthMap[monthKey] = (monthMap[monthKey] || 0) + 1;
+    });
+  }
+
+  const trend = Object.entries(allTrendMap).map(([day, completed]) => ({ day, completed }));
+  const perWeekday = Object.entries(weekdayMap).map(([weekday, count]) => ({ weekday: Number(weekday), count }));
+  const perMonth = Object.entries(monthMap).map(([month, count]) => ({ month, count }));
+
+  const progressPercent = totalEntries ? Math.round((completedEntries / totalEntries) * 100) : 0;
+
+  return {
+    total_habits: habits.length,
+    total_entries:totalEntries,
+    completed_entries: completedEntries,
+    missed_entries: totalMissed,
+    progress_percent: progressPercent,
+    avg_current_streak: currentStreaks.length ? Math.round(currentStreaks.reduce((a,b)=>a+b,0)/currentStreaks.length) : 0,
+    avg_longest_streak: longestStreaks.length ? Math.round(longestStreaks.reduce((a,b)=>a+b,0)/longestStreaks.length) : 0,
+    trend,
+    per_weekday: perWeekday,
+    per_month: perMonth,
+    best_habit: bestHabit,
+    worst_habit: worstHabit,
+    longest_streak_habit: longestStreakHabit,
+    current_streak_habit: currentStreakHabit,
+  };
+};

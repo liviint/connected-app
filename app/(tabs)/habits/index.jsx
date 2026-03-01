@@ -34,7 +34,6 @@ export default function HabitEntriesPage() {
       setLoading(false)
     }
     
-
   useEffect(() => {
     fetchEntries()
   }, [isFocused]);
@@ -138,7 +137,8 @@ export default function HabitEntriesPage() {
 
         <ButtonLinks 
           links={[
-            {name:"All Habits",route:"/habits/list"}
+            {name:"All Habits",route:"/habits/list"},
+            {name:"View Statistics",route:"/habits/stats"}
           ]}
         />
 

@@ -73,7 +73,8 @@ useEffect(() => {
               <Text style={globalStyles.title}>My Habits</Text>
               <ButtonLinks 
                 links={[
-                  {name:"Track progresss",route:"/habits"}
+                  {name:"Track progresss",route:"/habits"},
+                  {name:"View Statistics",route:"/habits/stats"}
                 ]}
               />
             </View>
