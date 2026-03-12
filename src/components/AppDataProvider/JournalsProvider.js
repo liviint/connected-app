@@ -76,11 +76,11 @@ export default function JournalsProvider({ children }) {
     };
 
 
-    useSyncEngine({
-        name: "journals",
-        bootstrap,
-        bootstrapLocalNoInternet,
-    });
+    // useSyncEngine({
+    //     name: "journals",
+    //     bootstrap,
+    //     bootstrapLocalNoInternet,
+    // });
 
     return children;
 }

@@ -76,10 +76,10 @@ export default function HabitsProvider({ children }) {
     syncManager.emit("habit_entries_updated");
   };
 
-  useSyncEngine({
-    name: "habits",
-    bootstrap,
-  });
+  // useSyncEngine({
+  //   name: "habits",
+  //   bootstrap,
+  // });
 
   return children;
 }

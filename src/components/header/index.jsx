@@ -31,16 +31,16 @@ export default function Header() {
     {menuOpen && (
       <View style={styles.overlay}>
         <View style={styles.navSmall}>
-          <NavLink 
+          {/* <NavLink 
             label="Feedback" 
             path="/feedback" 
             isActive={isActive("/(tabs)/feedback")} 
-          />
-          <NavLink 
+          /> */}
+          {/* <NavLink 
             label="Profile" 
             path="/profile" 
             isActive={isActive("/(tabs)/profile")} 
-          />
+          /> */}
           <NavLink 
             label="Settings" 
             path="/settings" 
