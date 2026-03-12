@@ -5,7 +5,7 @@ export default {
     scheme: "zeniahub",
     name: "ZeniaHub",
     slug: "zeniahub",
-    version: "1.0.30",
+    version: "1.0.31",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     userInterfaceStyle: "automatic",
