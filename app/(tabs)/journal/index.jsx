@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity 
 } from "react-native";
 import { Link } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
@@ -19,6 +20,7 @@ import TimeFilters from "../../../src/components/common/TimeFilters";
 import { AddButton } from "../../../src/components/common/AddButton";
 import ButtonLinks from "../../../src/components/common/ButtonLinks";
 import { StatCard } from "../../../src/components/common/statsComponents";
+import { Audio } from "expo-av";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
@@ -29,6 +31,11 @@ export default function JournalListPage() {
   const [period,setPeriod] = useState("7 days")
   const [stats, setStats] = useState({});
   const [moodData,setMoodData] = useState([])
+
+  const [playingUuid, setPlayingUuid] = useState(null);
+  const [soundObj, setSoundObj] = useState(null);
+  const [position, setPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
 
 
   const onPeriodChange = (value) => {
@@ -57,6 +64,45 @@ export default function JournalListPage() {
         console.log(error,"hello jornal stats error")
       }
     }
+
+    const toggleCardAudio = async (item) => {
+  // If clicking the same card
+  if (playingUuid === item.uuid) {
+    await soundObj?.pauseAsync();
+    setPlayingUuid(null);
+    return;
+  }
+
+  // Stop previous audio
+  if (soundObj) {
+    await soundObj.unloadAsync();
+    setSoundObj(null);
+    setPlayingUuid(null);
+    setPosition(0);
+    setDuration(0);
+  }
+
+  // Load new audio
+  if (!item.audio_uri) return;
+
+  try {
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: item.audio_uri },
+      { shouldPlay: true },
+      (status) => {
+        if (!status.isLoaded) return;
+        setPosition(status.positionMillis);
+        setDuration(status.durationMillis || 0);
+        if (status.didJustFinish) setPlayingUuid(null);
+      }
+    );
+
+    setSoundObj(sound);
+    setPlayingUuid(item.uuid);
+  } catch (err) {
+    console.error("Audio load error:", err);
+  }
+};
 
   
   useEffect(() => {
@@ -132,6 +178,45 @@ export default function JournalListPage() {
                   <View style={styles.cardContent}>
                     <HtmlPreview html={item.content} maxLength={200} />
                   </View>
+
+                  {item.audio_uri && (
+  <View style={{ marginTop: 6 }}>
+    <TouchableOpacity
+      style={{
+        backgroundColor: "#2E8B8B",
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 6,
+        alignSelf: "flex-start",
+      }}
+      onPress={() => toggleCardAudio(item)}
+    >
+      <Text style={{ color: "#fff", fontSize: 12 }}>
+        {playingUuid === item.uuid ? "Pause 🎵" : "Play 🎵"}
+      </Text>
+    </TouchableOpacity>
+
+    {playingUuid === item.uuid && (
+      <View
+        style={{
+          height: 4,
+          backgroundColor: "#ddd",
+          borderRadius: 2,
+          marginTop: 4,
+        }}
+      >
+        <View
+          style={{
+            height: 4,
+            width: duration ? `${(position / duration) * 100}%` : "0%",
+            backgroundColor: "#2E8B8B",
+            borderRadius: 2,
+          }}
+        />
+      </View>
+    )}
+  </View>
+)}
                 </Card>
               </Link>
             ))
