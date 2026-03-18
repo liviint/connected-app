@@ -76,33 +76,46 @@ export const syncJournalToApi = async (db, journal) => {
 };
 
 
-export const upsertJournal = async (db, { id, uuid, title, content, mood_uuid, mood_label, }) => {
+export const upsertJournal = async (db, { id, uuid, title, content, mood_uuid, mood_label,audio_uri }) => {
   const now = new Date().toISOString();
   try {
     await db.runAsync(
-      `
-      INSERT INTO journal_entries (
-        id,
-        uuid,
-        title,
-        content,
-        mood_uuid,
-        mood_label,
-        created_at,
-        updated_at,
-        synced
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
-      ON CONFLICT(uuid) DO UPDATE SET
-        title = excluded.title,
-        content = excluded.content,
-        mood_uuid = excluded.mood_uuid,
-        mood_label = excluded.mood_label,
-        updated_at = excluded.updated_at,
-        synced = 0
-      `,
-      [id, uuid, title, content, mood_uuid, mood_label, now, now]
-    );
+  `
+  INSERT INTO journal_entries (
+    id,
+    uuid,
+    title,
+    content,
+    mood_uuid,
+    mood_label,
+    audio_uri,
+    created_at,
+    updated_at,
+    synced
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ON CONFLICT(uuid) DO UPDATE SET
+    title = excluded.title,
+    content = excluded.content,
+    mood_uuid = excluded.mood_uuid,
+    mood_label = excluded.mood_label,
+    audio_uri = excluded.audio_uri,
+    updated_at = excluded.updated_at,
+    synced = 0
+  `,
+  [
+    id,
+    uuid,
+    title,
+    content,
+    mood_uuid,
+    mood_label,
+    audio_uri,
+    now,
+    now,
+    0 // 🔥 important
+  ]
+);
   } catch (error) {
     console.error("❌ Failed to upsert journal:", error);
   }

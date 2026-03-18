@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert
+  Alert,
+  Animated
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
@@ -16,6 +16,8 @@ import { Input, FormLabel, CustomPicker, Card } from "../ThemeProvider/component
 import { upsertJournal, getJournals, getLocalMoods } from "../../db/journalsDb";
 import uuid from 'react-native-uuid';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Audio } from "expo-av";
+import { File, Paths } from "expo-file-system";
 
 export default function AddEdit({ id }) {
   const db = useSQLiteContext(); 
@@ -33,6 +35,10 @@ export default function AddEdit({ id }) {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [audioUri, setAudioUri] = useState("");
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Fetch moods
   useEffect(() => {
@@ -62,6 +68,122 @@ export default function AddEdit({ id }) {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  const startRecording = async () => {
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert("Permission required", "Allow microphone access");
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      setRecording(recording);
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Failed to start recording", err);
+    }
+  };
+
+  const stopRecording = async () => {
+  if (isProcessing) return;
+
+  try {
+    setIsProcessing(true);
+
+    if (!recording) return;
+
+    const currentRecording = recording;
+
+    setRecording(null);
+    setIsRecording(false);
+    setIsPaused(false);
+
+    await currentRecording.stopAndUnloadAsync();
+
+    const uri = currentRecording.getURI();
+    if (!uri) throw new Error("No recording URI");
+
+    const savedUri = await saveAudioPermanently(uri);
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+    });
+
+    setAudioUri(savedUri);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
+  const pauseRecording = async () => {
+    try {
+      if (!recording) return;
+
+      await recording.pauseAsync();
+      setIsPaused(true);
+    } catch (err) {
+      console.error("Pause failed", err);
+    }
+  };
+
+  const resumeRecording = async () => {
+    try {
+      if (!recording) return;
+
+      await recording.startAsync();
+      setIsPaused(false);
+    } catch (err) {
+      console.error("Resume failed", err);
+    }
+  };
+
+  const playAudio = async () => {
+    if (!audioUri) return;
+
+    const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
+    await sound.playAsync();
+  };
+
+  const saveAudioPermanently = async (uri) => {
+  try {
+    if (!uri) return null;
+
+    const fileName = `audio_${Date.now()}.m4a`;
+
+    const dest = new File(Paths.document, fileName);
+    const source = new File(uri);
+
+    await source.move(dest);
+
+    return dest.uri;
+  } catch (err) {
+    console.error("File save error", err);
+    return uri; // fallback (VERY important)
+  }
+};
+
+  const Waveform = ({ isRecording }) => {
+    const bars = Array.from({ length: 20 });
+
+    return (
+      <View style={styles.waveContainer}>
+        {bars.map((_, i) => (
+          <WaveBar key={i} isRecording={isRecording} delay={i * 80} />
+        ))}
+      </View>
+    );
+  };
+
   const validateForm = () => {
     let newErrors = {};
     if (!form.content.trim() && !audioUri)
@@ -77,7 +199,7 @@ const handleSubmit = async () => {
   const journalUuid = form.uuid || uuid.v4();
   const moodLabel = moods.filter(mood => mood.uuid == form.mood_uuid)[0]?.name
   try {
-    await upsertJournal(db,{...form,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
+    await upsertJournal(db,{...form,audio_uri:audioUri,id:form.id || 0,uuid:journalUuid, mood_label:moodLabel});
     Alert.alert("Success", "Journal entry saved!");
     router.push("/journal");
     setForm(initialForm);
@@ -154,6 +276,83 @@ const handleSubmit = async () => {
         </View>
 
         <View style={globalStyles.formGroup}>
+          <FormLabel>Audio Journal (Optional)</FormLabel>
+
+          <View style={{ gap: 12 }}>
+  <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+    
+    {/* Start (only when idle) */}
+    {!isRecording && !isPaused && (
+      <TouchableOpacity
+        style={[styles.audioButton, { backgroundColor: colors.primary }]}
+        onPress={startRecording}
+      >
+        <Text style={styles.audioText}>Start</Text>
+      </TouchableOpacity>
+    )}
+
+    {/* Pause */}
+    {isRecording && !isPaused && (
+      <TouchableOpacity
+        style={[styles.audioButton, { backgroundColor: "orange" }]}
+        onPress={pauseRecording}
+      >
+        <Text style={styles.audioText}>Pause</Text>
+      </TouchableOpacity>
+    )}
+
+    {/* Resume */}
+    {isPaused && (
+      <TouchableOpacity
+        style={[styles.audioButton, { backgroundColor: "green" }]}
+        onPress={resumeRecording}
+      >
+        <Text style={styles.audioText}>Resume</Text>
+      </TouchableOpacity>
+    )}
+
+    {/* Stop (always visible when recording or paused) */}
+    {(isRecording || isPaused) && (
+      <TouchableOpacity
+  disabled={isProcessing}
+  style={[
+    styles.audioButton,
+    { backgroundColor: isProcessing ? "#ccc" : "red" }
+  ]}
+  onPress={stopRecording}
+>
+  <Text style={styles.audioText}>
+    {isProcessing ? "Stopping..." : "Stop"}
+  </Text>
+</TouchableOpacity>
+    )}
+
+    {/* Play */}
+    {audioUri && !isRecording && !isPaused && (
+      <TouchableOpacity
+        style={[styles.audioButton, { backgroundColor: colors.secondary }]}
+        onPress={playAudio}
+      >
+        <Text style={styles.audioText}>Play</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+
+  {/* Waveform */}
+  {(isRecording || isPaused || audioUri) && (
+    <Waveform isRecording={isRecording && !isPaused} />
+  )}
+
+  {/* Status */}
+  {(isRecording || isPaused) && (
+    <Text style={{ color: isPaused ? "orange" : "red", fontSize: 12 }}>
+      {isPaused ? "⏸ Paused" : "● Recording..."}
+    </Text>
+  )}
+</View>
+        </View>
+
+        <View style={globalStyles.formGroup}>
           <FormLabel >Mood</FormLabel>
           <CustomPicker
             selectedValue={form.mood_uuid}
@@ -177,6 +376,48 @@ const handleSubmit = async () => {
     </ScrollView>
   );
 }
+
+const WaveBar = ({ isRecording, delay }) => {
+  const anim = useRef(new Animated.Value(5)).current;
+
+  useEffect(() => {
+    let loop;
+
+    if (isRecording) {
+      loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: Math.random() * 40 + 10,
+            duration: 200,
+            delay,
+            useNativeDriver: false,
+          }),
+          Animated.timing(anim, {
+            toValue: 5,
+            duration: 200,
+            useNativeDriver: false,
+          }),
+        ])
+      );
+      loop.start();
+    } else {
+      anim.setValue(5);
+    }
+
+    return () => loop?.stop();
+  }, [isRecording]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.waveBar,
+        {
+          height: anim,
+        },
+      ]}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
   error: { color: "red", marginTop: 4, fontSize: 12 },
@@ -205,5 +446,29 @@ const styles = StyleSheet.create({
   richToolbar: {
     borderRadius: 12,
     marginBottom: 6,
+  },
+  audioButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+
+  audioText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  waveContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    height: 50,
+    marginTop: 12,
+    gap: 4,
+  },
+
+  waveBar: {
+    width: 4,
+    backgroundColor: "#2E8B8B", 
+    borderRadius: 2,
   },
 });
