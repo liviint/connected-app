@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  PanResponder 
 } from "react-native";
 import * as ClipBoard from "expo-clipboard"
 import {useRouter, useLocalSearchParams } from "expo-router";
@@ -32,6 +33,8 @@ export default function ViewJournalPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [position, setPosition] = useState(0);
+  const [barWidth, setBarWidth] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -78,7 +81,10 @@ export default function ViewJournalPage() {
 const onPlaybackStatusUpdate = (status) => {
   if (!status.isLoaded) return;
 
-  setPosition(status.positionMillis);
+  if (!isSeeking) {
+    setPosition(status.positionMillis);
+  }
+
   setDuration(status.durationMillis || 0);
 
   if (status.didJustFinish) {
@@ -97,6 +103,32 @@ const togglePlayback = async () => {
     setIsPlaying(true);
   }
 };
+
+const handleSeek = async (evt) => {
+  if (!sound || !duration) return;
+
+  const touchX = evt.nativeEvent.locationX;
+
+  const percentage = Math.max(0, Math.min(1, touchX / barWidth));
+
+  const newPosition = percentage * duration;
+
+  try {
+    await sound.setPositionAsync(newPosition);
+    setPosition(newPosition);
+  } catch (err) {
+    console.error("Seek error", err);
+  }
+};
+
+const panResponder = useRef(
+  PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderGrant: () => setIsSeeking(true),
+    onPanResponderMove: handleSeek,
+    onPanResponderRelease: () => setIsSeeking(false),
+  })
+).current;
 
 const formatTime = (millis) => {
   const seconds = Math.floor(millis / 1000);
@@ -171,24 +203,41 @@ const formatTime = (millis) => {
       </TouchableOpacity>
 
       <Text style={styles.time}>
-        {formatTime(position)} / {formatTime(duration)}
+        {formatTime(position || 0)} / {formatTime(duration || 0)}
       </Text>
     </View>
 
     {/* Progress bar */}
-    <View style={styles.progressBar}>
-      <View
-        style={[
-          styles.progress,
-          {
-            width:
-              duration > 0
-                ? `${(position / duration) * 100}%`
-                : "0%",
-          },
-        ]}
-      />
-    </View>
+    <View
+  style={styles.progressBar}
+  onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
+  {...panResponder.panHandlers}
+>
+  <View
+    style={[
+      styles.progress,
+      {
+        width:
+          duration > 0
+            ? `${(position / duration) * 100}%`
+            : "0%",
+      },
+    ]}
+  />
+
+  {/* Thumb */}
+  <View
+    style={[
+      styles.thumb,
+      {
+        left:
+          duration > 0
+            ? `${(position / duration) * 100}%`
+            : "0%",
+      },
+    ]}
+  />
+</View>
   </View>
 )}
 
@@ -281,4 +330,13 @@ progress: {
   height: 6,
   backgroundColor: "#2E8B8B",
 },
+thumb: {
+  position: "absolute",
+  top: -4,
+  width: 14,
+  height: 14,
+  borderRadius: 7,
+  backgroundColor: "#2E8B8B",
+},
+
 });
