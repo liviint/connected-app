@@ -17,6 +17,7 @@ import { Card , BodyText} from "../../../../src/components/ThemeProvider/compone
 import PageLoader from "../../../../src/components/common/PageLoader";
 import { getJournals, deleteJournal } from "../../../../src/db/journalsDb";
 import { useSQLiteContext } from 'expo-sqlite';
+import { Audio } from "expo-av";
 
 export default function ViewJournalPage() {
   const db = useSQLiteContext(); 
@@ -26,6 +27,11 @@ export default function ViewJournalPage() {
 
   const [entry, setEntry] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [position, setPosition] = useState(0);
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -41,6 +47,64 @@ export default function ViewJournalPage() {
 
     fetchJournal();
   }, [id]);
+
+  useEffect(() => {
+  if (!entry?.audio_uri) return;
+
+  let soundObj;
+
+  const loadAudio = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: entry.audio_uri },
+        { shouldPlay: false },
+        onPlaybackStatusUpdate
+      );
+
+      soundObj = sound;
+      setSound(sound);
+    } catch (err) {
+      console.error("Audio load error", err);
+    }
+  };
+
+  loadAudio();
+
+  return () => {
+    soundObj?.unloadAsync();
+  };
+}, [entry?.audio_uri]);
+
+const onPlaybackStatusUpdate = (status) => {
+  if (!status.isLoaded) return;
+
+  setPosition(status.positionMillis);
+  setDuration(status.durationMillis || 0);
+
+  if (status.didJustFinish) {
+    setIsPlaying(false);
+  }
+};
+
+const togglePlayback = async () => {
+  if (!sound) return;
+
+  if (isPlaying) {
+    await sound.pauseAsync();
+    setIsPlaying(false);
+  } else {
+    await sound.playAsync();
+    setIsPlaying(true);
+  }
+};
+
+const formatTime = (millis) => {
+  const seconds = Math.floor(millis / 1000);
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+};
 
   const handleDelete = () => {
     Alert.alert(
@@ -92,6 +156,42 @@ export default function ViewJournalPage() {
 
         <HtmlPreview  html={entry.content}/>
 
+        {entry?.audio_uri && (
+  <View style={styles.audioContainer}>
+    <Text style={styles.audioTitle}>🎙️ Audio Journal</Text>
+
+    <View style={styles.audioControls}>
+      <TouchableOpacity
+        style={styles.playButton}
+        onPress={togglePlayback}
+      >
+        <Text style={styles.playButtonText}>
+          {isPlaying ? "Pause" : "Play"}
+        </Text>
+      </TouchableOpacity>
+
+      <Text style={styles.time}>
+        {formatTime(position)} / {formatTime(duration)}
+      </Text>
+    </View>
+
+    {/* Progress bar */}
+    <View style={styles.progressBar}>
+      <View
+        style={[
+          styles.progress,
+          {
+            width:
+              duration > 0
+                ? `${(position / duration) * 100}%`
+                : "0%",
+          },
+        ]}
+      />
+    </View>
+  </View>
+)}
+
         {/* Actions */}
         <View style={styles.actions}>
           <TouchableOpacity
@@ -134,4 +234,51 @@ const styles = StyleSheet.create({
   deleteButtonText: { color: "#fff", fontWeight: "600" },
   editButton: { backgroundColor: "#2E8B8B", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12 },
   editButtonText: { color: "#fff", fontWeight: "600" },
+  audioContainer: {
+  marginTop: 16,
+  padding: 12,
+  backgroundColor: "#F4E1D2",
+  borderRadius: 12,
+},
+
+audioTitle: {
+  fontWeight: "bold",
+  marginBottom: 8,
+},
+
+audioControls: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+},
+
+playButton: {
+  backgroundColor: "#2E8B8B",
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  borderRadius: 8,
+},
+
+playButtonText: {
+  color: "#fff",
+  fontWeight: "600",
+},
+
+time: {
+  fontSize: 12,
+  color: "#555",
+},
+
+progressBar: {
+  height: 6,
+  backgroundColor: "#ddd",
+  borderRadius: 4,
+  marginTop: 10,
+  overflow: "hidden",
+},
+
+progress: {
+  height: 6,
+  backgroundColor: "#2E8B8B",
+},
 });
