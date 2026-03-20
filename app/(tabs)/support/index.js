@@ -3,47 +3,39 @@ import { View, Text, TouchableOpacity, Alert, StyleSheet, ActivityIndicator, Pla
 import {
   useIAP,
   requestPurchase,
-  getProducts,
-  flushFailedPurchasesCachedAsPendingAndroid,
 } from "react-native-iap";
 
-const itemSkus = ["support_50", "support_100", "support_200"];
+const itemSkus = ["support_50", "support-50", "support_200"];
 
 const SupportPage = () => {
   const {
-    connected,
-    products, 
-    fetchProducts, 
-    finishTransaction,
-    currentPurchase,
-  } = useIAP();
+  connected,
+  products,
+  fetchProducts,
+  finishTransaction,
+  currentPurchase,
+} = useIAP();
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initIAP = async () => {
-      if (connected) {
-        try {
-          setLoading(true);
-          if (Platform.OS === 'android') {
-            await flushFailedPurchasesCachedAsPendingAndroid();
-          }
-          
-          if (fetchProducts) {
-            await fetchProducts({ skus: itemSkus });
-          } else {
-            await getProducts({ skus: itemSkus });
-          }
-        } catch (err) {
-          console.warn("IAP Fetch Error:", err);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    initIAP();
-  }, [connected, fetchProducts]);
+  const initIAP = async () => {
+    if (connected) {
+      try {
+        setLoading(true);
 
+        await fetchProducts,({ skus: itemSkus });
+
+      } catch (err) {
+        console.warn("IAP Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  initIAP();
+}, [connected]);
   useEffect(() => {
     if (currentPurchase) {
       finishTransaction({ purchase: currentPurchase, isConsumable: true })
