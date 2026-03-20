@@ -24,7 +24,7 @@ const SupportPage = () => {
       try {
         setLoading(true);
 
-        await fetchProducts,({ skus: itemSkus });
+        await fetchProducts({ skus: itemSkus });
 
       } catch (err) {
         console.warn("IAP Fetch Error:", err);
