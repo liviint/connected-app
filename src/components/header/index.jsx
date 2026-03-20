@@ -46,7 +46,16 @@ export default function Header() {
             path="/settings" 
             isActive={isActive("/(tabs)/settings")} 
           />
-        </View>
+
+          <View style={{ height: 1, backgroundColor: "rgba(255,255,255,0.2)", width: "80%", marginVertical: 10 }} />
+            <NavLink 
+              label="❤️ Support this app"
+              path="/support" 
+              isActive={isActive("/(tabs)/support")} 
+            />
+          </View>
+
+        
       </View>
     )}
     </View>

@@ -7,6 +7,7 @@ import { BackHandler } from 'react-native';
 import ThemeProvider from "../src/components/ThemeProvider"
 import AppDataProvider from "../src/components/AppDataProvider/index"
 import AppLockProvider from "../src/components/AppDataProvider/AppLockProvider"
+import DonateProvider from "../src/components/AppDataProvider/DonateProvider"
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -32,25 +33,27 @@ export default function RootLayout() {
       <ThemeProvider >
         <AppDataProvider>
           <AppLockProvider>
-              <Stack>
-                {/* Main Tabs */}
-                <Stack.Screen
-                  name="(tabs)"
-                  options={{
-                    header: () => <Header />,
-                  }}
-                />
+            <DonateProvider>
+                <Stack>
+                  {/* Main Tabs */}
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{
+                      header: () => <Header />,
+                    }}
+                  />
 
-                {/* Modal screen */}
-                <Stack.Screen
-                  name="modal"
-                  options={{
-                    presentation: 'modal',
-                    title: 'Modal',
-                    header: () => <Header />,
-                  }}
-                />
-            </Stack>
+                  {/* Modal screen */}
+                  <Stack.Screen
+                    name="modal"
+                    options={{
+                      presentation: 'modal',
+                      title: 'Modal',
+                      header: () => <Header />,
+                    }}
+                  />
+              </Stack>
+            </DonateProvider >
           </AppLockProvider>
         </AppDataProvider>
       </ThemeProvider>
