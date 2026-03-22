@@ -1,77 +1,126 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert, StyleSheet, ActivityIndicator, Platform } from "react-native";
-import {
-  useIAP,
-  requestPurchase,
-} from "react-native-iap";
-
-const itemSkus = ["support_50", "support-50", "support_200"];
+import { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity,StyleSheet, ActivityIndicator, Alert, Platform } from "react-native";
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import { useThemeStyles } from "@/src/hooks/useThemeStyles";
+import {  BodyText, SecondaryText } from "@/src/components/ThemeProvider/components";
 
 const SupportPage = () => {
-  const {
-  connected,
-  products,
-  fetchProducts,
-  finishTransaction,
-  currentPurchase,
-} = useIAP();
-
+  const {globalStyles} = useThemeStyles()
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const initIAP = async () => {
-    if (connected) {
-      try {
-        setLoading(true);
+    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 
-        await fetchProducts({ skus: itemSkus });
+    const iosApiKey = 'test_kUiKMPkXXElDEIbxjyWphWVYDiz';
+    const androidApiKey = 'test_kUiKMPkXXElDEIbxjyWphWVYDiz';
 
-      } catch (err) {
-        console.warn("IAP Fetch Error:", err);
-      } finally {
-        setLoading(false);
+    if (Platform.OS === 'ios') {
+        Purchases.configure({apiKey: iosApiKey});
+    } else if (Platform.OS === 'android') {
+        Purchases.configure({apiKey: androidApiKey});
+    }
+  }, []);
+
+  useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const offerings = await Purchases.getOfferings();
+
+      if (offerings.current) {
+        setProducts(offerings.current.availablePackages);
+      } else {
+        Alert.alert(
+          "Unavailable",
+          "Support options are not available right now. Please try again later."
+        );
+      }
+
+    } catch (err) {
+      console.warn("RevenueCat fetch error", err);
+
+      let message = "Something went wrong. Please try again.";
+
+      if (err.message?.includes("network")) {
+        message = "No internet connection. Please check and try again.";
+      }
+
+      Alert.alert("Error", message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+}, []);
+
+  const handlePurchase = async (pkg) => {
+    try {
+      await Purchases.purchasePackage(pkg);
+
+      Alert.alert("Thank you 💖", "Your support keeps ZeniaMoney running!");
+
+    } catch (err) {
+      console.warn("Purchase error", err);
+
+      if (!err.userCancelled) {
+        Alert.alert(
+          "Payment failed",
+          "Your payment didn't go through. Please try again."
+        );
       }
     }
   };
 
-  initIAP();
-}, [connected]);
-  useEffect(() => {
-    if (currentPurchase) {
-      finishTransaction({ purchase: currentPurchase, isConsumable: true })
-        .then(() => Alert.alert("Thank you 💖", "Your support keeps ZeniaMoney running!"))
-        .catch((err) => console.warn("Finish error", err));
-    }
-  }, [currentPurchase]);
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>❤️ Support ZeniaMoney</Text>
-      <Text style={styles.subtitle}>Your support keeps the app free and growing 💖</Text>
-      
-      <View style={styles.divider} />
+  <View style={{...globalStyles.container,...styles.container}}>
+    
+    <BodyText style={globalStyles.title}>❤️ Support ZeniaMoney</BodyText>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#FF6B6B" />
-      ) : products.length > 0 ? (
-        products.map((product) => (
+    <BodyText style={styles.subtitle}>
+      This app is free. Your support helps keep it growing for everyone.
+    </BodyText>
+
+    <View style={styles.divider} />
+
+    {/* Loading */}
+    {loading ? (
+      <ActivityIndicator size="large" color="#FF6B6B" />
+    ) : products.length > 0 ? (
+
+      <>
+        {/* Support Options */}
+        {products.map((pkg) => (
           <TouchableOpacity
-            key={product.productId}
-            style={styles.button}
-            onPress={() => requestPurchase({ sku: product.productId })}
+            key={pkg.identifier}
+            style={styles.card}
+            onPress={() => handlePurchase(pkg)}
+            activeOpacity={0.85}
           >
-            <Text style={styles.buttonText}>
-              {product.localizedPrice} - {product.title.split('(')[0].trim()}
+            <Text style={styles.amount}>
+              {pkg.product.priceString}
+            </Text>
+
+            <Text style={styles.label}>
+              {pkg.product.title.split("(")[0].trim()}
             </Text>
           </TouchableOpacity>
-        ))
-      ) : (
-        <Text style={styles.microcopy}>No support options found. Check your Play Store connection.</Text>
-      )}
+        ))}
 
-      <Text style={styles.microcopy}>Even Ksh 50 helps keep the app running 💖</Text>
-    </View>
-  );
+        {/* Microcopy */}
+        <SecondaryText style={styles.microcopy}>
+          Even a small amount makes a difference 💖
+        </SecondaryText>
+      </>
+
+    ) : (
+      <Text style={styles.error}>
+        Support options unavailable. Please try again later.
+      </Text>
+    )}
+
+  </View>
+);
 };
 
 export default SupportPage;
@@ -79,11 +128,11 @@ export default SupportPage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF9F7",
+    padding: 20,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
+
   title: {
     fontSize: 24,
     fontWeight: "700",
@@ -91,35 +140,51 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+
   subtitle: {
-    fontSize: 16,
-    color: "#333",
+    fontSize: 15,
     textAlign: "center",
     marginBottom: 20,
+    lineHeight: 22,
   },
+
   divider: {
     height: 1,
     width: "80%",
     backgroundColor: "rgba(0,0,0,0.1)",
     marginVertical: 20,
   },
-  button: {
+
+  card: {
+    width: "90%",
     backgroundColor: "#FF6B6B",
-    paddingVertical: 14,
-    paddingHorizontal: 30,
-    borderRadius: 12,
+    paddingVertical: 18,
+    borderRadius: 16,
     marginVertical: 8,
-    width: "80%",
     alignItems: "center",
   },
-  buttonText: {
+
+  amount: {
+    fontSize: 20,
+    fontWeight: "700",
     color: "#FAF9F7",
-    fontSize: 16,
-    fontWeight: "600",
   },
+
+  label: {
+    fontSize: 14,
+    color: "#FAF9F7",
+    opacity: 0.9,
+    marginTop: 4,
+  },
+
   microcopy: {
     marginTop: 20,
-    color: "#333",
+    fontSize: 13,
+    textAlign: "center",
+  },
+
+  error: {
+    color: "#999",
     textAlign: "center",
   },
 });

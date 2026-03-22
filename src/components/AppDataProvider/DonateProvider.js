@@ -1,20 +1,13 @@
-import { useEffect } from "react";
-import { 
-    initConnection,
-} from "react-native-iap";
+import React, { useEffect } from "react";
+import Purchases from "react-native-purchases";
 
-export default function DonateProvider({ children }) {
-    useEffect(() => {
-        const setup = async () => {
-            try {
-            await initConnection();
-            } catch (err) {
-            console.warn("Connection error", err);
-            }
-        };
-        setup();
-    }, []);
-    return <>
-        { children }
-    </>
+export default function RevenueCatProvider({ children }) {
+  useEffect(() => {
+    // Use your RevenueCat API key (Google Play / App Store)
+    Purchases.configure({
+      apiKey:  "test_kUiKMPkXXElDEIbxjyWphWVYDiz",
+    });
+  }, []);
+
+  return children;
 }

@@ -58,6 +58,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="support/index"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="appearance/index"
         options={{
           href: null,
