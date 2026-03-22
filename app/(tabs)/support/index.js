@@ -10,19 +10,6 @@ const SupportPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-
-    const iosApiKey = 'test_kUiKMPkXXElDEIbxjyWphWVYDiz';
-    const androidApiKey = 'test_kUiKMPkXXElDEIbxjyWphWVYDiz';
-
-    if (Platform.OS === 'ios') {
-        Purchases.configure({apiKey: iosApiKey});
-    } else if (Platform.OS === 'android') {
-        Purchases.configure({apiKey: androidApiKey});
-    }
-  }, []);
-
-  useEffect(() => {
   const fetchProducts = async () => {
     try {
       const offerings = await Purchases.getOfferings();
@@ -107,9 +94,9 @@ const SupportPage = () => {
           </TouchableOpacity>
         ))}
 
-        {/* Microcopy */}
+       
         <SecondaryText style={styles.microcopy}>
-          Even a small amount makes a difference 💖
+          One-time payment • No subscription • Secure via Google Play (M-Pesa supported)
         </SecondaryText>
       </>
 
