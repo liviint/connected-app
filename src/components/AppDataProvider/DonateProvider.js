@@ -1,18 +1,25 @@
 import { useEffect } from "react";
-import Purchases, { LOG_LEVEL } from 'react-native-purchases';
-import { Platform } from "react-native";
+import Purchases, { LOG_LEVEL } from "react-native-purchases";
+import Constants from "expo-constants";
 
 export default function RevenueCatProvider({ children }) {
   useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+    const isExpoGo = Constants.appOwnership === "expo";
 
-    const iosApiKey = 'test_kUiKMPkXXElDEIbxjyWphWVYDiz';
-    const androidApiKey = 'test_kUiKMPkXXElDEIbxjyWphWVYDiz';
+    if (isExpoGo) {
+      console.log("Running in Expo Go → Skipping RevenueCat");
+      return;
+    }
 
-    if (Platform.OS === 'ios') {
-        Purchases.configure({apiKey: iosApiKey});
-    } else if (Platform.OS === 'android') {
-        Purchases.configure({apiKey: androidApiKey});
+    try {
+      Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+
+      const androidApiKey = "goog_BseuGMMdUwxwuVsuXviJyUSZxqC";
+
+      Purchases.configure({ apiKey: androidApiKey });
+      console.log("RevenueCat initialized");
+    } catch (error) {
+      console.log("RevenueCat init failed:", error);
     }
   }, []);
 
