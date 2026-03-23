@@ -1,4 +1,4 @@
-import { View, StyleSheet, Switch, Alert } from "react-native";
+import { View, StyleSheet, Switch, Alert, TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "@/store/features/settingsSlice";
 import { useThemeStyles } from "@/src/hooks/useThemeStyles";
@@ -128,37 +128,42 @@ const handleRestore = async () => {
 <Card style={styles.card}>
   <BodyText style={styles.title}>Cloud Backup</BodyText>
 
-  {!isConnected ? (
-    <>
-      <BodyText style={styles.helperText}>
-        Backup and restore your data securely using Google Drive
-      </BodyText>
+  <BodyText style={styles.helperText}>
+    Backup and restore your data securely using Google Drive
+  </BodyText>
 
-      <View style={styles.buttonContainer}>
-        <BodyText style={styles.actionButton} onPress={handleConnectGoogle}>
-          Connect Google Drive
-        </BodyText>
-      </View>
-    </>
+  {!isConnected ? (
+    <TouchableOpacity
+      style={styles.primaryButton}
+      onPress={handleConnectGoogle}
+    >
+      <BodyText style={styles.buttonText}>
+        Connect Google Drive
+      </BodyText>
+    </TouchableOpacity>
   ) : (
     <>
-      <BodyText style={styles.helperText}>
-        Your data is محفوظ (safe) in your Google Drive
-      </BodyText>
-
-      <View style={styles.buttonContainer}>
-        <BodyText style={styles.actionButton} onPress={handleBackup}>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={handleBackup}
+      >
+        <BodyText style={styles.buttonText}>
           Backup Now
         </BodyText>
+      </TouchableOpacity>
 
-        <BodyText style={styles.actionButton} onPress={handleRestore}>
+      <TouchableOpacity
+        style={styles.secondaryButton}
+        onPress={handleRestore}
+      >
+        <BodyText style={styles.secondaryButtonText}>
           Restore Data
         </BodyText>
-      </View>
+      </TouchableOpacity>
 
       {lastBackup && (
         <BodyText style={styles.helperText}>
-          Last backup: {new Date(lastBackup).toLocaleString()}
+          Last backup: {lastBackup}
         </BodyText>
       )}
     </>
@@ -194,5 +199,31 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 8,
   },
+  primaryButton: {
+  marginTop: 16,
+  backgroundColor: "#FF6B6B", // Zenia primary
+  paddingVertical: 12,
+  borderRadius: 10,
+  alignItems: "center",
+},
+
+secondaryButton: {
+  marginTop: 10,
+  borderWidth: 1,
+  borderColor: "#FF6B6B",
+  paddingVertical: 12,
+  borderRadius: 10,
+  alignItems: "center",
+},
+
+buttonText: {
+  color: "#fff",
+  fontWeight: "600",
+},
+
+secondaryButtonText: {
+  color: "#FF6B6B",
+  fontWeight: "600",
+},
 });
 
