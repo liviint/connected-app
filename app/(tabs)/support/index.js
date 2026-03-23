@@ -96,7 +96,7 @@ const SupportPage = () => {
 
        
         <SecondaryText style={styles.microcopy}>
-          One-time payment • No subscription • Secure via Google Play (M-Pesa supported)
+          No subscription • Secure via Google Play (M-Pesa supported)
         </SecondaryText>
       </>
 
