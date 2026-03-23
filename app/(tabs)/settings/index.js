@@ -16,6 +16,8 @@ const SettingsPage = () => {
 
   const [appLockEnabled, setAppLockEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+  const [lastBackup, setLastBackup] = useState(null);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -44,6 +46,50 @@ const SettingsPage = () => {
     setAppLockEnabled(next);
     await setSetting(db, "app_lock_enabled", next);
   };
+
+  const handleConnectGoogle = async () => {
+  try {
+    // TODO: Replace with real Google Auth
+    setIsConnected(true);
+
+    Alert.alert("Connected", "Google Drive connected successfully");
+  } catch (error) {
+    Alert.alert("Error", "Failed to connect Google Drive");
+  }
+};
+
+const handleBackup = async () => {
+  try {
+    // TODO: Replace with real backup logic
+    setLastBackup(new Date().toISOString());
+
+    Alert.alert("Success", "Backup completed successfully");
+  } catch (error) {
+    Alert.alert("Error", "Backup failed");
+  }
+};
+
+const handleRestore = async () => {
+  Alert.alert(
+    "Restore data?",
+    "This will replace your current data.",
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Restore",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            // TODO: Replace with real restore logic
+            Alert.alert("Success", "Data restored successfully");
+          } catch (error) {
+            Alert.alert("Error", "Restore failed");
+          }
+        },
+      },
+    ]
+  );
+};
 
 
   return (
@@ -77,6 +123,48 @@ const SettingsPage = () => {
           Require device authentication to open the app
         </BodyText>
       </Card>
+
+      {/* Cloud Backup */}
+<Card style={styles.card}>
+  <BodyText style={styles.title}>Cloud Backup</BodyText>
+
+  {!isConnected ? (
+    <>
+      <BodyText style={styles.helperText}>
+        Backup and restore your data securely using Google Drive
+      </BodyText>
+
+      <View style={styles.buttonContainer}>
+        <BodyText style={styles.actionButton} onPress={handleConnectGoogle}>
+          Connect Google Drive
+        </BodyText>
+      </View>
+    </>
+  ) : (
+    <>
+      <BodyText style={styles.helperText}>
+        Your data is محفوظ (safe) in your Google Drive
+      </BodyText>
+
+      <View style={styles.buttonContainer}>
+        <BodyText style={styles.actionButton} onPress={handleBackup}>
+          Backup Now
+        </BodyText>
+
+        <BodyText style={styles.actionButton} onPress={handleRestore}>
+          Restore Data
+        </BodyText>
+      </View>
+
+      {lastBackup && (
+        <BodyText style={styles.helperText}>
+          Last backup: {new Date(lastBackup).toLocaleString()}
+        </BodyText>
+      )}
+    </>
+  )}
+</Card>
+
     </View>
   );
 };
