@@ -62,7 +62,7 @@ const SupportPage = () => {
   return (
   <View style={{...globalStyles.container,...styles.container}}>
     
-    <BodyText style={globalStyles.title}>❤️ Support ZeniaMoney</BodyText>
+    <BodyText style={globalStyles.title}>❤️ Support ZeniaHub</BodyText>
 
     <BodyText style={styles.subtitle}>
       This app is free. Your support helps keep it growing for everyone.
