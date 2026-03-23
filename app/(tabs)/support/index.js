@@ -45,7 +45,7 @@ const SupportPage = () => {
     try {
       await Purchases.purchasePackage(pkg);
 
-      Alert.alert("Thank you 💖", "Your support keeps ZeniaMoney running!");
+      Alert.alert("Thank you 💖", "Your support keeps ZeniaHub running!");
 
     } catch (err) {
       console.warn("Purchase error", err);
