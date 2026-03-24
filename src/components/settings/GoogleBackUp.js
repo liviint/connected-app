@@ -4,10 +4,10 @@ import { Card, BodyText } from "@/src/components/ThemeProvider/components";
 import * as AuthSession from "expo-auth-session";
 import * as SecureStore from "expo-secure-store";
 
-const CLIENT_ID = "171579827542-79hm1pkh50s9uqlrpnb8hfsq484tomii.apps.googleusercontent.com"
+const CLIENT_ID = "171579827542-2tdrdl92lgjaomf09ba6uuqlnq5hnsir.apps.googleusercontent.com"
 
 const REDIRECT_URI = AuthSession.makeRedirectUri({
-  useProxy: true
+  useProxy: false
 });
 
 console.log(REDIRECT_URI,"hello redirect url 12")
