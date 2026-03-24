@@ -125,7 +125,6 @@ const handleRestore = async () => {
         </BodyText>
       </Card>
 
-      {/* Cloud Backup */}
       <GoogleBackUp />
 
     </View>
