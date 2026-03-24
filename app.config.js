@@ -70,6 +70,7 @@ export default {
       "@react-native-community/datetimepicker",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
+      "expo-secure-store",
       [
         "expo-splash-screen",
         {
@@ -95,6 +96,6 @@ export default {
       },
     },
 
-    owner: process.env.EXPO_OWNER || "zeniahub",
+    owner: "kevinmosigisi1",
   },
 };

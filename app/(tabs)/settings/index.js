@@ -7,6 +7,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import { getSetting, setSetting } from "@/src/db/settingsDb";
 import * as LocalAuthentication from "expo-local-authentication";
+import GoogleBackUp from "../../../src/components/settings/GoogleBackUp";
 
 const SettingsPage = () => {
   const dispatch = useDispatch();
@@ -125,50 +126,7 @@ const handleRestore = async () => {
       </Card>
 
       {/* Cloud Backup */}
-<Card style={styles.card}>
-  <BodyText style={styles.title}>Cloud Backup</BodyText>
-
-  <BodyText style={styles.helperText}>
-    Backup and restore your data securely using Google Drive
-  </BodyText>
-
-  {!isConnected ? (
-    <TouchableOpacity
-      style={styles.primaryButton}
-      onPress={handleConnectGoogle}
-    >
-      <BodyText style={styles.buttonText}>
-        Connect Google Drive
-      </BodyText>
-    </TouchableOpacity>
-  ) : (
-    <>
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={handleBackup}
-      >
-        <BodyText style={styles.buttonText}>
-          Backup Now
-        </BodyText>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.secondaryButton}
-        onPress={handleRestore}
-      >
-        <BodyText style={styles.secondaryButtonText}>
-          Restore Data
-        </BodyText>
-      </TouchableOpacity>
-
-      {lastBackup && (
-        <BodyText style={styles.helperText}>
-          Last backup: {lastBackup}
-        </BodyText>
-      )}
-    </>
-  )}
-</Card>
+      <GoogleBackUp />
 
     </View>
   );
@@ -201,7 +159,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
   marginTop: 16,
-  backgroundColor: "#FF6B6B", // Zenia primary
+  backgroundColor: "#FF6B6B", 
   paddingVertical: 12,
   borderRadius: 10,
   alignItems: "center",
