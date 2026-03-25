@@ -70,6 +70,7 @@ export default {
       "@react-native-community/datetimepicker",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
+      "@react-native-google-signin/google-signin",
       "expo-secure-store",
       [
         "expo-splash-screen",
