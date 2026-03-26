@@ -480,7 +480,7 @@ export async function toggleHabitEntry(
   const entry = await db.getFirstAsync(
     `
     SELECT * FROM habit_entries
-    WHERE habit_uuid = ? AND date = ? AND deleted = 0
+    WHERE habit_uuid = ? AND date = ?
     LIMIT 1
     `,
     [habit_uuid, targetDate]
@@ -506,10 +506,9 @@ export async function toggleHabitEntry(
         date,
         completed,
         habit_id,
-        synced,
-        deleted
+        synced
       )
-      VALUES (?, ?, ?, ?, ?, 0, 0)
+      VALUES (?, ?, ?, ?, ?, 0)
       `,
       [
         uuid,
