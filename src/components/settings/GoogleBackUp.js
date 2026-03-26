@@ -3,18 +3,22 @@ import { StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { Card, BodyText } from "@/src/components/ThemeProvider/components";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import * as SecureStore from "expo-secure-store";
+import { useSQLiteContext } from 'expo-sqlite';
+import { exportDatabase } from "../../db/googleDriveDb";
 
 // Use your WEB_CLIENT_ID here - Google's Native SDK uses it to identify the project
 const WEB_CLIENT_ID = "171579827542-vnlu2ildln3llcnrli2g9rbnogtecrc2.apps.googleusercontent.com";
 
 const GoogleBackUp = () => {
+  const db = useSQLiteContext(); 
   const [isConnected, setIsConnected] = useState(false);
   const [lastBackup, setLastBackup] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Initial configuration of the Native SDK
     GoogleSignin.configure({
-      scopes: ["https://www.googleapis.com/auth/drive.appdata"], 
+      scopes: ["https://www.googleapis.com/auth/drive.file"],
       webClientId: WEB_CLIENT_ID, 
       offlineAccess: true, // Required if you want to refresh tokens later
     });
@@ -43,7 +47,8 @@ const GoogleBackUp = () => {
       if (accessToken) {
         await SecureStore.setItemAsync("gdrive_token", accessToken);
         setIsConnected(true);
-        Alert.alert("Connected", `Welcome ${userInfo.user.name || 'User'}! Google Drive is ready.`);
+        console.log(userInfo.data.user,"user info")
+        Alert.alert("Connected", `Signed in as ${userInfo?.data?.user?.email}`);
       }
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -60,25 +65,134 @@ const GoogleBackUp = () => {
   };
 
   const handleBackup = async () => {
-    try {
-      // Logic for Google Drive Upload goes here
-      setLastBackup(new Date().toLocaleString());
-      Alert.alert("Success", "Backup synced successfully");
-    } catch (error) {
-      Alert.alert("Error", "Backup failed");
-    }
-  };
+  try {
+    const { accessToken } = await GoogleSignin.getTokens();
+    if (!accessToken) throw new Error("No access token found");
 
+    // Your data
+    const dbData = await exportDatabase(db);
+    const backupData = {
+      timestamp: new Date().toISOString(),
+      app: "ZeniaHub",
+      data: dbData, 
+    };
+
+    const fileName = "Zeniahub_Backup.json";
+    
+    // 1. Search for existing file
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${fileName}'&spaces=drive`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    const searchResult = await searchResponse.json();
+    let fileId = searchResult.files && searchResult.files.length > 0 ? searchResult.files[0].id : null;
+
+    if (!fileId) {
+      // 2. CREATE the file metadata first (Empty file with the right name)
+      const createMetaResponse = await fetch(
+        "https://www.googleapis.com/drive/v3/files",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: fileName,
+            mimeType: "application/json",
+          }),
+        }
+      );
+      const newFile = await createMetaResponse.json();
+      fileId = newFile.id;
+    }
+
+    // 3. UPLOAD/PATCH the content (Simple media upload)
+    const uploadResponse = await fetch(
+      `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(backupData),
+      }
+    );
+
+    if (uploadResponse.ok) {
+      setLastBackup(new Date().toLocaleString());
+      Alert.alert("Success", "Backup synced to your Google Drive");
+    } else {
+      const errorData = await uploadResponse.json();
+      console.error("Drive API Error:", errorData);
+      throw new Error("Upload failed");
+    }
+  } catch (error) {
+    console.error("Backup Error:", error);
+    // If it's a Network request failed, it's often a connection or URL issue
+    Alert.alert("Error", "Network request failed. Ensure your internet is on and your API is enabled.");
+  }
+};
   const handleRestore = async () => {
-    Alert.alert("Restore data?", "This will replace your current local data.", [
+  Alert.alert(
+    "Restore data?",
+    "This will replace your current local data with the backup from Google Drive.",
+    [
       { text: "Cancel", style: "cancel" },
       {
         text: "Restore",
         style: "destructive",
-        onPress: () => Alert.alert("Success", "Data restored"),
+        onPress: async () => {
+          try {
+            // 1. Get the latest access token
+            const { accessToken } = await GoogleSignin.getTokens();
+            if (!accessToken) throw new Error("No access token found");
+
+            const fileName = "Zeniahub_Backup.json";
+
+            // 2. Search for the backup file
+            const searchResponse = await fetch(
+              `https://www.googleapis.com/drive/v3/files?q=name='${fileName}'&spaces=drive`,
+              {
+                headers: { Authorization: `Bearer ${accessToken}` },
+              }
+            );
+            const searchResult = await searchResponse.json();
+            const file = searchResult.files && searchResult.files[0];
+
+            if (!file) {
+              Alert.alert("No Backup Found", "We couldn't find a backup file in your Google Drive.");
+              return;
+            }
+
+            // 3. Download the file content
+            // Using alt=media tells Google to return the file content, not the metadata
+            const downloadResponse = await fetch(
+              `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
+              {
+                headers: { Authorization: `Bearer ${accessToken}` },
+              }
+            );
+
+            if (!downloadResponse.ok) throw new Error("Failed to download backup");
+
+            const restoredData = await downloadResponse.json();
+
+            // 4. Update your local storage
+            // Example: await MyLocalDB.importData(restoredData);
+            console.log("Restored Data:", restoredData);
+
+            Alert.alert("Success", "Your data has been restored successfully.");
+          } catch (error) {
+            console.error("Restore Error:", error);
+            Alert.alert("Error", "Failed to restore data. Please try again later.");
+          }
+        },
       },
-    ]);
-  };
+    ]
+  );
+};
 
   const handleDisconnect = async () => {
     try {

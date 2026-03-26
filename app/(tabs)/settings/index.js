@@ -1,4 +1,4 @@
-import { View, StyleSheet, Switch, Alert, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Switch, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "@/store/features/settingsSlice";
 import { useThemeStyles } from "@/src/hooks/useThemeStyles";
@@ -17,8 +17,6 @@ const SettingsPage = () => {
 
   const [appLockEnabled, setAppLockEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
-  const [lastBackup, setLastBackup] = useState(null);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -47,51 +45,6 @@ const SettingsPage = () => {
     setAppLockEnabled(next);
     await setSetting(db, "app_lock_enabled", next);
   };
-
-  const handleConnectGoogle = async () => {
-  try {
-    // TODO: Replace with real Google Auth
-    setIsConnected(true);
-
-    Alert.alert("Connected", "Google Drive connected successfully");
-  } catch (error) {
-    Alert.alert("Error", "Failed to connect Google Drive");
-  }
-};
-
-const handleBackup = async () => {
-  try {
-    // TODO: Replace with real backup logic
-    setLastBackup(new Date().toISOString());
-
-    Alert.alert("Success", "Backup completed successfully");
-  } catch (error) {
-    Alert.alert("Error", "Backup failed");
-  }
-};
-
-const handleRestore = async () => {
-  Alert.alert(
-    "Restore data?",
-    "This will replace your current data.",
-    [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Restore",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            // TODO: Replace with real restore logic
-            Alert.alert("Success", "Data restored successfully");
-          } catch (error) {
-            Alert.alert("Error", "Restore failed");
-          }
-        },
-      },
-    ]
-  );
-};
-
 
   return (
     <View style={globalStyles.container}>
