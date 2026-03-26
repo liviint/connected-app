@@ -4,7 +4,7 @@ import { Card, BodyText } from "@/src/components/ThemeProvider/components";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import * as SecureStore from "expo-secure-store";
 import { useSQLiteContext } from 'expo-sqlite';
-import { exportDatabase } from "../../db/googleDriveDb";
+import { exportDatabase, importDatabase } from "../../db/googleDriveDb";
 
 // Use your WEB_CLIENT_ID here - Google's Native SDK uses it to identify the project
 const WEB_CLIENT_ID = "171579827542-vnlu2ildln3llcnrli2g9rbnogtecrc2.apps.googleusercontent.com";
@@ -181,6 +181,7 @@ const GoogleBackUp = () => {
 
             // 4. Update your local storage
             // Example: await MyLocalDB.importData(restoredData);
+            await importDatabase(db,restoredData.data)
             console.log("Restored Data:", restoredData);
 
             Alert.alert("Success", "Your data has been restored successfully.");

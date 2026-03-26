@@ -18,27 +18,36 @@ export const exportDatabase = async (db) => {
   return exportData;
 };
 
-const importDatabase = async (db, data) => {
-  return new Promise((resolve, reject) => {
-    db.transaction(tx => {
-      Object.keys(data).forEach(table => {
-        // ⚠️ Clear table
-        tx.executeSql(`DELETE FROM ${table}`);
+export const importDatabase = async (db, data) => {
+  try {
+    // Optional: disable foreign keys temporarily (prevents constraint issues)
+    await db.execAsync("PRAGMA foreign_keys = OFF;");
 
-        data[table].forEach(row => {
-          const columns = Object.keys(row);
-          const values = Object.values(row);
+    for (const table of Object.keys(data)) {
+      // ⚠️ Clear table first
+      await db.execAsync(`DELETE FROM ${table};`);
 
-          const placeholders = columns.map(() => "?").join(",");
+      const rows = data[table];
 
-          tx.executeSql(
-            `INSERT INTO ${table} (${columns.join(",")}) VALUES (${placeholders})`,
-            values
-          );
-        });
-      });
-    },
-    reject,
-    resolve);
-  });
+      for (const row of rows) {
+        const columns = Object.keys(row);
+        const values = Object.values(row);
+
+        const placeholders = columns.map(() => "?").join(",");
+
+        await db.runAsync(
+          `INSERT INTO ${table} (${columns.join(",")}) VALUES (${placeholders});`,
+          values
+        );
+      }
+    }
+
+    // Re-enable foreign keys
+    await db.execAsync("PRAGMA foreign_keys = ON;");
+
+    return true;
+  } catch (error) {
+    console.error("Import Error:", error);
+    throw error;
+  }
 };
