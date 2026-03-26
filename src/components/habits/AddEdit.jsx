@@ -33,6 +33,7 @@ export default function AddEdit() {
     reminder_time: getCurrentTime(),
     color: "#FF6B6B",
     icon: "🔥",
+    is_active:1,
   }
 
   const [form, setForm] = useState(inititialForm);

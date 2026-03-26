@@ -53,7 +53,7 @@ export const upsertHabit = async (db, {
   icon,
   priority = 0,
   is_active = 1,
-},updateApi=true) => {
+}) => {
 
   try {
     const now = new Date().toISOString();
@@ -72,11 +72,9 @@ export const upsertHabit = async (db, {
       priority,
       is_active,
       created_at,
-      updated_at,
-      synced,
-      deleted
+      updated_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(uuid) DO UPDATE SET
       title = excluded.title,
       description = excluded.description,

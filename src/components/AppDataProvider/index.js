@@ -1,6 +1,7 @@
 import React from "react";
 import { SQLiteProvider } from "expo-sqlite";
 import { extraMigrations } from "./migrations"
+import JournalsProvider from "./JournalsProvider"
 
 // Migration / initialization function
 const migrateDbIfNeeded = async (db) => {
@@ -87,6 +88,7 @@ const migrateDbIfNeeded = async (db) => {
 export default function AppDataProvider({ children }) {
   return (
     <SQLiteProvider databaseName="zeniahub.db" onInit={migrateDbIfNeeded}>
+      <JournalsProvider />
       {children}
     </SQLiteProvider>
   );
