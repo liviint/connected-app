@@ -209,9 +209,9 @@ const GoogleBackUp = () => {
 
   return (
     <Card style={styles.card}>
-      <BodyText style={styles.title}>Cloud Backup (Native)</BodyText>
+      <BodyText style={styles.title}>Cloud Backup</BodyText>
       <BodyText style={styles.helperText}>
-        Securely sync your habits and journal to your private Google Drive App Data folder.
+        Back up your data to your private Google Drive app folder. Only ZeniaHub-created files are accessible.
       </BodyText>
 
       {!isConnected ? (
