@@ -8,27 +8,34 @@ import {
   StyleSheet,
   Animated,
 } from "react-native";
+import { Card, BodyText, SecondaryText } from "../../../../src/components/ThemeProvider/components"
 import { generateAllHabitsStatsWithBestWorst } from "./../../../../src/db/habitsStats";
 import { useSQLiteContext } from "expo-sqlite";
 import { LineChart, BarChart } from "react-native-chart-kit";
+import { useThemeStyles } from "@/src/hooks/useThemeStyles";
+import { ChartCard, StatCard , chartConfig} from "../../../../src/components/common/statsComponents";
 
 const { width } = Dimensions.get("window");
 const CHART_WIDTH = width - 48;
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const T = {
-  bg:         "#0D0D0F",
-  surface:    "#161618",
-  surfaceAlt: "#1C1C1F",
-  border:     "#2A2A2E",
-  accent:     "#C8F04A",   // electric lime — the one colour that pops
-  accentDim:  "#8AAD2A",
-  textPrimary:"#F0EEE8",
-  textMuted:  "#6E6D6A",
-  textDim:    "#3A3A3C",
-  good:       "#4ADE80",
-  bad:        "#F87171",
-  gold:       "#FBBF24",
+  bg:         "#FAF9F7",   // warm light background
+  surface:    "#FFFFFF",
+  surfaceAlt: "#F4E1D2",   // soft accent background
+  border:     "#E8E6E3",
+
+  primary:    "#FF6B6B",   // main brand color
+  secondary:  "#2E8B8B",   // calm supporting color
+  accent:     "#F4E1D2",
+
+  textPrimary:"#333333",
+  textMuted:  "#6B6B6B",
+  textDim:    "#A0A0A0",
+
+  good:       "#2E8B8B",   // success = calm teal (on-brand)
+  bad:        "#FF6B6B",   // warning = coral
+  gold:       "#FFB84D",   // softer gold (warmer)
 };
 
 // ─── Tiny helpers ─────────────────────────────────────────────────────────────
@@ -45,14 +52,14 @@ const Tag = ({ label, color = T.accent }) => (
 // ─── Stat row inside a card ────────────────────────────────────────────────────
 const StatRow = ({ label, value, accent = false, bar = null }) => (
   <View style={styles.statRow}>
-    <Text style={styles.statLabel}>{label}</Text>
+    <BodyText style={styles.statLabel}>{label}</BodyText>
     <View style={styles.statRight}>
       {bar !== null && (
         <View style={styles.barTrack}>
           <View style={[styles.barFill, { width: `${Math.min(bar, 100)}%` }]} />
         </View>
       )}
-      <Text style={[styles.statValue, accent && { color: T.accent }]}>{value}</Text>
+      <BodyText style={[styles.statValue, accent && { color: T.accent }]}>{value}</BodyText>
     </View>
   </View>
 );
@@ -69,22 +76,44 @@ const HeroMetric = ({ label, value, sub }) => (
 // ─── Section header ───────────────────────────────────────────────────────────
 const SectionHeader = ({ number, title }) => (
   <View style={styles.sectionHeader}>
-    <Text style={styles.sectionNum}>{number}</Text>
-    <Text style={styles.sectionTitle}>{title}</Text>
+    <BodyText style={styles.sectionTitle}>{title}</BodyText>
   </View>
 );
 
 // ─── Chart config ─────────────────────────────────────────────────────────────
-const chartConfig = {
-  backgroundGradientFrom: T.surfaceAlt,
-  backgroundGradientTo:   T.surfaceAlt,
-  color: (opacity = 1) => `rgba(200, 240, 74, ${opacity})`,
+// const chartConfig = {
+//   backgroundGradientFrom: T.surfaceAlt,
+//   backgroundGradientTo:   T.surfaceAlt,
+//   color: (opacity = 1) => `rgba(200, 240, 74, ${opacity})`,
+//   strokeWidth: 2,
+//   decimalPlaces: 0,
+//   labelColor: () => T.textMuted,
+//   propsForDots: { r: "4", strokeWidth: "1.5", stroke: T.accentDim },
+//   propsForBackgroundLines: { stroke: T.border, strokeDasharray: "4 4" },
+// };
+
+const buildChartConfig = (primaryColor) => ({
+  backgroundGradientFrom: T.surface,
+  backgroundGradientTo: T.surface,
+
+  color: (opacity = 1) => `${primaryColor}${Math.floor(opacity * 255).toString(16).padStart(2, "0")}`,
+
   strokeWidth: 2,
   decimalPlaces: 0,
+
   labelColor: () => T.textMuted,
-  propsForDots: { r: "4", strokeWidth: "1.5", stroke: T.accentDim },
-  propsForBackgroundLines: { stroke: T.border, strokeDasharray: "4 4" },
-};
+
+  propsForDots: {
+    r: "4",
+    strokeWidth: "2",
+    stroke: primaryColor,
+  },
+
+  propsForBackgroundLines: {
+    stroke: T.border,
+    strokeDasharray: "4 4",
+  },
+});
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function AllHabitsStatsScreen() {
@@ -92,6 +121,7 @@ export default function AllHabitsStatsScreen() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const fadeAnim = useState(new Animated.Value(0))[0];
+  const { globalStyles, colors } = useThemeStyles()
 
   useEffect(() => {
     (async () => {
@@ -133,210 +163,198 @@ export default function AllHabitsStatsScreen() {
 
   const progressNum = parseFloat(stats.progress_percent) || 0;
 
-  return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* ── PAGE HEADER ── */}
-      <Animated.View style={{ opacity: fadeAnim }}>
-        <View style={styles.pageHeader}>
-          <Tag label="OVERVIEW" />
-          <Text style={styles.pageTitle}>Habit Stats</Text>
-          <Text style={styles.pageSubtitle}>
-            Your complete performance snapshot
-          </Text>
-        </View>
+    return (
+        <ScrollView
+            style={globalStyles.container}
+            showsVerticalScrollIndicator={false}
+        >
+            <Animated.View style={{ opacity: fadeAnim }}>
+                <View style={styles.pageHeader}>
+                    <BodyText style={globalStyles.title}>Habits Stats</BodyText>
+                    <SecondaryText style={globalStyles.subTitle}>
+                        Your complete performance snapshot
+                    </SecondaryText>
+                </View>
 
-        {/* ── HERO STRIP ── */}
-        <View style={styles.heroStrip}>
-          <HeroMetric
-            label="Progress"
-            value={`${progressNum}%`}
-            sub="overall"
-          />
-          <View style={styles.heroDivider} />
-          <HeroMetric
-            label="Habits"
-            value={stats.total_habits}
-            sub="tracked"
-          />
-          <View style={styles.heroDivider} />
-          <HeroMetric
-            label="Streak avg"
-            value={stats.avg_current_streak}
-            sub="days"
-          />
-        </View>
+                <Card style={styles.heroStrip}>
+                    <HeroMetric
+                        label="Progress"
+                        value={`${progressNum}%`}
+                        sub="overall"
+                    />
+                    <View style={styles.heroDivider} />
+                    <HeroMetric
+                        label="Habits"
+                        value={stats.total_habits}
+                        sub="tracked"
+                    />
+                    <View style={styles.heroDivider} />
+                    <HeroMetric
+                        label="Streak avg"
+                        value={stats.avg_current_streak}
+                        sub="days"
+                    />
+                </Card>
 
-        {/* Progress bar */}
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progressNum}%` }]} />
-        </View>
-        <View style={styles.progressLabels}>
-          <Text style={styles.progressLabel}>0%</Text>
-          <Text style={[styles.progressLabel, { color: T.accent }]}>
-            {progressNum}% complete
-          </Text>
-          <Text style={styles.progressLabel}>100%</Text>
-        </View>
-      </Animated.View>
+                {/* Progress bar */}
+                <View style={styles.progressTrack}>
+                    <View style={[styles.progressFill, { width: `${progressNum}%` }]} />
+                </View>
+                <View style={styles.progressLabels}>
+                    <Text style={styles.progressLabel}>0%</Text>
+                    <Text style={[styles.progressLabel, { color: T.accent }]}>
+                        {progressNum}% complete
+                    </Text>
+                    <Text style={styles.progressLabel}>100%</Text>
+                </View>
+            </Animated.View>
 
-      {/* ── SECTION 1: SUMMARY ── */}
-      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-        <SectionHeader number="01" title="Summary" />
-        <Divider />
-        <StatRow label="Total entries"    value={stats.total_entries} />
-        <StatRow
-          label="Completed"
-          value={stats.completed_entries}
-          accent
-          bar={(stats.completed_entries / stats.total_entries) * 100}
-        />
-        <StatRow
-          label="Missed"
-          value={stats.missed_entries}
-          bar={(stats.missed_entries / stats.total_entries) * 100}
-        />
-        <Divider />
-        <StatRow label="Avg longest streak" value={`${stats.avg_longest_streak} days`} />
-        <StatRow label="Avg current streak" value={`${stats.avg_current_streak} days`} accent />
-      </Animated.View>
+        <Card style={styles.card}>
+            <SectionHeader title="Summary" />
+            <Divider />
+            <StatRow label="Total entries"    value={stats.total_entries} />
+            <StatRow
+            label="Completed"
+            value={stats.completed_entries}
+            accent
+            bar={(stats.completed_entries / stats.total_entries) * 100}
+            />
+            <StatRow
+            label="Missed"
+            value={stats.missed_entries}
+            bar={(stats.missed_entries / stats.total_entries) * 100}
+            />
+            <Divider />
+            <StatRow label="Avg longest streak" value={`${stats.avg_longest_streak} days`} />
+            <StatRow label="Avg current streak" value={`${stats.avg_current_streak} days`} accent />
+        </Card>
 
-      {/* ── SECTION 2: BEST & WORST ── */}
-      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-        <SectionHeader number="02" title="Best & Worst" />
-        <Divider />
+        {/* ── SECTION 2: BEST & WORST ── */}
+        <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+            <SectionHeader number="02" title="Best & Worst" />
+            <Divider />
 
-        {stats.best_habit && (
-          <View style={styles.highlightRow}>
-            <View style={[styles.highlightDot, { backgroundColor: T.good }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.highlightCaption}>BEST PERFORMER</Text>
-              <Text style={styles.highlightName}>{stats.best_habit.habit_title}</Text>
+            {stats.best_habit && (
+            <View style={styles.highlightRow}>
+                <View style={[styles.highlightDot, { backgroundColor: T.good }]} />
+                <View style={{ flex: 1 }}>
+                <Text style={styles.highlightCaption}>BEST PERFORMER</Text>
+                <Text style={styles.highlightName}>{stats.best_habit.habit_title}</Text>
+                </View>
+                <Text style={[styles.highlightPercent, { color: T.good }]}>
+                {stats.best_habit.progress_percent}%
+                </Text>
             </View>
-            <Text style={[styles.highlightPercent, { color: T.good }]}>
-              {stats.best_habit.progress_percent}%
-            </Text>
-          </View>
-        )}
+            )}
 
-        {stats.worst_habit && (
-          <View style={[styles.highlightRow, { marginTop: 12 }]}>
-            <View style={[styles.highlightDot, { backgroundColor: T.bad }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.highlightCaption}>NEEDS WORK</Text>
-              <Text style={styles.highlightName}>{stats.worst_habit.habit_title}</Text>
+            {stats.worst_habit && (
+            <View style={[styles.highlightRow, { marginTop: 12 }]}>
+                <View style={[styles.highlightDot, { backgroundColor: T.bad }]} />
+                <View style={{ flex: 1 }}>
+                <Text style={styles.highlightCaption}>NEEDS WORK</Text>
+                <Text style={styles.highlightName}>{stats.worst_habit.habit_title}</Text>
+                </View>
+                <Text style={[styles.highlightPercent, { color: T.bad }]}>
+                {stats.worst_habit.progress_percent}%
+                </Text>
             </View>
-            <Text style={[styles.highlightPercent, { color: T.bad }]}>
-              {stats.worst_habit.progress_percent}%
-            </Text>
-          </View>
-        )}
+            )}
 
-        <Divider />
+            <Divider />
 
-        {stats.longest_streak_habit && (
-          <View style={styles.highlightRow}>
-            <View style={[styles.highlightDot, { backgroundColor: T.gold }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.highlightCaption}>LONGEST STREAK</Text>
-              <Text style={styles.highlightName}>{stats.longest_streak_habit.habit_title}</Text>
+            {stats.longest_streak_habit && (
+            <View style={styles.highlightRow}>
+                <View style={[styles.highlightDot, { backgroundColor: T.gold }]} />
+                <View style={{ flex: 1 }}>
+                <Text style={styles.highlightCaption}>LONGEST STREAK</Text>
+                <Text style={styles.highlightName}>{stats.longest_streak_habit.habit_title}</Text>
+                </View>
+                <Text style={[styles.highlightPercent, { color: T.gold }]}>
+                {stats.longest_streak_habit.longest_streak}d
+                </Text>
             </View>
-            <Text style={[styles.highlightPercent, { color: T.gold }]}>
-              {stats.longest_streak_habit.longest_streak}d
-            </Text>
-          </View>
-        )}
+            )}
 
-        {stats.current_streak_habit && (
-          <View style={[styles.highlightRow, { marginTop: 12 }]}>
-            <View style={[styles.highlightDot, { backgroundColor: T.accent }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.highlightCaption}>ON FIRE NOW</Text>
-              <Text style={styles.highlightName}>{stats.current_streak_habit.habit_title}</Text>
+            {stats.current_streak_habit && (
+            <View style={[styles.highlightRow, { marginTop: 12 }]}>
+                <View style={[styles.highlightDot, { backgroundColor: T.accent }]} />
+                <View style={{ flex: 1 }}>
+                <Text style={styles.highlightCaption}>ON FIRE NOW</Text>
+                <Text style={styles.highlightName}>{stats.current_streak_habit.habit_title}</Text>
+                </View>
+                <Text style={[styles.highlightPercent, { color: T.accent }]}>
+                {stats.current_streak_habit.current_streak}d
+                </Text>
             </View>
-            <Text style={[styles.highlightPercent, { color: T.accent }]}>
-              {stats.current_streak_habit.current_streak}d
-            </Text>
-          </View>
-        )}
-      </Animated.View>
+            )}
+        </Animated.View>
 
-      {/* ── SECTION 3: TREND ── */}
-      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-        <SectionHeader number="03" title="Daily Trend" />
-        <Text style={styles.chartCaption}>Completions per day</Text>
-        {trendData.length > 0 ? (
-          <LineChart
-            data={{ labels: trendLabels, datasets: [{ data: trendData }] }}
-            width={CHART_WIDTH}
-            height={200}
-            chartConfig={chartConfig}
-            bezier
-            style={styles.chart}
-            withInnerLines={true}
-            withOuterLines={false}
-          />
-        ) : (
-          <Text style={styles.emptyChart}>No data yet</Text>
-        )}
-      </Animated.View>
+        {/* ── SECTION 3: TREND ── */}
+        <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+            <SectionHeader number="03" title="Daily Trend" />
+            <SecondaryText style={styles.chartCaption}>Completions per day</SecondaryText>
+            {trendData.length > 0 ? (
+            <LineChart
+                data={{ labels: trendLabels, datasets: [{ data: trendData }] }}
+                width={CHART_WIDTH}
+                height={200}
+                chartConfig={chartConfig(T.primary,colors)}
+                bezier
+                style={styles.chart}
+                withInnerLines={true}
+                withOuterLines={false}
+            />
+            ) : (
+            <Text style={styles.emptyChart}>No data yet</Text>
+            )}
+        </Animated.View>
 
-      {/* ── SECTION 4: WEEKDAY ── */}
-      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-        <SectionHeader number="04" title="By Weekday" />
-        <Text style={styles.chartCaption}>Which days you crush it</Text>
-        {weekdayData.length > 0 ? (
-          <BarChart
-            data={{ labels: weekdayLabels, datasets: [{ data: weekdayData }] }}
-            width={CHART_WIDTH}
-            height={200}
-            chartConfig={chartConfig}
-            style={styles.chart}
-            fromZero
-            withInnerLines={false}
-          />
-        ) : (
-          <Text style={styles.emptyChart}>No data yet</Text>
-        )}
-      </Animated.View>
+        {/* ── SECTION 4: WEEKDAY ── */}
+        <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+            <SectionHeader title="By Weekday" />
+            <SecondaryText style={styles.chartCaption}>Which days you crush it</SecondaryText>
+            {weekdayData.length > 0 ? (
+            <BarChart
+                data={{ labels: weekdayLabels, datasets: [{ data: weekdayData }] }}
+                width={CHART_WIDTH}
+                height={200}
+                chartConfig={chartConfig(T.primary,colors)}
+                style={styles.chart}
+                fromZero
+                withInnerLines={false}
+            />
+            ) : (
+            <Text style={styles.emptyChart}>No data yet</Text>
+            )}
+        </Animated.View>
 
-      {/* ── SECTION 5: MONTHLY ── */}
-      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-        <SectionHeader number="05" title="By Month" />
-        <Text style={styles.chartCaption}>Long-term momentum</Text>
-        {monthData.length > 0 ? (
-          <BarChart
-            data={{ labels: monthLabels, datasets: [{ data: monthData }] }}
-            width={CHART_WIDTH}
-            height={200}
-            chartConfig={chartConfig}
-            style={styles.chart}
-            fromZero
-            withInnerLines={false}
-          />
-        ) : (
-          <Text style={styles.emptyChart}>No data yet</Text>
-        )}
-      </Animated.View>
+        {/* ── SECTION 5: MONTHLY ── */}
+        <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+            <SectionHeader number="05" title="By Month" />
+            <SecondaryText style={styles.chartCaption}>Long-term momentum</SecondaryText>
+            {monthData.length > 0 ? (
+            <BarChart
+                data={{ labels: monthLabels, datasets: [{ data: monthData }] }}
+                width={CHART_WIDTH}
+                height={200}
+                chartConfig={chartConfig(T.primary,colors)}
+                style={styles.chart}
+                fromZero
+                withInnerLines={false}
+            />
+            ) : (
+            <Text style={styles.emptyChart}>No data yet</Text>
+            )}
+        </Animated.View>
 
-      <View style={{ height: 40 }} />
-    </ScrollView>
-  );
+        <View style={{ height: 40 }} />
+        </ScrollView>
+    );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    backgroundColor: T.bg,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-  },
+  
   center: {
     flex: 1,
     backgroundColor: T.bg,
@@ -380,7 +398,6 @@ const styles = StyleSheet.create({
   // Hero strip
   heroStrip: {
     flexDirection: "row",
-    backgroundColor: T.surface,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: T.border,
@@ -441,7 +458,6 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: T.surface,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: T.border,
@@ -464,7 +480,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: T.textPrimary,
     letterSpacing: -0.2,
   },
 
@@ -477,7 +492,6 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 13,
-    color: T.textMuted,
   },
   statRight: {
     flexDirection: "row",
@@ -487,7 +501,6 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 14,
     fontWeight: "600",
-    color: T.textPrimary,
     minWidth: 36,
     textAlign: "right",
   },
@@ -539,7 +552,6 @@ const styles = StyleSheet.create({
   // Charts
   chartCaption: {
     fontSize: 12,
-    color: T.textMuted,
     marginTop: 4,
     marginBottom: 16,
   },
