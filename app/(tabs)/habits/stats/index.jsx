@@ -139,9 +139,9 @@ export default function AllHabitsStatsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={{...globalStyles.container,...styles.center}}>
         <ActivityIndicator size="large" color={T.accent} />
-        <Text style={[styles.statLabel, { marginTop: 12 }]}>Loading your data…</Text>
+        <BodyText style={[styles.statLabel, { marginTop: 12 }]}>Loading your data…</BodyText>
       </View>
     );
   }
@@ -357,7 +357,6 @@ const styles = StyleSheet.create({
   
   center: {
     flex: 1,
-    backgroundColor: T.bg,
     justifyContent: "center",
     alignItems: "center",
   },
