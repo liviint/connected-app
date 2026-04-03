@@ -1,164 +1,556 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Dimensions,
+  StyleSheet,
+  Animated,
+} from "react-native";
 import { generateAllHabitsStatsWithBestWorst } from "./../../../../src/db/habitsStats";
-import { useThemeStyles } from "../../../../src/hooks/useThemeStyles";
+import { useSQLiteContext } from "expo-sqlite";
 import { LineChart, BarChart } from "react-native-chart-kit";
-import { useSQLiteContext } from 'expo-sqlite';
-import { Card } from "../../../../src/components/ThemeProvider/components";
 
-const screenWidth = Dimensions.get("window").width - 32; 
+const { width } = Dimensions.get("window");
+const CHART_WIDTH = width - 48;
 
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+const T = {
+  bg:         "#0D0D0F",
+  surface:    "#161618",
+  surfaceAlt: "#1C1C1F",
+  border:     "#2A2A2E",
+  accent:     "#C8F04A",   // electric lime — the one colour that pops
+  accentDim:  "#8AAD2A",
+  textPrimary:"#F0EEE8",
+  textMuted:  "#6E6D6A",
+  textDim:    "#3A3A3C",
+  good:       "#4ADE80",
+  bad:        "#F87171",
+  gold:       "#FBBF24",
+};
+
+// ─── Tiny helpers ─────────────────────────────────────────────────────────────
+const Divider = () => (
+  <View style={{ height: 1, backgroundColor: T.border, marginVertical: 16 }} />
+);
+
+const Tag = ({ label, color = T.accent }) => (
+  <View style={[styles.tag, { borderColor: color + "44", backgroundColor: color + "12" }]}>
+    <Text style={[styles.tagText, { color }]}>{label}</Text>
+  </View>
+);
+
+// ─── Stat row inside a card ────────────────────────────────────────────────────
+const StatRow = ({ label, value, accent = false, bar = null }) => (
+  <View style={styles.statRow}>
+    <Text style={styles.statLabel}>{label}</Text>
+    <View style={styles.statRight}>
+      {bar !== null && (
+        <View style={styles.barTrack}>
+          <View style={[styles.barFill, { width: `${Math.min(bar, 100)}%` }]} />
+        </View>
+      )}
+      <Text style={[styles.statValue, accent && { color: T.accent }]}>{value}</Text>
+    </View>
+  </View>
+);
+
+// ─── Big hero metric ──────────────────────────────────────────────────────────
+const HeroMetric = ({ label, value, sub }) => (
+  <View style={styles.heroMetric}>
+    <Text style={styles.heroValue}>{value}</Text>
+    <Text style={styles.heroLabel}>{label}</Text>
+    {sub ? <Text style={styles.heroSub}>{sub}</Text> : null}
+  </View>
+);
+
+// ─── Section header ───────────────────────────────────────────────────────────
+const SectionHeader = ({ number, title }) => (
+  <View style={styles.sectionHeader}>
+    <Text style={styles.sectionNum}>{number}</Text>
+    <Text style={styles.sectionTitle}>{title}</Text>
+  </View>
+);
+
+// ─── Chart config ─────────────────────────────────────────────────────────────
+const chartConfig = {
+  backgroundGradientFrom: T.surfaceAlt,
+  backgroundGradientTo:   T.surfaceAlt,
+  color: (opacity = 1) => `rgba(200, 240, 74, ${opacity})`,
+  strokeWidth: 2,
+  decimalPlaces: 0,
+  labelColor: () => T.textMuted,
+  propsForDots: { r: "4", strokeWidth: "1.5", stroke: T.accentDim },
+  propsForBackgroundLines: { stroke: T.border, strokeDasharray: "4 4" },
+};
+
+// ─── Main screen ──────────────────────────────────────────────────────────────
 export default function AllHabitsStatsScreen() {
-    const {globalStyles} = useThemeStyles()
-    const db = useSQLiteContext();
-    const { colors } = useThemeStyles();
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const db = useSQLiteContext();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
-    useEffect(() => {
-        (async () => {
-        try {
-            const result = await generateAllHabitsStatsWithBestWorst(db, "user_uuid_here");
-            setStats(result);
-        } catch (err) {
-            console.error("Failed to load habit stats:", err);
-        } finally {
-            setLoading(false);
-        }
-        })();
-    }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const result = await generateAllHabitsStatsWithBestWorst(db, "user_uuid_here");
+        setStats(result);
+        Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
+      } catch (err) {
+        console.error("Failed to load habit stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
-    if (loading) {
-        return (
-        <View style={[styles.center, { backgroundColor: colors.background }]}>
-            <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-        );
-    }
-
-    if (!stats) {
-        return (
-        <View style={[styles.center, { backgroundColor: colors.background }]}>
-            <Text style={{ color: colors.text }}>No stats available</Text>
-        </View>
-        );
-    }
-
-    const trendLabels = stats.trend.map(t => t.day);
-    const trendData = stats.trend.map(t => t.completed);
-
-    const weekdayLabels = stats.per_weekday.map(w => `W${w.weekday}`);
-    const weekdayData = stats.per_weekday.map(w => w.count);
-
-    const monthLabels = stats.per_month.map(m => m.month);
-    const monthData = stats.per_month.map(m => m.count);
-
-    const chartConfig = {
-        backgroundGradientFrom: "#FAF9F7",
-        backgroundGradientTo: "#FAF9F7",
-        color: (opacity = 1) => colors.primary + Math.floor(opacity * 255).toString(16),
-        strokeWidth: 2,
-        decimalPlaces: 0,
-        labelColor: () => colors.text,
-        propsForDots: { r: "4", strokeWidth: "2", stroke: colors.secondary },
-    };
-
+  if (loading) {
     return (
-        <ScrollView style={globalStyles.container}>
-        <Text style={globalStyles.title}>All Habits Stats</Text>
-
-        <Card>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Overall</Text>
-            <Text style={{ color: colors.text }}>Total Habits: {stats.total_habits}</Text>
-            <Text style={{ color: colors.text }}>Total Entries: {stats.total_entries}</Text>
-            <Text style={{ color: colors.text }}>Completed Entries: {stats.completed_entries}</Text>
-            <Text style={{ color: colors.text }}>Missed Entries: {stats.missed_entries}</Text>
-            <Text style={{ color: colors.text }}>Progress: {stats.progress_percent}%</Text>
-            <Text style={{ color: colors.text }}>Avg Current Streak: {stats.avg_current_streak}</Text>
-            <Text style={{ color: colors.text }}>Avg Longest Streak: {stats.avg_longest_streak}</Text>
-        </Card>
-
-        <Card>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Best / Worst Habits</Text>
-            {stats.best_habit && <Text style={{ color: colors.text }}>Best: {stats.best_habit.habit_title} ({stats.best_habit.progress_percent}%)</Text>}
-            {stats.worst_habit && <Text style={{ color: colors.text }}>Worst: {stats.worst_habit.habit_title} ({stats.worst_habit.progress_percent}%)</Text>}
-            {stats.longest_streak_habit && <Text style={{ color: colors.text }}>Longest Streak: {stats.longest_streak_habit.habit_title} ({stats.longest_streak_habit.longest_streak})</Text>}
-            {stats.current_streak_habit && <Text style={{ color: colors.text }}>Current Streak: {stats.current_streak_habit.habit_title} ({stats.current_streak_habit.current_streak})</Text>}
-        </Card>
-
-        <Card >
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Trend (Completed per Day)</Text>
-            {trendData.length > 0 ? (
-            <LineChart
-                data={{
-                labels: trendLabels,
-                datasets: [{ data: trendData }],
-                }}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                style={{ borderRadius: 12 }}
-            />
-            ) : (
-            <Text style={{ color: colors.text }}>No trend data</Text>
-            )}
-        </Card>
-
-        <Card>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Per Weekday</Text>
-            {weekdayData.length > 0 ? (
-            <BarChart
-                data={{
-                labels: weekdayLabels,
-                datasets: [{ data: weekdayData }],
-                }}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                style={{ borderRadius: 12 }}
-                fromZero
-            />
-            ) : (
-            <Text style={{ color: colors.text }}>No weekday data</Text>
-            )}
-        </Card>
-
-        <Card >
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Per Month</Text>
-            {monthData.length > 0 ? (
-            <BarChart
-                data={{
-                labels: monthLabels,
-                datasets: [{ data: monthData }],
-                }}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                style={{ borderRadius: 12 }}
-                fromZero
-            />
-            ) : (
-            <Text style={{ color: colors.text }}>No monthly data</Text>
-            )}
-        </Card>
-        </ScrollView>
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={T.accent} />
+        <Text style={[styles.statLabel, { marginTop: 12 }]}>Loading your data…</Text>
+      </View>
     );
+  }
+
+  if (!stats) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: T.textMuted, fontSize: 15 }}>No stats available yet.</Text>
+      </View>
+    );
+  }
+
+  const trendLabels  = stats.trend.map(t => t.day);
+  const trendData    = stats.trend.map(t => t.completed);
+  const weekdayLabels = stats.per_weekday.map(w => `W${w.weekday}`);
+  const weekdayData  = stats.per_weekday.map(w => w.count);
+  const monthLabels  = stats.per_month.map(m => m.month);
+  const monthData    = stats.per_month.map(m => m.count);
+
+  const progressNum = parseFloat(stats.progress_percent) || 0;
+
+  return (
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* ── PAGE HEADER ── */}
+      <Animated.View style={{ opacity: fadeAnim }}>
+        <View style={styles.pageHeader}>
+          <Tag label="OVERVIEW" />
+          <Text style={styles.pageTitle}>Habit Stats</Text>
+          <Text style={styles.pageSubtitle}>
+            Your complete performance snapshot
+          </Text>
+        </View>
+
+        {/* ── HERO STRIP ── */}
+        <View style={styles.heroStrip}>
+          <HeroMetric
+            label="Progress"
+            value={`${progressNum}%`}
+            sub="overall"
+          />
+          <View style={styles.heroDivider} />
+          <HeroMetric
+            label="Habits"
+            value={stats.total_habits}
+            sub="tracked"
+          />
+          <View style={styles.heroDivider} />
+          <HeroMetric
+            label="Streak avg"
+            value={stats.avg_current_streak}
+            sub="days"
+          />
+        </View>
+
+        {/* Progress bar */}
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${progressNum}%` }]} />
+        </View>
+        <View style={styles.progressLabels}>
+          <Text style={styles.progressLabel}>0%</Text>
+          <Text style={[styles.progressLabel, { color: T.accent }]}>
+            {progressNum}% complete
+          </Text>
+          <Text style={styles.progressLabel}>100%</Text>
+        </View>
+      </Animated.View>
+
+      {/* ── SECTION 1: SUMMARY ── */}
+      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+        <SectionHeader number="01" title="Summary" />
+        <Divider />
+        <StatRow label="Total entries"    value={stats.total_entries} />
+        <StatRow
+          label="Completed"
+          value={stats.completed_entries}
+          accent
+          bar={(stats.completed_entries / stats.total_entries) * 100}
+        />
+        <StatRow
+          label="Missed"
+          value={stats.missed_entries}
+          bar={(stats.missed_entries / stats.total_entries) * 100}
+        />
+        <Divider />
+        <StatRow label="Avg longest streak" value={`${stats.avg_longest_streak} days`} />
+        <StatRow label="Avg current streak" value={`${stats.avg_current_streak} days`} accent />
+      </Animated.View>
+
+      {/* ── SECTION 2: BEST & WORST ── */}
+      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+        <SectionHeader number="02" title="Best & Worst" />
+        <Divider />
+
+        {stats.best_habit && (
+          <View style={styles.highlightRow}>
+            <View style={[styles.highlightDot, { backgroundColor: T.good }]} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.highlightCaption}>BEST PERFORMER</Text>
+              <Text style={styles.highlightName}>{stats.best_habit.habit_title}</Text>
+            </View>
+            <Text style={[styles.highlightPercent, { color: T.good }]}>
+              {stats.best_habit.progress_percent}%
+            </Text>
+          </View>
+        )}
+
+        {stats.worst_habit && (
+          <View style={[styles.highlightRow, { marginTop: 12 }]}>
+            <View style={[styles.highlightDot, { backgroundColor: T.bad }]} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.highlightCaption}>NEEDS WORK</Text>
+              <Text style={styles.highlightName}>{stats.worst_habit.habit_title}</Text>
+            </View>
+            <Text style={[styles.highlightPercent, { color: T.bad }]}>
+              {stats.worst_habit.progress_percent}%
+            </Text>
+          </View>
+        )}
+
+        <Divider />
+
+        {stats.longest_streak_habit && (
+          <View style={styles.highlightRow}>
+            <View style={[styles.highlightDot, { backgroundColor: T.gold }]} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.highlightCaption}>LONGEST STREAK</Text>
+              <Text style={styles.highlightName}>{stats.longest_streak_habit.habit_title}</Text>
+            </View>
+            <Text style={[styles.highlightPercent, { color: T.gold }]}>
+              {stats.longest_streak_habit.longest_streak}d
+            </Text>
+          </View>
+        )}
+
+        {stats.current_streak_habit && (
+          <View style={[styles.highlightRow, { marginTop: 12 }]}>
+            <View style={[styles.highlightDot, { backgroundColor: T.accent }]} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.highlightCaption}>ON FIRE NOW</Text>
+              <Text style={styles.highlightName}>{stats.current_streak_habit.habit_title}</Text>
+            </View>
+            <Text style={[styles.highlightPercent, { color: T.accent }]}>
+              {stats.current_streak_habit.current_streak}d
+            </Text>
+          </View>
+        )}
+      </Animated.View>
+
+      {/* ── SECTION 3: TREND ── */}
+      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+        <SectionHeader number="03" title="Daily Trend" />
+        <Text style={styles.chartCaption}>Completions per day</Text>
+        {trendData.length > 0 ? (
+          <LineChart
+            data={{ labels: trendLabels, datasets: [{ data: trendData }] }}
+            width={CHART_WIDTH}
+            height={200}
+            chartConfig={chartConfig}
+            bezier
+            style={styles.chart}
+            withInnerLines={true}
+            withOuterLines={false}
+          />
+        ) : (
+          <Text style={styles.emptyChart}>No data yet</Text>
+        )}
+      </Animated.View>
+
+      {/* ── SECTION 4: WEEKDAY ── */}
+      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+        <SectionHeader number="04" title="By Weekday" />
+        <Text style={styles.chartCaption}>Which days you crush it</Text>
+        {weekdayData.length > 0 ? (
+          <BarChart
+            data={{ labels: weekdayLabels, datasets: [{ data: weekdayData }] }}
+            width={CHART_WIDTH}
+            height={200}
+            chartConfig={chartConfig}
+            style={styles.chart}
+            fromZero
+            withInnerLines={false}
+          />
+        ) : (
+          <Text style={styles.emptyChart}>No data yet</Text>
+        )}
+      </Animated.View>
+
+      {/* ── SECTION 5: MONTHLY ── */}
+      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+        <SectionHeader number="05" title="By Month" />
+        <Text style={styles.chartCaption}>Long-term momentum</Text>
+        {monthData.length > 0 ? (
+          <BarChart
+            data={{ labels: monthLabels, datasets: [{ data: monthData }] }}
+            width={CHART_WIDTH}
+            height={200}
+            chartConfig={chartConfig}
+            style={styles.chart}
+            fromZero
+            withInnerLines={false}
+          />
+        ) : (
+          <Text style={styles.emptyChart}>No data yet</Text>
+        )}
+      </Animated.View>
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-    center: { 
-        flex: 1, 
-        justifyContent: "center", 
-        alignItems: "center" 
-    },
-    heading: { 
-        fontSize: 24, 
-        fontWeight: "700", 
-        marginBottom: 16 
-    },
-    cardTitle: { 
-        fontSize: 16, 
-        fontWeight: "700", 
-        marginBottom: 8 
-    },
+  scroll: {
+    flex: 1,
+    backgroundColor: T.bg,
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  center: {
+    flex: 1,
+    backgroundColor: T.bg,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  // Page header
+  pageHeader: {
+    marginBottom: 24,
+    paddingTop: 8,
+  },
+  pageTitle: {
+    fontSize: 34,
+    fontWeight: "800",
+    color: T.textPrimary,
+    letterSpacing: -0.5,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  pageSubtitle: {
+    fontSize: 14,
+    color: T.textMuted,
+    letterSpacing: 0.1,
+  },
+
+  // Tag pill
+  tag: {
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+  },
+
+  // Hero strip
+  heroStrip: {
+    flexDirection: "row",
+    backgroundColor: T.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: T.border,
+    paddingVertical: 20,
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  heroMetric: {
+    flex: 1,
+    alignItems: "center",
+  },
+  heroValue: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: T.accent,
+    letterSpacing: -0.5,
+  },
+  heroLabel: {
+    fontSize: 11,
+    color: T.textMuted,
+    marginTop: 2,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  heroSub: {
+    fontSize: 10,
+    color: T.textDim,
+    marginTop: 1,
+  },
+  heroDivider: {
+    width: 1,
+    backgroundColor: T.border,
+    marginVertical: 4,
+  },
+
+  // Progress bar
+  progressTrack: {
+    height: 4,
+    backgroundColor: T.surfaceAlt,
+    borderRadius: 2,
+    overflow: "hidden",
+    marginBottom: 6,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: T.accent,
+    borderRadius: 2,
+  },
+  progressLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 28,
+  },
+  progressLabel: {
+    fontSize: 11,
+    color: T.textMuted,
+  },
+
+  // Card
+  card: {
+    backgroundColor: T.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: T.border,
+    padding: 20,
+    marginBottom: 16,
+  },
+
+  // Section header
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 10,
+  },
+  sectionNum: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: T.textDim,
+    letterSpacing: 1,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: T.textPrimary,
+    letterSpacing: -0.2,
+  },
+
+  // Stat row
+  statRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 6,
+  },
+  statLabel: {
+    fontSize: 13,
+    color: T.textMuted,
+  },
+  statRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: T.textPrimary,
+    minWidth: 36,
+    textAlign: "right",
+  },
+  barTrack: {
+    width: 60,
+    height: 3,
+    backgroundColor: T.border,
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  barFill: {
+    height: "100%",
+    backgroundColor: T.accent,
+    borderRadius: 2,
+  },
+
+  // Highlight row (best/worst)
+  highlightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: T.surfaceAlt,
+    borderRadius: 10,
+    padding: 12,
+  },
+  highlightDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  highlightCaption: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: T.textMuted,
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+  highlightName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: T.textPrimary,
+  },
+  highlightPercent: {
+    fontSize: 20,
+    fontWeight: "800",
+    letterSpacing: -0.5,
+  },
+
+  // Charts
+  chartCaption: {
+    fontSize: 12,
+    color: T.textMuted,
+    marginTop: 4,
+    marginBottom: 16,
+  },
+  chart: {
+    borderRadius: 10,
+    marginLeft: -8,
+  },
+  emptyChart: {
+    fontSize: 13,
+    color: T.textMuted,
+    textAlign: "center",
+    paddingVertical: 32,
+  },
 });

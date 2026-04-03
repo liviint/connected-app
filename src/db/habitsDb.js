@@ -304,7 +304,7 @@ export const getHabitEntries = async (db, habitUuid) => {
       `
       SELECT *
       FROM habit_entries
-      WHERE deleted = 0
+      WHERE deleted_at is NULL
       ORDER BY date DESC
       `
     );
@@ -314,7 +314,7 @@ export const getHabitEntries = async (db, habitUuid) => {
     `
     SELECT *
     FROM habit_entries
-    WHERE habit_uuid = ? AND deleted = 0
+    WHERE habit_uuid = ? AND deleted_at is NULL
     ORDER BY date DESC
     `,
     [habitUuid]
