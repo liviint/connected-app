@@ -94,7 +94,7 @@ export const upsertHabit = async (db, {
   }
 };
 
-export const getHabits = async (db, uuid = null) => {
+export const getActiveHabits = async (db, uuid = null) => {
   if (uuid) {
     return db.getFirstAsync(
       `
@@ -116,6 +116,50 @@ export const getHabits = async (db, uuid = null) => {
     ORDER BY priority DESC, created_at DESC
     `
   );
+};
+
+export const getAllHabits = async (db, uuid = null) => {
+  if (uuid) {
+    return db.getFirstAsync(
+      `
+      SELECT *
+      FROM habits
+      WHERE uuid = ?
+        AND deleted_at IS NULL
+      `,
+      [uuid]
+    );
+  }
+
+  return db.getAllAsync(
+    `
+    SELECT *
+    FROM habits
+    WHERE deleted_at IS NULL
+    ORDER BY priority DESC, created_at DESC
+    `
+  );
+};
+
+export const toggleHabitState = async (db, uuid) => {
+    const habit = await db.getFirstAsync(
+      `SELECT is_active FROM habits WHERE uuid = ? AND deleted_at IS NULL`,
+      [uuid]
+    );
+
+    if (!habit) throw new Error(`Habit not found: ${uuid}`);
+
+    const newStatus = habit.is_active === 1 ? 0 : 1;
+    const now = new Date().toISOString();
+
+    await db.runAsync(
+      `UPDATE habits
+      SET is_active = ?, updated_at = ?, synced = 0
+      WHERE uuid = ? AND deleted_at IS NULL`,
+      [newStatus, now, uuid]
+    );
+
+    return newStatus;
 };
 
 export const getUnsyncedHabits = async (db) => {
@@ -526,7 +570,7 @@ export async function toggleHabitEntry(
 }
 
 export const toggleHabitEntryToApi = async (db, entry) => {
-  const habit = await getHabits(db, entry.habit_uuid);
+  const habit = await getActiveHabits(db, entry.habit_uuid);
 
   try {
     const res = await api.put("/habits/entries/toggle/", {
@@ -590,7 +634,7 @@ export const toggleHabitEntryToApi = async (db, entry) => {
 };
 
 export const syncHabitEntriesToApi = async (db, entry) => {
-  const habit = await getHabits(db, entry.habit_uuid);
+  const habit = await getActiveHabits(db, entry.habit_uuid);
 
   try {
     const res = await api.put("/habits/entries/sync/", {

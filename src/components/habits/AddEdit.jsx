@@ -9,7 +9,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import { FormLabel, Input, Card, BodyText } from "../ThemeProvider/components";
-import { upsertHabit, getHabits } from "../../db/habitsDb";
+import { upsertHabit, getActiveHabits } from "../../db/habitsDb";
 import uuid from 'react-native-uuid';
 import { useSQLiteContext } from 'expo-sqlite';
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -91,7 +91,7 @@ export default function AddEdit() {
   useEffect(() => {
     if (!id) return;
     const fetchHabit = async () => {
-      let habit = await getHabits(db,id)
+      let habit = await getActiveHabits(db,id)
       setForm(habit)
     };
     fetchHabit();

@@ -1,8 +1,7 @@
 import { router } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { api } from "../../../api";
-import { deleteHabit } from "../../db/habitsDb";
+import { deleteHabit, toggleHabitState } from "../../db/habitsDb";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import DeleteButton from "../common/DeleteButton";
 import { BodyText, Card } from "../ThemeProvider/components";
@@ -15,14 +14,9 @@ export default function HabitRow({ habit, drag, isActive, setRefreshData }) {
     setRefreshData((prev) => prev + 1);
   };
 
-  const handleStateToggle = () => {
-    api
-      .put(`/habits/${habit.id}/`, {
-        ...habit,
-        is_active: !habit.is_active,
-      })
-      .then(() => setRefreshData((prev) => prev + 1))
-      .catch((err) => console.log(err));
+  const handleStateToggle = async() => {
+    await toggleHabitState(db,habit.uuid)
+    setRefreshData(prev => prev + 1)
   };
 
   return (
@@ -130,7 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2E8B8B",
   },
   inactive: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#444",
   },
   toggleText: {
     color: "white",

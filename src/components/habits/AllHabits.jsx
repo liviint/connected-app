@@ -5,9 +5,8 @@ import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";
 import { BodyText } from "../ThemeProvider/components";
-import { getHabits } from "../../db/habitsDb";
+import { getAllHabits } from "../../db/habitsDb";
 import { useSQLiteContext } from 'expo-sqlite';
-import { syncManager } from "../../../utils/syncManager";
 import { AddButton } from "../common/AddButton";
 import ButtonLinks from "../common/ButtonLinks";
 
@@ -21,7 +20,7 @@ export default function HabitsScreen() {
 
   let fetchHabits = async() => {
       if(!isFocused) return
-      let habits = await getHabits(db)
+      let habits = await getAllHabits(db)
       setHabits(habits)
       setLoading(false)
   }
@@ -34,15 +33,6 @@ export default function HabitsScreen() {
 useEffect(() => {
     fetchHabits()
 }, [refreshData]);
-
-useEffect(() => {
-  const unsub = syncManager.on("habits_updated", async () => {
-    const updated = await getHabits(db);
-    setHabits(updated);
-  });
-
-  return unsub;
-}, []);
 
 
   const onDragEnd = ({ data }) => {

@@ -1,4 +1,4 @@
-import { getHabitEntries, getHabits } from "./habitsDb";
+import { getHabitEntries, getActiveHabits } from "./habitsDb";
 // Parse date strings to Date objects
 function parseDate(entry) {
   return {
@@ -150,7 +150,7 @@ function getWeekStart(date) {
 
 
 export let generateHabitStats = async (db, habit_uuid) => {
-    let habit = await getHabits(db,habit_uuid)
+    let habit = await getActiveHabits(db,habit_uuid)
     let entriesData =  await getHabitEntries(db,habit_uuid)
     let entries = sortEntries(entriesData);
 
@@ -207,7 +207,7 @@ export let generateHabitStats = async (db, habit_uuid) => {
 }
 
 export const generateAllHabitsStatsWithBestWorst = async (db, user_uuid) => {
-  const habits = await getHabits(db, null, user_uuid); // get all user habits
+  const habits = await getActiveHabits(db, null, user_uuid);
 
   let totalEntries = 0;
   let completedEntries = 0;

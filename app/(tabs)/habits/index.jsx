@@ -14,7 +14,6 @@ import PageLoader from "../../../src/components/common/PageLoader";
 import { useSQLiteContext } from 'expo-sqlite';
 import { getHabitsForToday , toggleHabitEntry} from "../../../src/db/habitsDb";
 import uuid from 'react-native-uuid';
-import { syncManager } from "../../../utils/syncManager";
 import { AddButton } from "../../../src/components/common/AddButton";
 import ButtonLinks from "../../../src/components/common/ButtonLinks";
 
@@ -30,7 +29,6 @@ export default function HabitEntriesPage() {
   let fetchEntries = async () => {
       if(!isFocused) return
         let entries = await getHabitsForToday(db,uuid)
-        console.log(entries,"hello entries")
         setEntries(entries)
         setLoading(false)
     }
@@ -39,14 +37,6 @@ export default function HabitEntriesPage() {
     fetchEntries()
   }, [isFocused]);
 
-  useEffect(() => {
-    const unsub = syncManager.on("habits_updated", async () => {
-      const updated = await getHabitsForToday(db);
-      setEntries(updated);
-    });
-  
-    return unsub;
-  }, []);
 
   const completed = entries.filter((h) => h.completed).length;
   const total = entries.length;
