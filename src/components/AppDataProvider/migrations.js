@@ -32,11 +32,19 @@ export const addHabitsDeletedAtColumnsIfNeeded = async (db) => {
   const columns = await db.getAllAsync(`PRAGMA table_info(habits);`);
 
   const hasDeletedAt = columns.some(col => col.name === "deleted_at");
+  const hasDeleted = columns.some(col => col.name === "deleted");
 
   if (!hasDeletedAt) {
     await db.runAsync(`
       ALTER TABLE habits
       ADD COLUMN deleted_at TEXT
+    `);
+  }
+
+  if (!hasDeleted) {
+    await db.runAsync(`
+      ALTER TABLE habits
+      ADD COLUMN deleted TEXT
     `);
   }
 };
@@ -45,11 +53,18 @@ export const addHabitEntriesDeletedAtColumnIfNeeded = async (db) => {
   const columns = await db.getAllAsync(`PRAGMA table_info(habit_entries);`);
 
   const hasDeletedAt = columns.some(col => col.name === "deleted_at");
+  const hasDeleted = columns.some(col => col.name === "deleted");
 
   if (!hasDeletedAt) {
     await db.runAsync(`
       ALTER TABLE habit_entries
       ADD COLUMN deleted_at TEXT
+    `);
+  }
+  if (!hasDeleted) {
+    await db.runAsync(`
+      ALTER TABLE habit_entries
+      ADD COLUMN deleted TEXT
     `);
   }
 };

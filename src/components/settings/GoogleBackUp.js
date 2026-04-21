@@ -1,10 +1,17 @@
-import { useState, useEffect } from "react";
-import { StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { StyleSheet, Alert, TouchableOpacity, Switch, View } from "react-native";
 import { Card, BodyText } from "@/src/components/ThemeProvider/components";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import * as SecureStore from "expo-secure-store";
 import { useSQLiteContext } from 'expo-sqlite';
 import { exportDatabase, importDatabase } from "../../db/googleDriveDb";
+import { getSetting, setSetting } from "../../db/settingsDb";
+import NetInfo from "@react-native-community/netinfo";
+
+const isOnline = async () => {
+  const state = await NetInfo.fetch();
+  return state.isConnected;
+};
 
 // Use your WEB_CLIENT_ID here - Google's Native SDK uses it to identify the project
 const WEB_CLIENT_ID = "171579827542-vnlu2ildln3llcnrli2g9rbnogtecrc2.apps.googleusercontent.com";
@@ -13,7 +20,8 @@ const GoogleBackUp = () => {
   const db = useSQLiteContext(); 
   const [isConnected, setIsConnected] = useState(false);
   const [lastBackup, setLastBackup] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [autoBackupEnabled, setAutoBackupEnabled] = useState(true);
+  const hasRunTodayRef = useRef(false);
 
   useEffect(() => {
     // Initial configuration of the Native SDK
@@ -26,12 +34,91 @@ const GoogleBackUp = () => {
     checkConnection();
   }, []);
 
-  const checkConnection = async () => {
-    const token = await SecureStore.getItemAsync("gdrive_token");
-    if (token) {
-      setIsConnected(true);
+  useEffect(() => {
+    const loadSettings = async () => {
+      // Load last backup
+      const last = await getSetting(db, "last_backup_date");
+      if (last) {
+        setLastBackup(new Date(last).toLocaleString());
+      }
+
+      // Load auto backup setting
+      const autoBackup = await getSetting(db, "auto_backup_enabled");
+
+      if (autoBackup === null) {
+        // First time user → set default in DB
+        await setSetting(db, "auto_backup_enabled", "true");
+        setAutoBackupEnabled(true);
+      } else {
+        setAutoBackupEnabled(autoBackup === "true");
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const toggleAutoBackup = async () => {
+    const newValue = !autoBackupEnabled;
+
+    setAutoBackupEnabled(newValue);
+
+    // ✅ Persist to SQLite
+    await setSetting(db, "auto_backup_enabled", newValue ? "true" : "false");
+
+    if (newValue) {
+      Alert.alert("Auto Backup Enabled", "Your data will be backed up daily.");
+    } else {
+      Alert.alert("Auto Backup Disabled", "You can still backup manually anytime.");
     }
   };
+
+  const shouldBackupToday = async () => {
+    const lastBackup = await getSetting(db, "last_backup_date");
+
+    if (!lastBackup) return true;
+
+    const lastDate = new Date(lastBackup).toDateString();
+    const today = new Date().toDateString();
+
+    return lastDate !== today;
+  };
+
+
+const runDailyBackup = async () => {
+  if (hasRunTodayRef.current) return;
+
+  if (!(await isOnline())) return;
+  if (!isConnected) return;
+  if (!autoBackupEnabled) return;
+
+  try {
+    const shouldBackup = await shouldBackupToday();
+
+    if (shouldBackup) {
+      hasRunTodayRef.current = true;
+      await handleBackup();
+    }
+  } catch (error) {
+    console.error("Daily backup error:", error);
+  }
+};
+
+  const checkConnection = async () => {
+  try {
+    const { accessToken } = await GoogleSignin.getTokens();
+    if (accessToken) {
+      setIsConnected(true);
+    }
+  } catch {
+    setIsConnected(false);
+  }
+};
+
+  useEffect(() => {
+    if (isConnected && autoBackupEnabled) {
+      runDailyBackup();
+    }
+  }, [isConnected, autoBackupEnabled]);
 
   const handleConnectGoogle = async () => {
     try {
@@ -121,17 +208,20 @@ const GoogleBackUp = () => {
     );
 
     if (uploadResponse.ok) {
-      setLastBackup(new Date().toLocaleString());
-      Alert.alert("Success", "Backup synced to your Google Drive");
-    } else {
+      const nowISO = new Date().toISOString();
+
+      await setSetting(db, "last_backup_date", nowISO);
+
+      setLastBackup(new Date(nowISO).toLocaleString());
+    }
+
+    else {
       const errorData = await uploadResponse.json();
       console.error("Drive API Error:", errorData);
       throw new Error("Upload failed");
     }
   } catch (error) {
     console.error("Backup Error:", error);
-    // If it's a Network request failed, it's often a connection or URL issue
-    Alert.alert("Error", "Network request failed. Ensure your internet is on and your API is enabled.");
   }
 };
   const handleRestore = async () => {
@@ -224,6 +314,14 @@ const GoogleBackUp = () => {
             <BodyText style={styles.buttonText}>Backup Now</BodyText>
           </TouchableOpacity>
 
+          <View style={styles.settingRow}>
+            <BodyText>Automatic Daily Backup</BodyText>
+            <Switch
+              value={autoBackupEnabled}
+              onValueChange={toggleAutoBackup}
+            />
+          </View>
+
           <TouchableOpacity style={styles.secondaryButton} onPress={handleRestore}>
             <BodyText style={styles.secondaryButtonText}>Restore Data</BodyText>
           </TouchableOpacity>
@@ -253,4 +351,11 @@ const styles = StyleSheet.create({
   secondaryButtonText: { color: "#FF6B6B", fontWeight: "600" },
   logoutText: { color: "#999", fontSize: 13, textDecorationLine: 'underline' },
   helperText: { fontSize: 13, color: "#666", marginTop: 8, lineHeight: 18 },
+  settingRow:{
+    justifyContent:"space-between",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingTop:15,
+    paddingBottom:10,
+  }
 });
