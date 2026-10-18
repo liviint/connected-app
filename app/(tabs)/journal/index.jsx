@@ -20,7 +20,7 @@ import TimeFilters from "../../../src/components/common/TimeFilters";
 import { AddButton } from "../../../src/components/common/AddButton";
 import ButtonLinks from "../../../src/components/common/ButtonLinks";
 import { StatCard } from "../../../src/components/common/statsComponents";
-import { Audio } from "expo-av";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 
 export default function JournalListPage() {
   const db = useSQLiteContext(); 
@@ -33,7 +33,6 @@ export default function JournalListPage() {
   const [moodData,setMoodData] = useState([])
 
   const [playingUuid, setPlayingUuid] = useState(null);
-  const [soundObj, setSoundObj] = useState(null);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -65,43 +64,48 @@ export default function JournalListPage() {
       }
     }
 
-    const toggleCardAudio = async (item) => {
-  // If clicking the same card
-  if (playingUuid === item.uuid) {
-    await soundObj?.pauseAsync();
+
+
+const player = useAudioPlayer(null);
+const status = useAudioPlayerStatus(player);
+
+useEffect(() => {
+  setPosition(status.currentTime ?? 0);
+  setDuration(status.duration ?? 0);
+
+  if (status.didJustFinish) {
     setPlayingUuid(null);
+    setPosition(0);
+  }
+}, [
+  status.currentTime,
+  status.duration,
+  status.didJustFinish,
+]);
+
+const toggleCardAudio = (item) => {
+  if (!item.audio_uri) return;
+
+  if (playingUuid === item.uuid) {
+    if (status.playing) {
+      player.pause();
+      setPlayingUuid(null);
+    } else {
+      player.play();
+      setPlayingUuid(item.uuid);
+    }
+
     return;
   }
 
-  // Stop previous audio
-  if (soundObj) {
-    await soundObj.unloadAsync();
-    setSoundObj(null);
-    setPlayingUuid(null);
-    setPosition(0);
-    setDuration(0);
-  }
+  player.pause();
+  player.replace({ uri: item.audio_uri });
 
-  // Load new audio
-  if (!item.audio_uri) return;
+  setPosition(0);
+  setDuration(0);
+  setPlayingUuid(item.uuid);
 
-  try {
-    const { sound } = await Audio.Sound.createAsync(
-      { uri: item.audio_uri },
-      { shouldPlay: true },
-      (status) => {
-        if (!status.isLoaded) return;
-        setPosition(status.positionMillis);
-        setDuration(status.durationMillis || 0);
-        if (status.didJustFinish) setPlayingUuid(null);
-      }
-    );
-
-    setSoundObj(sound);
-    setPlayingUuid(item.uuid);
-  } catch (err) {
-    console.error("Audio load error:", err);
-  }
+  player.play();
 };
 
   
@@ -189,10 +193,15 @@ export default function JournalListPage() {
         borderRadius: 6,
         alignSelf: "flex-start",
       }}
-      onPress={() => toggleCardAudio(item)}
+      onPress={(event) => {
+    event.stopPropagation();
+    toggleCardAudio(item);
+  }}
     >
       <Text style={{ color: "#fff", fontSize: 12 }}>
-        {playingUuid === item.uuid ? "Pause 🎵" : "Play 🎵"}
+        {playingUuid === item.uuid && status.playing
+          ? "Pause 🎵"
+          : "Play 🎵"}
       </Text>
     </TouchableOpacity>
 
@@ -208,7 +217,10 @@ export default function JournalListPage() {
         <View
           style={{
             height: 4,
-            width: duration ? `${(position / duration) * 100}%` : "0%",
+            width:
+              duration > 0
+                ? `${Math.min((position / duration) * 100, 100)}%`
+                : "0%",
             backgroundColor: "#2E8B8B",
             borderRadius: 2,
           }}
