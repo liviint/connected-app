@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "expo-router";
 import HabitRow from "./HabitRow";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
 import PageLoader from "../common/PageLoader";

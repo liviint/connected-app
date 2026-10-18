@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { useIsFocused } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -7,7 +6,7 @@ import {
   ScrollView,
   Animated,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useIsFocused } from "expo-router";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components";
 import PageLoader from "../../../src/components/common/PageLoader";

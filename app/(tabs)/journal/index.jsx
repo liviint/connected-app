@@ -6,8 +6,7 @@ import {
   ScrollView,
   TouchableOpacity 
 } from "react-native";
-import { Link } from "expo-router";
-import { useIsFocused } from "@react-navigation/native";
+import { Link, useIsFocused } from "expo-router";
 import { Card, BodyText } from "../../../src/components/ThemeProvider/components"
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 import HtmlPreview from "../../../src/components/journal/HtmlPreview";

@@ -10,7 +10,12 @@ export default function Header() {
 
   const NavLink = ({ label, path, isActive }) => (
     <TouchableOpacity 
-      onPress={() => { setMenuOpen(false); router.push(path); }} 
+      onPress={() => { 
+        setMenuOpen(false)
+        console.log(path,"hello path")
+        router.push(path) 
+
+      }} 
     >
       <Text style={[styles.navLink, isActive && styles.activeNav]}>{label}</Text>
     </TouchableOpacity>
@@ -36,6 +41,7 @@ export default function Header() {
             path="/settings" 
             isActive={isActive("/(tabs)/settings")} 
           />
+          
           </View>
 
         

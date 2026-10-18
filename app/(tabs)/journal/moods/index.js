@@ -7,8 +7,7 @@ import {
     Text,
     View,
 } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
-import { useRouter} from "expo-router";
+import { useRouter, useIsFocused} from "expo-router";
 import { BodyText, Card, SecondaryText } from "../../../../src/components/ThemeProvider/components";
 import { AddButton } from "../../../../src/components/common/AddButton";
 import DeleteButton from "../../../../src/components/common/DeleteButton";

@@ -1,6 +1,5 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { HapticTab } from '@/src/components/haptic-tab';
 import { IconSymbol } from '@/src/components/ui/icon-symbol';
 import { useThemeStyles } from '@/src/hooks/useThemeStyles';
 
@@ -12,7 +11,6 @@ export default function TabLayout() {
         backBehavior="history"
         screenOptions={{
           headerShown: false,
-          tabBarButton: HapticTab,
           tabBarActiveTintColor: colors.tint,
           tabBarInactiveTintColor: colors.textMuted, 
           tabBarStyle: {
@@ -27,6 +25,13 @@ export default function TabLayout() {
           },
         }}
       >
+
+        <Tabs.Screen
+          name="settings/index"
+          options={{
+            href: null,
+          }}
+        />
 
       <Tabs.Screen
         name="journal"
@@ -51,83 +56,7 @@ export default function TabLayout() {
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="settings/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="support/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="appearance/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="profile/[id]/index"
-        options={{
-          href: null,
-        }}
-      />
       
-      <Tabs.Screen
-        name="profile/edit/index"
-        options={{
-          href: null,
-        }}
-      />
-      
-      <Tabs.Screen
-        name="feedback/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="login/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="reset-password/index"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="signup/index"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="verify-email/index"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="reset-password-confirm/index"
-        options={{
-          href: null,
-        }}
-      /> 
 
       <Tabs.Screen
         name="[...notfound]"
