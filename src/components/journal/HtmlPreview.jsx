@@ -1,29 +1,38 @@
+
 import { useMemo } from "react";
 import { useWindowDimensions, Text } from "react-native";
-import RenderHtml from "react-native-render-html";
+import RenderHtml from "@native-html/native";
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 function HtmlPreview({ html, maxLength }) {
   const { width } = useWindowDimensions();
   const { colors } = useThemeStyles();
 
+  const formattedHtml = useMemo(() => {
+    if (!html) return "";
+    return `<div>${html}</div>`;
+  }, [html]);
+
   const previewText = useMemo(() => {
     if (!html) return "";
 
-    const plain = html.replace(/<[^>]+>/g, "");
+    const plain = html
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;|&apos;/gi, "'")
+      .replace(/\s+/g, " ")
+      .trim();
 
-    if (maxLength && plain.length > maxLength) {
-      return plain.slice(0, maxLength) + "...";
-    }
-
-    return plain;
+    return maxLength && plain.length > maxLength
+      ? `${plain.slice(0, maxLength).trimEnd()}...`
+      : plain;
   }, [html, maxLength]);
-
-  const formattedHtml = useMemo(() => {
-    if (!html) return "";
-
-    return `<div>${html}</div>`;
-  }, [html]);
 
   const baseStyle = useMemo(
     () => ({
@@ -39,7 +48,9 @@ function HtmlPreview({ html, maxLength }) {
       div: { marginBottom: 8 },
       p: { marginBottom: 8 },
       b: { fontWeight: "bold" },
+      strong: { fontWeight: "bold" },
       i: { fontStyle: "italic" },
+      em: { fontStyle: "italic" },
       u: { textDecorationLine: "underline" },
     }),
     []
@@ -47,18 +58,13 @@ function HtmlPreview({ html, maxLength }) {
 
   if (maxLength) {
     return (
-      <Text
-        style={{
-          color: colors.text,
-          fontSize: 14,
-          lineHeight: 20,
-        }}
-        numberOfLines={3}
-      >
+      <Text style={baseStyle} numberOfLines={3}>
         {previewText}
       </Text>
     );
   }
+
+  if (!formattedHtml) return null;
 
   return (
     <RenderHtml
