@@ -1,7 +1,7 @@
 
 import { useMemo } from "react";
 import { useWindowDimensions, Text } from "react-native";
-import RenderHtml from "@native-html/native";
+import RenderHtml from '@native-html/render';
 import { useThemeStyles } from "../../../src/hooks/useThemeStyles";
 
 function HtmlPreview({ html, maxLength }) {
