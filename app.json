@@ -99,7 +99,6 @@
     },
     "extra": {
       "router": {},
-      "apiUrl": "https://api.zeniahub.com/api",
       "eas": {
         "projectId": "09a5d041-42bc-48f7-b77a-e92ed86feb89"
       }
