@@ -1,0 +1,95 @@
+import { usePathname, useRouter } from "expo-router";
+import {
+    Linking,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+
+export default function Header({ menuOpen, setMenuOpen }) {
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const items = [
+        { label: "Settings", path: "/settings", type: "internal" },
+    ];
+
+    const handlePress = (item) => {
+        setMenuOpen(false);
+
+        if (item.type === "external") {
+            Linking.openURL(item.path);
+        } else {
+            router.push(item.path);
+        }
+    };
+
+    return (
+        <View>
+            <Modal
+                visible={menuOpen}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setMenuOpen(false)}
+            >
+                {/* BACKDROP */}
+                <Pressable
+                    style={styles.backdrop}
+                    onPress={() => setMenuOpen(false)}
+                >
+                    {/* DRAWER */}
+                    <Pressable style={styles.drawer}>
+                        {items.map((item) => (
+                            <TouchableOpacity
+                                key={item.label}
+                                style={[
+                                    styles.link,
+                                    pathname === item.path && styles.active,
+                                ]}
+                                onPress={() => handlePress(item)}
+                            >
+                                <Text style={styles.linkText}>
+                                    {item.label}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </Pressable>
+                </Pressable>
+            </Modal>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    backdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        flexDirection: "row",
+    },
+
+    drawer: {
+        width: 280,
+        backgroundColor: "#2E8B8B",
+        paddingTop: 60,
+        paddingHorizontal: 20,
+    },
+
+    link: {
+        paddingVertical: 14,
+    },
+
+    linkText: {
+        color: "#FAF9F7",
+        fontSize: 17,
+        fontWeight: "600",
+    },
+
+    active: {
+        borderLeftWidth: 4,
+        borderLeftColor: "#FF6B6B",
+        paddingLeft: 10,
+    },
+});
